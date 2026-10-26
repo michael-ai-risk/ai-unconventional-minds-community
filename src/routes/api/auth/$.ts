@@ -64,6 +64,24 @@ export const Route = createFileRoute("/api/auth/$")({
             return auth.handler(request);
           })();
         }
+        if (path === "/api/auth/sign-in/social") {
+          if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)
+            return Response.json(
+              { error: "Google sign-in is not configured yet." },
+              { status: 503, headers: { "Cache-Control": "no-store" } },
+            );
+          return (async () => {
+            const length = Number(request.headers.get("content-length") || 0);
+            if (length > 4_000)
+              return Response.json({ error: "Invalid request." }, { status: 413 });
+            const body = (await request.clone().json().catch(() => null)) as
+              | { provider?: unknown }
+              | null;
+            if (body?.provider !== "google")
+              return Response.json({ error: "Only Google sign-in is supported." }, { status: 400 });
+            return auth.handler(request);
+          })();
+        }
         if (path !== "/api/auth/sign-out")
           return Response.json({ error: "Authentication endpoint unavailable." }, { status: 404 });
         return auth.handler(request);

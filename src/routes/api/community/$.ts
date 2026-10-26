@@ -105,42 +105,26 @@ async function hasAdminRole(actor: Actor): Promise<boolean> {
   return !!role;
 }
 
-async function digest(value: string): Promise<string> {
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
+async function googleActor(request: Request): Promise<Actor | null> {
+  const actor = await signedIn(request);
+  if (!actor) return null;
+  const account = await env.DB.prepare(
+    `SELECT 1 FROM "account" WHERE userId=? AND providerId='google' LIMIT 1`,
+  )
+    .bind(actor.id)
+    .first();
+  return account ? actor : null;
 }
 
-function createEditToken(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(32));
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-async function editTokenHash(request: Request): Promise<string | null> {
-  const token = request.headers.get("x-content-token");
-  return token && /^[A-Za-z0-9_-]{40,50}$/.test(token) ? digest(token) : null;
-}
-
-async function ownsContent(
-  request: Request,
-  table: "posts" | "comments",
-  id: string,
-): Promise<boolean> {
-  const tokenHash = await editTokenHash(request);
-  if (!tokenHash) return false;
-  const row = await env.DB.prepare(`SELECT 1 FROM ${table} WHERE id=? AND owner_token_hash=?`)
-    .bind(id, tokenHash)
+async function ownsContent(actor: Actor, table: "posts" | "comments", id: string): Promise<boolean> {
+  const row = await env.DB.prepare(`SELECT 1 FROM ${table} WHERE id=? AND author_id=?`)
+    .bind(id, actor.id)
     .first();
   return !!row;
 }
 
-async function validStaff(request: Request): Promise<Actor | null> {
-  const actor = await signedIn(request);
-  return actor && (await hasStaffRole(actor)) ? actor : null;
-}
-
 async function publicPosts(request: Request) {
+  const actor = await signedIn(request);
   const url = new URL(request.url);
   const category = text(url.searchParams.get("category"), 1, 40);
   const query = text(url.searchParams.get("q"), 1, 100);
@@ -159,7 +143,7 @@ async function publicPosts(request: Request) {
   }
   bindings.push(limit, offset);
   const rows = await env.DB.prepare(
-    `SELECT p.id,p.category_slug,p.title,p.body,p.author_name,p.created_at,p.updated_at,
+    `SELECT p.id,p.author_id,p.category_slug,p.title,p.body,p.author_name,p.created_at,p.updated_at,
        CASE WHEN pr.visibility = 'public' THEN pr.avatar_url ELSE NULL END AS author_avatar,
        (SELECT COUNT(*) FROM comments c WHERE c.post_id=p.id AND c.status='visible') AS comment_count
      FROM posts p LEFT JOIN profiles pr ON pr.user_id=p.author_id LEFT JOIN "user" u ON u.id=p.author_id
@@ -168,32 +152,42 @@ async function publicPosts(request: Request) {
   )
     .bind(...bindings)
     .all();
-  return json({ posts: rows.results });
+  return json({
+    posts: rows.results.map(({ author_id, ...post }) => ({
+      ...post,
+      is_owner: !!actor && author_id === actor.id,
+    })),
+  });
 }
 
 async function postDetail(request: Request, id: string) {
   const actor = await signedIn(request);
-  const tokenHash = await editTokenHash(request);
+  const staff = actor ? await hasStaffRole(actor) : false;
   const post = await env.DB.prepare(
-    `SELECT p.id,p.category_slug,p.title,p.body,p.author_name,p.status,p.created_at,p.updated_at,
+    `SELECT p.id,p.author_id,p.category_slug,p.title,p.body,p.author_name,p.status,p.created_at,p.updated_at,
        CASE WHEN pr.visibility = 'public' THEN pr.avatar_url ELSE NULL END AS author_avatar
      FROM posts p LEFT JOIN profiles pr ON pr.user_id=p.author_id LEFT JOIN "user" u ON u.id=p.author_id
-     WHERE p.id=? AND (p.status='visible' OR p.owner_token_hash=?)`,
+     WHERE p.id=? AND (p.status='visible' OR (?=1) OR p.author_id=?)`,
   )
-    .bind(id, tokenHash ?? "")
+    .bind(id, staff ? 1 : 0, actor?.id ?? "")
     .first();
   if (!post) return fail(404, "Post not found");
-  if (post["status"] !== "visible" && !(await hasStaffRole(actor ?? { id: "" })) && !tokenHash)
-    return fail(404, "Post not found");
   const comments = await env.DB.prepare(
-    `SELECT c.id,c.post_id,c.parent_id,c.body,c.author_name,c.status,c.created_at,c.updated_at,
+    `SELECT c.id,c.author_id,c.post_id,c.parent_id,c.body,c.author_name,c.status,c.created_at,c.updated_at,
        CASE WHEN pr.visibility = 'public' THEN pr.avatar_url ELSE NULL END AS author_avatar
      FROM comments c LEFT JOIN profiles pr ON pr.user_id=c.author_id LEFT JOIN "user" u ON u.id=c.author_id
-     WHERE c.post_id=? AND (c.status='visible' OR (? IS NOT NULL AND c.owner_token_hash=?)) ORDER BY c.created_at ASC LIMIT 200`,
+     WHERE c.post_id=? AND (c.status='visible' OR (?=1) OR c.author_id=?) ORDER BY c.created_at ASC LIMIT 200`,
   )
-    .bind(id, tokenHash, tokenHash ?? "")
+    .bind(id, staff ? 1 : 0, actor?.id ?? "")
     .all();
-  return json({ post, comments: comments.results });
+  const { author_id, ...publicPost } = post;
+  return json({
+    post: { ...publicPost, is_owner: !!actor && author_id === actor.id },
+    comments: comments.results.map(({ author_id: commentAuthorId, ...comment }) => ({
+      ...comment,
+      is_owner: !!actor && commentAuthorId === actor.id,
+    })),
+  });
 }
 
 async function listPublic(table: "events" | "articles", slug?: string) {
@@ -211,12 +205,12 @@ async function listPublic(table: "events" | "articles", slug?: string) {
   return json({ [table]: rows.results });
 }
 
-async function createPost(request: Request) {
+async function createPost(request: Request, actor: Actor) {
   const body = await bodyObject(request, 9_000);
   const title = text(body?.title, 3, 160);
   const content = text(body?.body, 1, 8_000);
   const category = text(body?.category, 1, 40);
-  const displayName = text(body?.displayName ?? "", 0, 60) || "访客 / Guest";
+  const displayName = text(body?.displayName ?? "", 0, 60) || "Google 用户";
   if (!title || !content || !category)
     return fail(400, "Check the title, body, and category lengths.");
   const categoryRow = await env.DB.prepare("SELECT slug FROM categories WHERE slug=? AND enabled=1")
@@ -224,19 +218,18 @@ async function createPost(request: Request) {
     .first();
   if (!categoryRow) return fail(400, "Unknown category.");
   const id = crypto.randomUUID();
-  const editToken = createEditToken();
   await env.DB.prepare(
-    "INSERT INTO posts(id,author_id,author_name,owner_token_hash,category_slug,title,body,status) VALUES(?,?,?,?,?,?,?,'pending')",
+    "INSERT INTO posts(id,author_id,author_name,category_slug,title,body,status) VALUES(?,?,?,?,?,?,'visible')",
   )
-    .bind(id, "community-guest", displayName, await digest(editToken), category, title, content)
+    .bind(id, actor.id, displayName, category, title, content)
     .run();
-  return json({ id, editToken, status: "pending" }, 201);
+  return json({ id, status: "visible" }, 201);
 }
 
-async function createComment(request: Request, postId: string) {
+async function createComment(request: Request, postId: string, actor: Actor) {
   const body = await bodyObject(request, 5_000);
   const content = text(body?.body, 1, 4_000);
-  const displayName = text(body?.displayName ?? "", 0, 60) || "访客 / Guest";
+  const displayName = text(body?.displayName ?? "", 0, 60) || "Google 用户";
   const parentId = typeof body?.parentId === "string" ? body.parentId : null;
   if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
   const post = await env.DB.prepare("SELECT id FROM posts WHERE id=? AND status='visible'")
@@ -252,13 +245,12 @@ async function createComment(request: Request, postId: string) {
     if (!parent) return fail(400, "Reply target is invalid.");
   }
   const id = crypto.randomUUID();
-  const editToken = createEditToken();
   await env.DB.prepare(
-    "INSERT INTO comments(id,post_id,author_id,author_name,owner_token_hash,parent_id,body,status) VALUES(?,?,?,?,?,?,?,'pending')",
+    "INSERT INTO comments(id,post_id,author_id,author_name,parent_id,body,status) VALUES(?,?,?,?,?,?,'visible')",
   )
-    .bind(id, postId, "community-guest", displayName, await digest(editToken), parentId, content)
+    .bind(id, postId, actor.id, displayName, parentId, content)
     .run();
-  return json({ id, editToken, status: "pending" }, 201);
+  return json({ id, status: "visible" }, 201);
 }
 
 async function createReport(request: Request, type: string, id: string) {
@@ -284,18 +276,6 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
   const isStaff = isAdmin || (await hasStaffRole(actor));
   if (!isStaff) return fail(403, "Staff access required.");
   const [resource, id] = segments;
-  if (resource === "posts" && !id && request.method === "GET") {
-    const rows = await env.DB.prepare(
-      "SELECT id,author_name,category_slug,title,body,status,created_at FROM posts WHERE status='pending' ORDER BY created_at ASC LIMIT 100",
-    ).all();
-    return json({ posts: rows.results });
-  }
-  if (resource === "comments" && !id && request.method === "GET") {
-    const rows = await env.DB.prepare(
-      "SELECT id,post_id,parent_id,author_name,body,status,created_at FROM comments WHERE status='pending' ORDER BY created_at ASC LIMIT 200",
-    ).all();
-    return json({ comments: rows.results });
-  }
   if (resource === "reports" && request.method === "GET") {
     const rows = await env.DB.prepare(
       `SELECT r.*, p.title AS post_title, c.body AS comment_body
@@ -320,7 +300,7 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
   if (resource === "posts" && id && request.method === "PATCH") {
     const body = await bodyObject(request, 9_000);
     const status = body?.status;
-    if (!["hidden", "visible", "pending"].includes(String(status)))
+    if (status !== "hidden")
       return fail(400, "Invalid moderation status.");
     const result = await env.DB.prepare(
       "UPDATE posts SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
@@ -332,7 +312,7 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
   if (resource === "comments" && id && request.method === "PATCH") {
     const body = await bodyObject(request, 5_000);
     const status = body?.status;
-    if (!["hidden", "visible", "pending"].includes(String(status)))
+    if (status !== "hidden")
       return fail(400, "Invalid moderation status.");
     const result = await env.DB.prepare(
       "UPDATE comments SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
@@ -488,6 +468,11 @@ async function handle(request: Request) {
   if (request.method === "GET") {
     if (resource === "posts" && !id) return publicPosts(request);
     if (resource === "posts" && id) return postDetail(request, id);
+    if (resource === "session")
+      return json({
+        googleConfigured: !!env.GOOGLE_CLIENT_ID && !!env.GOOGLE_CLIENT_SECRET,
+        canPost: !!(await googleActor(request)),
+      });
     if (resource === "events") return listPublic("events", id);
     if (resource === "articles") return listPublic("articles", id);
     if (resource === "categories") {
@@ -511,25 +496,31 @@ async function handle(request: Request) {
     return adminApi(request, actor, segments.slice(1));
   }
 
-  if (resource === "posts" && !id && request.method === "POST") return createPost(request);
-  if (resource === "posts" && id && subresource === "comments" && request.method === "POST")
-    return createComment(request, id);
+  if (resource === "posts" && !id && request.method === "POST") {
+    const actor = await googleActor(request);
+    if (!actor) return fail(401, "Sign in with Google to publish a post.");
+    return createPost(request, actor);
+  }
+  if (resource === "posts" && id && subresource === "comments" && request.method === "POST") {
+    const actor = await googleActor(request);
+    if (!actor) return fail(401, "Sign in with Google to reply.");
+    return createComment(request, id, actor);
+  }
   if (resource === "posts" && id && request.method === "PATCH") {
     const actor = await signedIn(request);
     const staff = actor ? await hasStaffRole(actor) : false;
-    if (!staff && !(await ownsContent(request, "posts", id)))
-      return fail(403, "The private edit key is invalid or missing.");
+    if (!actor || (!staff && !(await ownsContent(actor, "posts", id))))
+      return fail(403, "Sign in with the account that owns this post.");
     const body = await bodyObject(request, 9_000);
     if (!body) return fail(400, "Invalid request data.");
     const title = text(body.title, 3, 160);
     const content = text(body.body, 1, 8_000);
     if (!title || !content) return fail(400, "Check the title and body lengths.");
-    const tokenHash = await editTokenHash(request);
     const result = await env.DB.prepare(
       `UPDATE posts SET title=?,body=?,updated_at=CURRENT_TIMESTAMP
-       WHERE id=? AND (?=1 OR owner_token_hash=?) AND status != 'hidden'`,
+       WHERE id=? AND (?=1 OR author_id=?) AND status != 'hidden'`,
     )
-      .bind(title, content, id, staff ? 1 : 0, tokenHash ?? "")
+      .bind(title, content, id, staff ? 1 : 0, actor.id)
       .run();
     return result.meta.changes
       ? json({ updated: true })
@@ -538,13 +529,12 @@ async function handle(request: Request) {
   if (resource === "posts" && id && request.method === "DELETE") {
     const actor = await signedIn(request);
     const staff = actor ? await hasStaffRole(actor) : false;
-    if (!staff && !(await ownsContent(request, "posts", id)))
-      return fail(403, "The private edit key is invalid or missing.");
-    const tokenHash = await editTokenHash(request);
+    if (!actor || (!staff && !(await ownsContent(actor, "posts", id))))
+      return fail(403, "Sign in with the account that owns this post.");
     const result = await env.DB.prepare(
-      "DELETE FROM posts WHERE id=? AND (?=1 OR owner_token_hash=?)",
+      "DELETE FROM posts WHERE id=? AND (?=1 OR author_id=?)",
     )
-      .bind(id, staff ? 1 : 0, tokenHash ?? "")
+      .bind(id, staff ? 1 : 0, actor.id)
       .run();
     return result.meta.changes
       ? json({ deleted: true })
@@ -553,16 +543,15 @@ async function handle(request: Request) {
   if (resource === "comments" && id && request.method === "PATCH") {
     const actor = await signedIn(request);
     const staff = actor ? await hasStaffRole(actor) : false;
-    if (!staff && !(await ownsContent(request, "comments", id)))
-      return fail(403, "The private edit key is invalid or missing.");
+    if (!actor || (!staff && !(await ownsContent(actor, "comments", id))))
+      return fail(403, "Sign in with the account that owns this comment.");
     const body = await bodyObject(request, 5_000);
     const content = text(body?.body, 1, 4_000);
     if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
-    const tokenHash = await editTokenHash(request);
     const result = await env.DB.prepare(
-      `UPDATE comments SET body=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND (?=1 OR owner_token_hash=?) AND status != 'hidden'`,
+      `UPDATE comments SET body=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND (?=1 OR author_id=?) AND status != 'hidden'`,
     )
-      .bind(content, id, staff ? 1 : 0, tokenHash ?? "")
+      .bind(content, id, staff ? 1 : 0, actor.id)
       .run();
     return result.meta.changes
       ? json({ updated: true })
@@ -571,13 +560,12 @@ async function handle(request: Request) {
   if (resource === "comments" && id && request.method === "DELETE") {
     const actor = await signedIn(request);
     const staff = actor ? await hasStaffRole(actor) : false;
-    if (!staff && !(await ownsContent(request, "comments", id)))
-      return fail(403, "The private edit key is invalid or missing.");
-    const tokenHash = await editTokenHash(request);
+    if (!actor || (!staff && !(await ownsContent(actor, "comments", id))))
+      return fail(403, "Sign in with the account that owns this comment.");
     const result = await env.DB.prepare(
-      "DELETE FROM comments WHERE id=? AND (?=1 OR owner_token_hash=?)",
+      "DELETE FROM comments WHERE id=? AND (?=1 OR author_id=?)",
     )
-      .bind(id, staff ? 1 : 0, tokenHash ?? "")
+      .bind(id, staff ? 1 : 0, actor.id)
       .run();
     return result.meta.changes
       ? json({ deleted: true })

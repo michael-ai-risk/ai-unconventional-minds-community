@@ -13,12 +13,17 @@ export const auth = betterAuth({
     minPasswordLength: 12,
     maxPasswordLength: 128,
   },
-  rateLimit: {
-    enabled: true,
-    storage: "database",
-    window: 60,
-    max: 10,
-  },
+  ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+    ? {
+        socialProviders: {
+          google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+          },
+        },
+      }
+    : {}),
+  rateLimit: { enabled: false },
   trustedOrigins: [env.SITE_ORIGIN],
   advanced: { database: { validateSchema: false } },
   plugins: [tanstackStartCookies()],

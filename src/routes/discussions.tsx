@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
 
 type Category = { slug: string; title_zh: string; title_en: string };
@@ -12,6 +13,7 @@ type Post = {
   author_name: string;
   comment_count: number;
   status?: string;
+  is_owner?: boolean;
 };
 type Comment = {
   id: string;
@@ -20,11 +22,9 @@ type Comment = {
   created_at: string;
   parent_id: string | null;
   status?: string;
+  is_owner?: boolean;
 };
-type ContentKeys = Record<string, string>;
-type ApiResult = Record<string, unknown> & { id?: string; editToken?: string; status?: string };
-
-const contentKeysStorage = "ai-station-content-keys";
+type ApiResult = Record<string, unknown> & { id?: string; status?: string };
 
 export const Route = createFileRoute("/discussions")({
   head: () => ({ meta: [{ title: "社区讨论 · AI非正常人类情报站" }] }),
@@ -34,14 +34,12 @@ export const Route = createFileRoute("/discussions")({
 async function api<T extends Record<string, unknown> = Record<string, unknown>>(
   path: string,
   init?: RequestInit,
-  token?: string,
 ): Promise<T> {
   const response = await fetch("/api/community/" + path, {
-    credentials: "omit",
+    credentials: "include",
     ...init,
     headers: {
       ...(init?.body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { "X-Content-Token": token } : {}),
       ...init?.headers,
     },
   });
@@ -56,18 +54,10 @@ async function api<T extends Record<string, unknown> = Record<string, unknown>>(
   return data as T;
 }
 
-function readContentKeys(): ContentKeys {
-  try {
-    const value: unknown = JSON.parse(localStorage.getItem(contentKeysStorage) || "{}");
-    return value && typeof value === "object" ? (value as ContentKeys) : {};
-  } catch {
-    return {};
-  }
-}
-
 function DiscussionsPage() {
   const { lang } = useI18n();
   const en = lang === "en";
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState("all");
@@ -79,6 +69,10 @@ function DiscussionsPage() {
   const [body, setBody] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [posting, setPosting] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authStatusLoaded, setAuthStatusLoaded] = useState(false);
+  const [googleConfigured, setGoogleConfigured] = useState(false);
+  const [canPost, setCanPost] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [commentDraft, setCommentDraft] = useState("");
@@ -90,32 +84,7 @@ function DiscussionsPage() {
   const [reportReason, setReportReason] = useState("");
   const [editCommentId, setEditCommentId] = useState<string | null>(null);
   const [editCommentBody, setEditCommentBody] = useState("");
-  const [keys, setKeys] = useState<ContentKeys>({});
-  const [lastKey, setLastKey] = useState("");
-  const [lastContentId, setLastContentId] = useState("");
 
-  const persistKeys = (next: ContentKeys) => {
-    try {
-      localStorage.setItem(contentKeysStorage, JSON.stringify(next));
-      return true;
-    } catch {
-      return false;
-    }
-  };
-  const saveKey = (kind: "post" | "comment", id: string, token: string) => {
-    const next = { ...keys, [`${kind}:${id}`]: token };
-    setKeys(next);
-    if (!persistKeys(next)) {
-      setMessage(
-        en
-          ? "Browser storage is unavailable. Save the private edit key shown below; it will not survive closing this page."
-          : "浏览器存储不可用。请保存下方私密管理凭证；关闭页面后它不会保留。",
-      );
-    }
-    setLastKey(token);
-    setLastContentId(kind + ":" + id);
-  };
-  const tokenFor = (kind: "post" | "comment", id: string) => keys[`${kind}:${id}`];
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -136,8 +105,47 @@ function DiscussionsPage() {
     }
   }, [category, query]);
 
-  useEffect(() => setKeys(readContentKeys()), []);
   useEffect(() => void load(), [load]);
+
+  useEffect(() => {
+    let active = true;
+    void api<{ googleConfigured?: boolean; canPost?: boolean }>("session")
+      .then((result) => {
+        if (!active) return;
+        setGoogleConfigured(result.googleConfigured === true);
+        setCanPost(result.canPost === true);
+        setAuthStatusLoaded(true);
+      })
+      .catch((e) => {
+        if (active) {
+          setError(e instanceof Error ? e.message : String(e));
+          setAuthStatusLoaded(true);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [session?.user?.id]);
+
+  const signInWithGoogle = async () => {
+    setError("");
+    setAuthBusy(true);
+    try {
+      const result = await authClient.signIn.social({ provider: "google", callbackURL: "/discussions" });
+      if (result.error) throw new Error(result.error.message || (en ? "Google sign-in failed" : "Google 登录失败"));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const signOut = async () => {
+    setError("");
+    const result = await authClient.signOut();
+    if (result.error) setError(result.error.message || (en ? "Sign-out failed" : "退出登录失败"));
+    setCanPost(false);
+  };
 
   const openPost = async (id: string) => {
     if (expanded === id) {
@@ -147,17 +155,7 @@ function DiscussionsPage() {
     setExpanded(id);
     setError("");
     try {
-      const result = await api<{ post?: Post; comments?: Comment[] }>(
-        "posts/" + id,
-        undefined,
-        tokenFor("post", id),
-      );
-      if (result.post?.status === "pending")
-        setMessage(
-          en
-            ? "Your post is awaiting review."
-            : "你的讨论正在等待审核。帖子内容只对持有管理凭证的你可见。 ",
-        );
+      const result = await api<{ post?: Post; comments?: Comment[] }>("posts/" + id);
       setComments((previous) => ({ ...previous, [id]: result.comments ?? [] }));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -170,7 +168,7 @@ function DiscussionsPage() {
     setError("");
     setMessage("");
     try {
-      const result = await api<ApiResult>("posts", {
+      await api<ApiResult>("posts", {
         method: "POST",
         body: JSON.stringify({
           title,
@@ -179,14 +177,9 @@ function DiscussionsPage() {
           displayName,
         }),
       });
-      if (result.id && result.editToken) saveKey("post", result.id, result.editToken);
       setTitle("");
       setBody("");
-      setMessage(
-        en
-          ? "Submitted for review. Your private edit key is shown below."
-          : "已提交审核。你的私密管理凭证显示在下方。",
-      );
+      setMessage(en ? "Your post is now public." : "帖子已发布并公开显示。");
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -200,7 +193,7 @@ function DiscussionsPage() {
     setError("");
     setMessage("");
     try {
-      const result = await api<ApiResult>("posts/" + postId + "/comments", {
+      await api<ApiResult>("posts/" + postId + "/comments", {
         method: "POST",
         body: JSON.stringify({
           body: commentDraft,
@@ -208,15 +201,10 @@ function DiscussionsPage() {
           displayName,
         }),
       });
-      if (result.id && result.editToken) saveKey("comment", result.id, result.editToken);
       setCommentDraft("");
       setReplyTo(null);
-      setMessage(en ? "Reply submitted for review." : "回复已提交审核。");
-      const resultAfter = await api<{ comments?: Comment[] }>(
-        "posts/" + postId,
-        undefined,
-        result.editToken,
-      );
+      setMessage(en ? "Your reply is now public." : "回复已发布并公开显示。");
+      const resultAfter = await api<{ comments?: Comment[] }>("posts/" + postId);
       setComments((previous) => ({ ...previous, [postId]: resultAfter.comments ?? [] }));
       await load();
     } catch (e) {
@@ -234,7 +222,6 @@ function DiscussionsPage() {
           method: "PATCH",
           body: JSON.stringify({ title: editTitle, body: editBody }),
         },
-        tokenFor("post", postId),
       );
       setEditId(null);
       await load();
@@ -246,11 +233,7 @@ function DiscussionsPage() {
     if (!window.confirm(en ? "Delete this post and its replies?" : "删除这条帖子及其回复？"))
       return;
     try {
-      await api("posts/" + postId, { method: "DELETE" }, tokenFor("post", postId));
-      const next = { ...keys };
-      delete next[`post:${postId}`];
-      setKeys(next);
-      persistKeys(next);
+      await api("posts/" + postId, { method: "DELETE" });
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -265,13 +248,10 @@ function DiscussionsPage() {
           method: "PATCH",
           body: JSON.stringify({ body: editCommentBody }),
         },
-        tokenFor("comment", commentId),
       );
       setEditCommentId(null);
       const result = await api<{ comments?: Comment[] }>(
         "posts/" + postId,
-        undefined,
-        tokenFor("post", postId),
       );
       setComments((previous) => ({ ...previous, [postId]: result.comments ?? [] }));
     } catch (e) {
@@ -281,16 +261,8 @@ function DiscussionsPage() {
   const deleteComment = async (commentId: string, postId: string) => {
     if (!window.confirm(en ? "Delete your reply?" : "删除这条回复？")) return;
     try {
-      await api("comments/" + commentId, { method: "DELETE" }, tokenFor("comment", commentId));
-      const next = { ...keys };
-      delete next[`comment:${commentId}`];
-      setKeys(next);
-      persistKeys(next);
-      const result = await api<{ comments?: Comment[] }>(
-        "posts/" + postId,
-        undefined,
-        tokenFor("post", postId),
-      );
+      await api("comments/" + commentId, { method: "DELETE" });
+      const result = await api<{ comments?: Comment[] }>("posts/" + postId);
       setComments((previous) => ({ ...previous, [postId]: result.comments ?? [] }));
       await load();
     } catch (e) {
@@ -320,8 +292,8 @@ function DiscussionsPage() {
       <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{en ? "Discussions" : "社区讨论"}</h1>
       <p className="mt-5 max-w-3xl text-lg text-muted-foreground">
         {en
-          ? "Read and join in without an account. A nickname is optional; new contributions are reviewed before they appear publicly."
-          : "无需注册即可浏览、发帖和回复。昵称自愿填写；新内容会先审核，再公开显示。"}
+          ? "Browse freely. Sign in with Google to post or reply; contributions appear immediately."
+          : "浏览无需登录。使用 Google 登录后即可发帖和回复，内容会立即公开显示。"}
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
         <input
@@ -355,45 +327,54 @@ function DiscussionsPage() {
           {message}
         </p>
       )}
-      {lastKey && (
-        <div className="paper mt-4 border-2 border-foreground p-4" role="status">
+      <div className="paper mt-6 flex flex-wrap items-center justify-between gap-4 border-2 border-foreground p-4">
+        <div>
           <p className="font-bold">
-            {en ? "Private edit key — save it somewhere safe" : "私密管理凭证——请妥善保存"}
+            {sessionPending || !authStatusLoaded
+              ? en
+                ? "Checking Google sign-in…"
+                : "正在确认 Google 登录状态…"
+              : canPost
+                ? en
+                  ? "Signed in with Google. You can post and reply."
+                  : "已使用 Google 登录，可以发帖和回复。"
+                : googleConfigured
+                  ? en
+                    ? "Sign in with Google to post and reply."
+                    : "发帖和回复需要先使用 Google 登录。"
+                  : en
+                    ? "Google sign-in is not configured for this preview yet."
+                    : "此预览环境尚未配置 Google 登录。"}
           </p>
-          <p className="mt-1 font-mono text-xs">
-            {en ? "Reference: " : "内容编号："}
-            {lastContentId}
-          </p>
-          <p className="mt-1 text-sm">
-            {en
-              ? "It is stored in this browser for convenience. Anyone with this key can edit or delete this contribution."
-              : "为方便起见，本浏览器也会保存一份。持有此凭证的人可以修改或删除对应内容。"}
-          </p>
-          <div className="mt-2 flex gap-2">
-            <input
-              readOnly
-              value={lastKey}
-              aria-label={en ? "Private edit key" : "私密管理凭证"}
-              className="min-w-0 flex-1 border border-foreground bg-transparent p-2 font-mono text-xs"
-            />
-            <button
-              type="button"
-              onClick={() => void navigator.clipboard?.writeText(lastKey)}
-              className="border-2 border-foreground px-3 py-2 font-bold"
-            >
-              {en ? "Copy" : "复制"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setLastKey("")}
-              aria-label={en ? "Hide private key" : "隐藏管理凭证"}
-              className="px-2"
-            >
-              ×
-            </button>
-          </div>
+          {canPost && session?.user?.email && (
+            <p className="mt-1 text-sm text-muted-foreground">{session.user.email}</p>
+          )}
         </div>
-      )}
+        {canPost ? (
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="border-2 border-foreground px-4 py-2 font-bold"
+          >
+            {en ? "Sign out" : "退出登录"}
+          </button>
+        ) : googleConfigured ? (
+          <button
+            type="button"
+            disabled={authBusy || sessionPending}
+            onClick={() => void signInWithGoogle()}
+            className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {authBusy
+              ? en
+                ? "Opening Google…"
+                : "正在打开 Google…"
+              : en
+                ? "Sign in with Google"
+                : "使用 Google 登录"}
+          </button>
+        ) : null}
+      </div>
       <form
         onSubmit={(event) => void createPost(event)}
         className="paper mt-8 border-2 border-foreground p-5 md:p-7"
@@ -434,16 +415,16 @@ function DiscussionsPage() {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <span className="text-sm text-muted-foreground">{body.length}/8000</span>
           <button
-            disabled={posting}
+            disabled={posting || !canPost}
             className="bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-50"
           >
-            {posting ? (en ? "Posting…" : "提交中…") : en ? "Post for review" : "提交审核"}
+            {posting ? (en ? "Posting…" : "提交中…") : en ? "Publish post" : "发布帖子"}
           </button>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
           {en
-            ? "No email, password, or real name. Keep your private edit key if you may want to change your post."
-            : "不需要邮箱、密码或真实姓名。如果以后想修改内容，请保存私密管理凭证。"}
+            ? "Google sign-in is required to publish. Your email is not shown publicly."
+            : "发布需要 Google 登录；你的邮箱不会公开显示。"}
         </p>
       </form>
       <section className="mt-10 space-y-5" aria-live="polite">
@@ -529,7 +510,7 @@ function DiscussionsPage() {
                       : "查看 / 回复"}{" "}
                   ↗
                 </button>
-                {tokenFor("post", post.id) && (
+                {post.is_owner && (
                   <>
                     <button
                       onClick={() => {
@@ -606,7 +587,7 @@ function DiscussionsPage() {
                           >
                             {en ? "Report" : "举报"}
                           </button>{" "}
-                          {tokenFor("comment", comment.id) && editCommentId !== comment.id && (
+                          {comment.is_owner && editCommentId !== comment.id && (
                             <>
                               <button
                                 onClick={() => {
@@ -656,8 +637,11 @@ function DiscussionsPage() {
                     />
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <span className="text-xs">{commentDraft.length}/4000</span>
-                      <button className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50">
-                        {en ? "Submit reply for review" : "提交回复审核"}
+                      <button
+                        disabled={!canPost}
+                        className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {en ? "Publish reply" : "发布回复"}
                       </button>
                     </div>
                   </form>

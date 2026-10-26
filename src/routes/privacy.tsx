@@ -48,29 +48,29 @@ function PrivacyPage() {
         {lang === "zh" ? "隐私说明" : "Privacy"}
       </h1>
       <div className="prose-zine mt-8">
-        <h2>{lang === "zh" ? "无需注册" : "No account required"}</h2>
+        <h2>{lang === "zh" ? "Google 登录" : "Google sign-in"}</h2>
         <p>
           {lang === "zh"
-            ? "浏览、发帖、评论和举报都不需要会员注册、邮箱、密码、真实姓名或第三方账号。昵称为自愿填写。管理后台工作人员使用独立账号登录；该登录仅用于管理，不是社区参与条件。"
-            : "Reading, posting, commenting, and reporting do not require a member account, email, password, real name, or third-party login. Nicknames are optional. Staff use a separate sign-in for moderation; it is not required to participate."}
+            ? "浏览无需登录。发帖和回复必须使用 Google 账号登录；网站会在 Better Auth 账户记录中保存账号邮箱和会话信息，但不会公开你的邮箱。昵称可以自愿填写，公开页面显示昵称或通用访客名称。"
+            : "Browsing does not require sign-in. Posting and replying require a Google account. Better Auth stores account email and session information, but your email is not shown publicly. Nicknames are optional; public pages show your nickname or a generic member label."}
         </p>
         <h2>{lang === "zh" ? "帖子与评论" : "Posts and comments"}</h2>
         <p>
           {lang === "zh"
-            ? "提交内容时，网站会保存你自愿填写的昵称、帖子或评论内容、发布时间和审核状态。新访客提交的帖子和评论会先进入待审核状态，通过后才会公开。公开内容可被任何访客阅读和分享。网站不会公开管理凭证；发言时生成的私密编辑凭证保存在你的浏览器中，并只在发言成功时显示一次。持有凭证的人可以修改或删除对应内容，请妥善保存。"
-            : "When you submit content, the site stores your optional nickname, post or comment, submission time, and moderation status. New visitor posts and comments are held for review before publication. Public content can be read and shared by anyone. The private edit key is never shown publicly; it is saved in this browser and shown once after posting. Anyone holding it can edit or delete that contribution, so keep it safe."}
+            ? "发帖或回复后会立即公开显示。网站会保存帖子或评论、可选昵称、作者账号关联和发布时间。你必须使用发布内容时的同一个 Google 账号才能编辑或删除自己的内容。公开内容可被任何访客阅读和分享。"
+            : "Posts and replies appear publicly as soon as they are submitted. The site stores the content, optional nickname, linked account owner, and submission time. You must use the same Google account to edit or delete your contributions. Public content can be read and shared by anyone."}
         </p>
         <h2>{lang === "zh" ? "请求信息" : "Request data"}</h2>
         <p>
           {lang === "zh"
-            ? "发帖、评论和举报不会要求 Turnstile 验证，应用也不会按来源或操作频率限制这些请求。Cloudflare 及托管服务可能按其服务条款处理网络请求和安全日志；新提交的内容仍会先进入审核队列。"
-            : "Posting, commenting, and reporting do not require Turnstile verification, and the application does not rate-limit these requests by source or action. Cloudflare and the hosting provider may process network requests and security logs under their own terms. New submissions still enter the moderation queue before publication."}
+            ? "社区发帖、回复和举报不使用 Turnstile，应用也不按来源或操作频率限制请求。Google 登录由 Google OAuth 提供；Google、Cloudflare 及托管服务可能按各自条款处理登录、网络请求和安全日志。"
+            : "Community posts, replies, and reports do not use Turnstile, and the application does not rate-limit requests by source or action. Google OAuth provides sign-in. Google, Cloudflare, and the hosting provider may process authentication, network requests, and security logs under their respective terms."}
         </p>
         <h2>{lang === "zh" ? "删除与举报" : "Deletion and reports"}</h2>
         <p>
           {lang === "zh"
-            ? "如需修改或删除自己的发言，请使用发布时生成的私密管理凭证。凭证遗失时，可在下方填写内容 ID 并提交删除申请；管理员会在审核队列中处理。访客也可在内容旁提交举报，无需注册。管理员可审核、隐藏或删除不符合社区守则的内容。"
-            : "Use the private edit key created when you posted to edit or delete your contribution. If you lose it, submit a deletion request below with the content ID; staff will review it in the moderation queue. Visitors can report content without an account. Moderators may review, hide, or remove content that violates the community guidelines."}
+            ? "使用发布内容时的 Google 账号可编辑或删除自己的发言。访客无需登录即可举报内容，也可在下方提交删除申请。工作人员会处理举报，并可隐藏或删除违反社区规则的内容；帖子和回复不再经过发布前审核。"
+            : "Use the Google account that created a contribution to edit or delete it. Visitors may report content without signing in or submit a deletion request below. Staff can handle reports and hide or remove content that violates community rules; posts and replies are no longer reviewed before publication."}
         </p>
         <form
           onSubmit={(event) => void requestDeletion(event)}

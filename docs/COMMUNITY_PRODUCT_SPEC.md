@@ -22,23 +22,23 @@ A free, open, relaxed space for beginners, students, professionals, technologist
 - Home: community introduction, four poster themes, event status, editorial AI prompts, recent discussions entry, voluntary survey.
 - Events: first event “AI非正常人类情报站｜第一期免费AI聚会”; free; date and venue TBA; D1-backed list/detail, staff create/edit, and recap fields. The Tally survey is optional and is not event registration.
 - AI Topics: bilingual editorial discussion starters and staff-managed articles. News must have real sources; the site does not fabricate live news.
-- Discussions: public browsing and anonymous posting, comments/replies, categories/search, owner edit/delete keys, anonymous reports, and staff review. New visitor posts and comments are pending until approved.
+- Discussions: public browsing, Google-authenticated posting and replies, categories/search, account-based owner edit/delete, anonymous reports, and staff handling of reported content. New posts and replies publish immediately.
 - Chiang Mai: lived experiences, language, places, events, habits/costs, friendships, and AI in local life; no invented live facts.
 - About: community purpose, welcome, and participation principles.
 - Privacy and community rules have focused pages.
 
-## No member registration
+## Google-authenticated participation
 
-Community visitors do not create accounts, provide email/password/real name, or use third-party sign-in. Nicknames are optional. Post/comment writes require a valid Cloudflare Turnstile challenge and are rate-limited by a keyed digest of the source address. New contributions are saved in D1 as pending and remain private until staff approval.
+Browsing is public. Posting and replying require Google OAuth; public email/password registration is disabled. A nickname remains optional, and the email address is never displayed publicly. Google OAuth credentials are configured as Worker secrets, with the preview callback registered in Google Cloud.
 
-The server creates an unpredictable 256-bit edit key for each contribution and stores only its SHA-256 hash. The raw key is shown to the author once and saved in that browser for convenience. The API checks the key on edit/delete. Losing it requires a deletion request from the Privacy page, reviewed by staff. The key is a bearer credential; anyone who obtains it can manage that contribution.
+Posts and replies publish immediately. The authenticated account ID owns each contribution; the same account is required to edit or delete it. The site does not generate private edit keys, run Turnstile, or apply community API rate limits. Previously pending content is changed to hidden during migration rather than automatically published.
 
 ## Staff access
 
-`/admin` is an unlinked staff-only sign-in and moderation area. Better Auth remains for staff sessions; public signup endpoints return `410`. A one-time `/api/admin/bootstrap` endpoint can create the first admin only when `ADMIN_BOOTSTRAP_SECRET` is set, no admin role exists, and the bootstrap lock has not been claimed. Remove that secret immediately after setup. Staff roles are checked server-side for every management endpoint. Moderators review content/reports; admins also manage events and editorial articles.
+`/admin` is an unlinked staff-only sign-in and management area. Better Auth email/password sign-in remains restricted to existing staff; public email/password signup endpoints return `410`. A one-time `/api/admin/bootstrap` endpoint can create the first admin only when `ADMIN_BOOTSTRAP_SECRET` is set, no admin role exists, and the bootstrap lock has not been claimed. Remove that secret immediately after setup. Staff roles are checked server-side for every management endpoint. Staff can process user reports and hide content after publication; admins also manage events and editorial articles. There is no pre-publication review queue.
 
 ## Privacy and external survey
 
-Posts, comments, optional nicknames, timestamps, moderation status, keyed source digests for rate limiting/report deduplication, and edit-key hashes are stored in D1. The site does not save visitor emails or passwords. Cloudflare Turnstile verifies anti-spam challenges; Cloudflare may process request metadata according to its service terms. Public content may be read and shared. Content can be managed with its private key, reported in place, or submitted for deletion through the Privacy page.
+Posts, comments, optional nicknames, author account IDs, timestamps, and publication status are stored in D1. Better Auth stores Google account email and session information; the email is not public. Google, Cloudflare, and hosting providers may process authentication and request data under their service terms. Public content may be read and shared. Visitors may report content without signing in or submit a deletion request through the Privacy page.
 
 The Tally survey is optional: https://tally.so/r/PRdaO5. Tally is an independent service; its responses are not represented as being stored on this site and are not linked to a member account.
