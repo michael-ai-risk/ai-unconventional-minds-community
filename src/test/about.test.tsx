@@ -74,6 +74,15 @@ describe("About Us page", () => {
       expect(screen.getByText("Business & Markets")).toBeInTheDocument();
       expect(screen.getByText("Digital Products")).toBeInTheDocument();
       expect(screen.getByText("Abby", { exact: true })).toBeInTheDocument();
+      expect(document.querySelector('[aria-labelledby="about-founder-title"] img')).toHaveAttribute(
+        "src",
+        "/avatars/michael.svg",
+      );
+      expect(
+        [...document.querySelectorAll('[aria-labelledby="about-humans-title"] article img')].map(
+          (avatar) => avatar.getAttribute("src"),
+        ),
+      ).toEqual(["/avatars/michael.svg", "/avatars/hai.svg", "/avatars/abby.svg"]);
       expect(
         screen
           .getAllByRole("link")

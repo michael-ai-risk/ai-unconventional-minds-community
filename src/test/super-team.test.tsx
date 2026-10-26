@@ -30,6 +30,17 @@ describe("homepage super team", () => {
     expect(screen.getByRole("button", { name: "Michael × ChatGPT" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "海 × Codex" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Abby × Claude" })).toBeInTheDocument();
+
+    const avatars = [
+      ["Michael × ChatGPT", "/avatars/michael.svg"],
+      ["海 × Codex", "/avatars/hai.svg"],
+      ["Abby × Claude", "/avatars/abby.svg"],
+    ] as const;
+    for (const [pair, avatar] of avatars) {
+      const card = screen.getByRole("button", { name: pair });
+      expect(card.querySelector("img")).toHaveAttribute("src", avatar);
+      expect(card.querySelectorAll("svg")).toHaveLength(1);
+    }
   });
 
   it("reveals the shared interaction note from the keyboard-focusable pair card", async () => {

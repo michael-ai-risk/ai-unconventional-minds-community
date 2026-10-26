@@ -1,15 +1,21 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Code2, MessageCircle, Sparkles, UserRound, type LucideIcon } from "lucide-react";
+import { Code2, MessageCircle, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { firstEvent, themes, topics } from "@/lib/content";
 import { localizeContent } from "@/lib/content-locales";
 
 const superTeam = [
-  { id: "michael", human: "Michael", ai: "ChatGPT", Icon: MessageCircle },
-  { id: "hai", human: "海", ai: "Codex", Icon: Code2 },
-  { id: "abby", human: "Abby", ai: "Claude", Icon: Sparkles },
-] satisfies { id: string; human: string; ai: string; Icon: LucideIcon }[];
+  {
+    id: "michael",
+    human: "Michael",
+    ai: "ChatGPT",
+    avatar: "/avatars/michael.svg",
+    Icon: MessageCircle,
+  },
+  { id: "hai", human: "海", ai: "Codex", avatar: "/avatars/hai.svg", Icon: Code2 },
+  { id: "abby", human: "Abby", ai: "Claude", avatar: "/avatars/abby.svg", Icon: Sparkles },
+] satisfies { id: string; human: string; ai: string; avatar: string; Icon: LucideIcon }[];
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "AI非正常人类情报站 · AI Unconventional Minds Station" }] }),
@@ -99,7 +105,7 @@ function Home() {
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {superTeam.map(({ id, human, ai, Icon }) => {
+            {superTeam.map(({ id, human, ai, avatar, Icon }) => {
               const expanded = expandedPair === id;
               const detailId = `super-team-${id}-detail`;
 
@@ -118,8 +124,13 @@ function Home() {
                       <span className="label-mono text-muted-foreground">
                         {t("superTeamHuman")}
                       </span>
-                      <span className="mt-3 grid size-14 place-items-center rounded-full border-2 border-paper-foreground bg-paper text-paper-foreground transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-focus-visible:border-primary group-focus-visible:bg-primary group-focus-visible:text-primary-foreground motion-reduce:transition-none">
-                        <UserRound aria-hidden="true" className="size-7" strokeWidth={1.75} />
+                      <span className="mt-3 grid size-14 place-items-center overflow-hidden rounded-full border-2 border-paper-foreground bg-paper text-paper-foreground transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-focus-visible:border-primary group-focus-visible:bg-primary group-focus-visible:text-primary-foreground motion-reduce:transition-none">
+                        <img
+                          src={avatar}
+                          alt=""
+                          aria-hidden="true"
+                          className="size-full object-cover"
+                        />
                       </span>
                       <span className="mt-2 max-w-full break-words font-cn-black text-lg">
                         {human}

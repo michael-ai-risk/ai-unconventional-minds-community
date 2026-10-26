@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { UserRound } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/about")({
@@ -28,13 +27,21 @@ function AboutPage() {
     {
       name: "Michael",
       role: "Founder",
+      avatar: "/avatars/michael.svg",
       bio: "aboutMichaelBio",
       sharing: "aboutMichaelSharing",
     },
-    { name: "海", role: "Business & Markets", bio: "aboutHaiBio", sharing: "aboutHaiSharing" },
+    {
+      name: "海",
+      role: "Business & Markets",
+      avatar: "/avatars/hai.svg",
+      bio: "aboutHaiBio",
+      sharing: "aboutHaiSharing",
+    },
     {
       name: "Abby",
       role: "Digital Products",
+      avatar: "/avatars/abby.svg",
       bio: "aboutAbbyBio",
       sharing: "aboutAbbySharing",
     },
@@ -73,8 +80,13 @@ function AboutPage() {
               {t("aboutFounderTitle")}
             </h2>
             <div className="mt-6 flex items-center gap-4 border-t-2 border-foreground pt-5">
-              <span className="grid size-14 shrink-0 place-items-center rounded-full border-2 border-foreground bg-paper text-paper-foreground">
-                <UserRound aria-hidden="true" className="size-7" strokeWidth={1.75} />
+              <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-foreground bg-paper">
+                <img
+                  src="/avatars/michael.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="size-full object-cover"
+                />
               </span>
               <span>
                 <span className="block font-cn-black text-lg">Michael · Founder</span>
@@ -122,8 +134,13 @@ function AboutPage() {
           {members.map((member) => (
             <article key={member.name} className="border-2 border-foreground bg-background p-5">
               <div className="flex items-center gap-4">
-                <span className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-paper-foreground bg-paper text-paper-foreground">
-                  <UserRound aria-hidden="true" className="size-6" strokeWidth={1.75} />
+                <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-paper-foreground bg-paper">
+                  <img
+                    src={member.avatar}
+                    alt=""
+                    aria-hidden="true"
+                    className="size-full object-cover"
+                  />
                 </span>
                 <div className="min-w-0">
                   <h3 className="font-cn-black text-xl">{member.name}</h3>
