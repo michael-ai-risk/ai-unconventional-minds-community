@@ -18,6 +18,16 @@ type Report = {
   post_title: string | null;
   comment_body: string | null;
 };
+type PendingContent = {
+  id: string;
+  post_id?: string;
+  parent_id?: string | null;
+  author_name: string;
+  title?: string;
+  body: string;
+  category_slug?: string;
+  created_at: string;
+};
 async function api<T extends Record<string, unknown> = Record<string, unknown>>(
   path: string,
   init?: RequestInit,
@@ -48,11 +58,15 @@ function AdminPage() {
   const en = lang === "en";
   const { data: session, isPending } = authClient.useSession();
   const [reports, setReports] = useState<Report[]>([]);
+  const [pendingPosts, setPendingPosts] = useState<PendingContent[]>([]);
+  const [pendingComments, setPendingComments] = useState<PendingContent[]>([]);
   const [events, setEvents] = useState<RecordRow[]>([]);
   const [articles, setArticles] = useState<RecordRow[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [staffEmail, setStaffEmail] = useState("");
+  const [staffPassword, setStaffPassword] = useState("");
   const [eventId, setEventId] = useState("");
   const [articleId, setArticleId] = useState("");
   const [event, setEvent] = useState({
@@ -83,18 +97,69 @@ function AdminPage() {
   const load = useCallback(async () => {
     setError("");
     try {
-      const [reportResult, eventResult, articleResult] = await Promise.all([
-        api<{ reports?: Report[] }>("admin/reports"),
-        api<{ events?: RecordRow[] }>("admin/events"),
-        api<{ articles?: RecordRow[] }>("admin/articles"),
-      ]);
+      const [reportResult, postResult, commentResult, eventResult, articleResult] =
+        await Promise.all([
+          api<{ reports?: Report[] }>("admin/reports"),
+          api<{ posts?: PendingContent[] }>("admin/posts"),
+          api<{ comments?: PendingContent[] }>("admin/comments"),
+          api<{ events?: RecordRow[] }>("admin/events"),
+          api<{ articles?: RecordRow[] }>("admin/articles"),
+        ]);
       setReports(reportResult.reports ?? []);
+      setPendingPosts(postResult.posts ?? []);
+      setPendingComments(commentResult.comments ?? []);
       setEvents(eventResult.events ?? []);
       setArticles(articleResult.articles ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, []);
+  const signInStaff = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setBusy(true);
+    try {
+      const result = await authClient.signIn.email({
+        email: staffEmail.trim(),
+        password: staffPassword,
+      });
+      if (result.error)
+        throw new Error(result.error.message || (en ? "Sign-in failed" : "登录失败"));
+      setStaffPassword("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const moderate = async (
+    kind: "posts" | "comments",
+    itemId: string,
+    status: "visible" | "hidden",
+  ) => {
+    try {
+      await api("admin/" + kind + "/" + itemId, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+      setMessage(
+        status === "visible" ? (en ? "Published." : "已审核并公开。") : en ? "Hidden." : "已隐藏。",
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const removeContent = async (kind: "posts" | "comments", itemId: string) => {
+    if (!window.confirm(en ? "Permanently delete this contribution?" : "确定永久删除这条内容吗？"))
+      return;
+    try {
+      await api("admin/" + kind + "/" + itemId, { method: "DELETE" });
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
   useEffect(() => {
     if (session?.user) void load();
   }, [session, load]);
@@ -215,9 +280,49 @@ function AdminPage() {
           {en ? "Checking access…" : "正在确认权限…"}
         </p>
       ) : !session?.user ? (
-        <p className="mt-8 border-2 border-foreground p-5">
-          {en ? "Sign in with a staff account to continue." : "请先使用工作人员账号登录。"}
-        </p>
+        <form
+          onSubmit={(event) => void signInStaff(event)}
+          className="paper mt-8 grid max-w-xl gap-4 border-2 border-foreground p-5 md:p-7"
+        >
+          <p>
+            {en
+              ? "Staff sign-in. Community visitors do not need or receive accounts."
+              : "工作人员登录。普通社区访客无需账号，也不会获得会员账号。"}
+          </p>
+          <label className="font-bold">
+            {en ? "Staff email" : "工作人员邮箱"}
+            <input
+              required
+              type="email"
+              autoComplete="username"
+              value={staffEmail}
+              onChange={(event) => setStaffEmail(event.target.value)}
+              className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+            />
+          </label>
+          <label className="font-bold">
+            {en ? "Password" : "密码"}
+            <input
+              required
+              type="password"
+              autoComplete="current-password"
+              value={staffPassword}
+              onChange={(event) => setStaffPassword(event.target.value)}
+              className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+            />
+          </label>
+          {error && (
+            <p role="alert" className="border-2 border-red-700 p-3 text-red-800">
+              {error}
+            </p>
+          )}
+          <button
+            disabled={busy}
+            className="bg-primary px-4 py-3 font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {busy ? (en ? "Checking…" : "正在验证…") : en ? "Staff sign in" : "工作人员登录"}
+          </button>
+        </form>
       ) : (
         <>
           {error && (
@@ -230,6 +335,56 @@ function AdminPage() {
               {message}
             </p>
           )}
+          <section className="mt-10">
+            <h2 className="font-cn-black text-3xl">
+              {en ? "Awaiting review" : "待审核内容"} (
+              {pendingPosts.length + pendingComments.length})
+            </h2>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              {[
+                ...pendingPosts.map((item) => ({ ...item, kind: "posts" as const })),
+                ...pendingComments.map((item) => ({ ...item, kind: "comments" as const })),
+              ].map((item) => (
+                <article
+                  key={item.kind + ":" + item.id}
+                  className="paper border-2 border-foreground p-4"
+                >
+                  <p className="label-mono">
+                    {item.kind === "posts" ? (en ? "POST" : "帖子") : en ? "COMMENT" : "评论"} ·{" "}
+                    {item.author_name}
+                  </p>
+                  {item.title && <h3 className="mt-2 font-cn-black text-xl">{item.title}</h3>}
+                  <p className="mt-2 whitespace-pre-wrap">{item.body}</p>
+                  <p className="mt-2 text-xs">{item.created_at}</p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      onClick={() => void moderate(item.kind, item.id, "visible")}
+                      className="bg-primary px-4 py-2 font-bold text-primary-foreground"
+                    >
+                      {en ? "Approve & publish" : "通过并公开"}
+                    </button>
+                    <button
+                      onClick={() => void moderate(item.kind, item.id, "hidden")}
+                      className="border-2 border-foreground px-4 py-2 font-bold"
+                    >
+                      {en ? "Hide" : "隐藏"}
+                    </button>
+                    <button
+                      onClick={() => void removeContent(item.kind, item.id)}
+                      className="border-b-2 border-red-700 px-2 py-2 text-red-800"
+                    >
+                      {en ? "Delete" : "删除"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {!pendingPosts.length && !pendingComments.length && (
+              <p className="mt-3 text-muted-foreground">
+                {en ? "No contributions awaiting review." : "目前没有待审核内容。"}
+              </p>
+            )}
+          </section>
           <section className="mt-10">
             <h2 className="font-cn-black text-3xl">{en ? "Open reports" : "待处理举报"}</h2>
             {reports.length ? (

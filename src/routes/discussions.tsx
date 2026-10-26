@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { useI18n } from "@/lib/i18n";
 
 type Category = { slug: string; title_zh: string; title_en: string };
@@ -12,7 +12,7 @@ type Post = {
   created_at: string;
   author_name: string;
   comment_count: number;
-  is_author?: number;
+  status?: string;
 };
 type Comment = {
   id: string;
@@ -20,8 +20,13 @@ type Comment = {
   author_name: string;
   created_at: string;
   parent_id: string | null;
-  is_author?: number;
+  status?: string;
 };
+type ContentKeys = Record<string, string>;
+type ApiResult = Record<string, unknown> & { id?: string; editToken?: string; status?: string };
+
+const contentKeysStorage = "ai-station-content-keys";
+const siteKey = import.meta.env["VITE_TURNSTILE_SITE_KEY"] || "";
 
 export const Route = createFileRoute("/discussions")({
   head: () => ({ meta: [{ title: "社区讨论 · AI非正常人类情报站" }] }),
@@ -31,11 +36,16 @@ export const Route = createFileRoute("/discussions")({
 async function api<T extends Record<string, unknown> = Record<string, unknown>>(
   path: string,
   init?: RequestInit,
+  token?: string,
 ): Promise<T> {
   const response = await fetch("/api/community/" + path, {
-    credentials: "include",
+    credentials: "omit",
     ...init,
-    headers: { ...(init?.body ? { "Content-Type": "application/json" } : {}), ...init?.headers },
+    headers: {
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { "X-Content-Token": token } : {}),
+      ...init?.headers,
+    },
   });
   const raw: unknown = await response.json().catch(() => ({}));
   const data = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
@@ -48,22 +58,33 @@ async function api<T extends Record<string, unknown> = Record<string, unknown>>(
   return data as T;
 }
 
+function readContentKeys(): ContentKeys {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(contentKeysStorage) || "{}");
+    return value && typeof value === "object" ? (value as ContentKeys) : {};
+  } catch {
+    return {};
+  }
+}
+
 function DiscussionsPage() {
   const { lang } = useI18n();
   const en = lang === "en";
-  const { data: session, isPending } = authClient.useSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [posting, setPosting] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [commentDraft, setCommentDraft] = useState("");
+  const [replyTo, setReplyTo] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
@@ -71,6 +92,45 @@ function DiscussionsPage() {
   const [reportReason, setReportReason] = useState("");
   const [editCommentId, setEditCommentId] = useState<string | null>(null);
   const [editCommentBody, setEditCommentBody] = useState("");
+  const [keys, setKeys] = useState<ContentKeys>({});
+  const [lastKey, setLastKey] = useState("");
+  const [lastContentId, setLastContentId] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaCycle, setCaptchaCycle] = useState(0);
+  const [commentTurnstileToken, setCommentTurnstileToken] = useState("");
+  const [commentCaptchaCycle, setCommentCaptchaCycle] = useState(0);
+
+  const persistKeys = (next: ContentKeys) => {
+    try {
+      localStorage.setItem(contentKeysStorage, JSON.stringify(next));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const saveKey = (kind: "post" | "comment", id: string, token: string) => {
+    const next = { ...keys, [`${kind}:${id}`]: token };
+    setKeys(next);
+    if (!persistKeys(next)) {
+      setMessage(
+        en
+          ? "Browser storage is unavailable. Save the private edit key shown below; it will not survive closing this page."
+          : "浏览器存储不可用。请保存下方私密管理凭证；关闭页面后它不会保留。",
+      );
+    }
+    setLastKey(token);
+    setLastContentId(kind + ":" + id);
+  };
+  const tokenFor = (kind: "post" | "comment", id: string) => keys[`${kind}:${id}`];
+  const consumeTurnstile = () => {
+    setTurnstileToken("");
+    setCaptchaCycle((value) => value + 1);
+  };
+  const consumeCommentTurnstile = () => {
+    setCommentTurnstileToken("");
+    setCommentCaptchaCycle((value) => value + 1);
+  };
+
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -90,9 +150,10 @@ function DiscussionsPage() {
       setLoading(false);
     }
   }, [category, query]);
-  useEffect(() => {
-    void load();
-  }, [load]);
+
+  useEffect(() => setKeys(readContentKeys()), []);
+  useEffect(() => void load(), [load]);
+
   const openPost = async (id: string) => {
     if (expanded === id) {
       setExpanded(null);
@@ -101,23 +162,48 @@ function DiscussionsPage() {
     setExpanded(id);
     setError("");
     try {
-      const data = await api<{ comments?: Comment[] }>("posts/" + id);
-      setComments((prev) => ({ ...prev, [id]: data.comments ?? [] }));
+      const result = await api<{ post?: Post; comments?: Comment[] }>(
+        "posts/" + id,
+        undefined,
+        tokenFor("post", id),
+      );
+      if (result.post?.status === "pending")
+        setMessage(
+          en
+            ? "Your post is awaiting review."
+            : "你的讨论正在等待审核。帖子内容只对持有管理凭证的你可见。 ",
+        );
+      setComments((previous) => ({ ...previous, [id]: result.comments ?? [] }));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   };
+
   const createPost = async (event: React.FormEvent) => {
     event.preventDefault();
     setPosting(true);
     setError("");
+    setMessage("");
     try {
-      await api("posts", {
+      const result = await api<ApiResult>("posts", {
         method: "POST",
-        body: JSON.stringify({ title, body, category: category === "all" ? "general" : category }),
+        body: JSON.stringify({
+          title,
+          body,
+          category: category === "all" ? "general" : category,
+          displayName,
+          turnstileToken,
+        }),
       });
+      if (result.id && result.editToken) saveKey("post", result.id, result.editToken);
       setTitle("");
       setBody("");
+      setMessage(
+        en
+          ? "Submitted for review. Your private edit key is shown below."
+          : "已提交审核。你的私密管理凭证显示在下方。",
+      );
+      consumeTurnstile();
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -125,30 +211,50 @@ function DiscussionsPage() {
       setPosting(false);
     }
   };
+
   const createComment = async (event: React.FormEvent, postId: string) => {
     event.preventDefault();
     setError("");
+    setMessage("");
     try {
-      await api("posts/" + postId + "/comments", {
+      const result = await api<ApiResult>("posts/" + postId + "/comments", {
         method: "POST",
-        body: JSON.stringify({ body: commentDraft }),
+        body: JSON.stringify({
+          body: commentDraft,
+          parentId: replyTo,
+          displayName,
+          turnstileToken: commentTurnstileToken,
+        }),
       });
+      if (result.id && result.editToken) saveKey("comment", result.id, result.editToken);
       setCommentDraft("");
-      const data = await api<{ comments?: Comment[] }>("posts/" + postId);
-      setComments((prev) => ({ ...prev, [postId]: data.comments ?? [] }));
+      setReplyTo(null);
+      setMessage(en ? "Reply submitted for review." : "回复已提交审核。");
+      consumeCommentTurnstile();
+      const resultAfter = await api<{ comments?: Comment[] }>(
+        "posts/" + postId,
+        undefined,
+        result.editToken,
+      );
+      setComments((previous) => ({ ...previous, [postId]: resultAfter.comments ?? [] }));
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   };
+
   const updatePost = async (event: React.FormEvent, postId: string) => {
     event.preventDefault();
     setError("");
     try {
-      await api("posts/" + postId, {
-        method: "PATCH",
-        body: JSON.stringify({ title: editTitle, body: editBody }),
-      });
+      await api(
+        "posts/" + postId,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ title: editTitle, body: editBody }),
+        },
+        tokenFor("post", postId),
+      );
       setEditId(null);
       await load();
     } catch (e) {
@@ -158,9 +264,53 @@ function DiscussionsPage() {
   const deletePost = async (postId: string) => {
     if (!window.confirm(en ? "Delete this post and its replies?" : "删除这条帖子及其回复？"))
       return;
-    setError("");
     try {
-      await api("posts/" + postId, { method: "DELETE" });
+      await api("posts/" + postId, { method: "DELETE" }, tokenFor("post", postId));
+      const next = { ...keys };
+      delete next[`post:${postId}`];
+      setKeys(next);
+      persistKeys(next);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const updateComment = async (event: React.FormEvent, commentId: string, postId: string) => {
+    event.preventDefault();
+    try {
+      await api(
+        "comments/" + commentId,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ body: editCommentBody }),
+        },
+        tokenFor("comment", commentId),
+      );
+      setEditCommentId(null);
+      const result = await api<{ comments?: Comment[] }>(
+        "posts/" + postId,
+        undefined,
+        tokenFor("post", postId),
+      );
+      setComments((previous) => ({ ...previous, [postId]: result.comments ?? [] }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const deleteComment = async (commentId: string, postId: string) => {
+    if (!window.confirm(en ? "Delete your reply?" : "删除这条回复？")) return;
+    try {
+      await api("comments/" + commentId, { method: "DELETE" }, tokenFor("comment", commentId));
+      const next = { ...keys };
+      delete next[`comment:${commentId}`];
+      setKeys(next);
+      persistKeys(next);
+      const result = await api<{ comments?: Comment[] }>(
+        "posts/" + postId,
+        undefined,
+        tokenFor("post", postId),
+      );
+      setComments((previous) => ({ ...previous, [postId]: result.comments ?? [] }));
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -170,7 +320,6 @@ function DiscussionsPage() {
     event.preventDefault();
     if (!reportTarget) return;
     const [type, targetId] = reportTarget.split(":");
-    setError("");
     try {
       await api("reports/" + type + "/" + targetId, {
         method: "POST",
@@ -178,46 +327,20 @@ function DiscussionsPage() {
       });
       setReportTarget(null);
       setReportReason("");
-      setError(en ? "Report sent to the moderation queue." : "举报已提交给管理人员。");
+      setMessage(en ? "Report sent to the moderation queue." : "举报已提交给管理人员。");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   };
-  const updateComment = async (event: React.FormEvent, commentId: string, postId: string) => {
-    event.preventDefault();
-    setError("");
-    try {
-      await api("comments/" + commentId, {
-        method: "PATCH",
-        body: JSON.stringify({ body: editCommentBody }),
-      });
-      setEditCommentId(null);
-      const data = await api<{ comments?: Comment[] }>("posts/" + postId);
-      setComments((prev) => ({ ...prev, [postId]: data.comments ?? [] }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  };
-  const deleteComment = async (commentId: string, postId: string) => {
-    if (!window.confirm(en ? "Delete your reply?" : "删除你的回复？")) return;
-    setError("");
-    try {
-      await api("comments/" + commentId, { method: "DELETE" });
-      const data = await api<{ comments?: Comment[] }>("posts/" + postId);
-      setComments((prev) => ({ ...prev, [postId]: data.comments ?? [] }));
-      await load();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  };
+
   return (
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
       <p className="label-mono text-accent">4SEAS / DISCUSSIONS</p>
       <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{en ? "Discussions" : "社区讨论"}</h1>
       <p className="mt-5 max-w-3xl text-lg text-muted-foreground">
         {en
-          ? "Read openly, or join in when you feel like it. No introductions or professional bio required."
-          : "公开浏览，也可以在想说的时候加入讨论。不需要自我介绍，也不用填写职业身份。"}
+          ? "Read and join in without an account. A nickname is optional; new contributions are reviewed before they appear publicly."
+          : "无需注册即可浏览、发帖和回复。昵称自愿填写；新内容会先审核，再公开显示。"}
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
         <input
@@ -246,57 +369,111 @@ function DiscussionsPage() {
           {en ? "Service message: " + error : "服务提示：" + error}
         </p>
       )}
-      {isPending ? (
-        <p role="status" className="mt-6">
-          {en ? "Checking sign-in…" : "正在确认登录状态…"}
+      {message && (
+        <p role="status" className="mt-4 border-2 border-primary p-3">
+          {message}
         </p>
-      ) : session?.user ? (
-        <form onSubmit={createPost} className="paper mt-8 border-2 border-foreground p-5 md:p-7">
-          <h2 className="font-cn-black text-2xl">{en ? "Start a conversation" : "发起一个话题"}</h2>
-          <label className="mt-5 block font-bold">
-            {en ? "Title" : "标题"}
+      )}
+      {lastKey && (
+        <div className="paper mt-4 border-2 border-foreground p-4" role="status">
+          <p className="font-bold">
+            {en ? "Private edit key — save it somewhere safe" : "私密管理凭证——请妥善保存"}
+          </p>
+          <p className="mt-1 font-mono text-xs">
+            {en ? "Reference: " : "内容编号："}
+            {lastContentId}
+          </p>
+          <p className="mt-1 text-sm">
+            {en
+              ? "It is stored in this browser for convenience. Anyone with this key can edit or delete this contribution."
+              : "为方便起见，本浏览器也会保存一份。持有此凭证的人可以修改或删除对应内容。"}
+          </p>
+          <div className="mt-2 flex gap-2">
             <input
-              required
-              minLength={3}
-              maxLength={160}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+              readOnly
+              value={lastKey}
+              aria-label={en ? "Private edit key" : "私密管理凭证"}
+              className="min-w-0 flex-1 border border-foreground bg-transparent p-2 font-mono text-xs"
             />
-          </label>
-          <label className="mt-4 block font-bold">
-            {en ? "Your thoughts" : "想聊什么"}
-            <textarea
-              required
-              maxLength={8000}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={4}
-              className="mt-2 block w-full border-2 border-foreground bg-transparent p-3"
-            />
-          </label>
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <span className="text-sm text-muted-foreground">{body.length}/8000</span>
             <button
-              disabled={posting}
-              className="bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-50"
+              type="button"
+              onClick={() => void navigator.clipboard?.writeText(lastKey)}
+              className="border-2 border-foreground px-3 py-2 font-bold"
             >
-              {posting ? (en ? "Posting…" : "提交中…") : en ? "Post" : "发布讨论"}
+              {en ? "Copy" : "复制"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLastKey("")}
+              aria-label={en ? "Hide private key" : "隐藏管理凭证"}
+              className="px-2"
+            >
+              ×
             </button>
           </div>
-        </form>
-      ) : (
-        <aside className="paper mt-8 flex flex-wrap items-center justify-between gap-4 border-2 border-foreground p-5">
-          <p>
-            {en
-              ? "You can read without an account. Sign in only when you want to post or reply."
-              : "无需账号即可浏览。想发帖或回复时再登录即可。"}
-          </p>
-          <Link to="/join" className="bg-primary px-5 py-3 font-bold text-primary-foreground">
-            {en ? "Join / Sign in" : "加入 / 登录"} ↗
-          </Link>
-        </aside>
+        </div>
       )}
+      <form
+        onSubmit={(event) => void createPost(event)}
+        className="paper mt-8 border-2 border-foreground p-5 md:p-7"
+      >
+        <h2 className="font-cn-black text-2xl">{en ? "Start a conversation" : "发起一个话题"}</h2>
+        <label className="mt-5 block font-bold">
+          {en ? "Nickname (optional)" : "昵称（自愿填写）"}
+          <input
+            maxLength={60}
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+            placeholder={en ? "Guest" : "访客"}
+            className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+          />
+        </label>
+        <label className="mt-4 block font-bold">
+          {en ? "Title" : "标题"}
+          <input
+            required
+            minLength={3}
+            maxLength={160}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+          />
+        </label>
+        <label className="mt-4 block font-bold">
+          {en ? "Your thoughts" : "想聊什么"}
+          <textarea
+            required
+            maxLength={8000}
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            rows={4}
+            className="mt-2 block w-full border-2 border-foreground bg-transparent p-3"
+          />
+        </label>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <span className="text-sm text-muted-foreground">{body.length}/8000</span>
+          {siteKey ? (
+            <TurnstileWidget key={captchaCycle} siteKey={siteKey} onToken={setTurnstileToken} />
+          ) : (
+            <span className="text-sm text-muted-foreground">
+              {en
+                ? "Posting is temporarily unavailable: anti-spam verification is not configured."
+                : "发帖暂不可用：网站尚未配置反垃圾验证。"}
+            </span>
+          )}
+          <button
+            disabled={posting || !siteKey || !turnstileToken}
+            className="bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {posting ? (en ? "Posting…" : "提交中…") : en ? "Post for review" : "提交审核"}
+          </button>
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {en
+            ? "No email, password, or real name. Keep your private edit key if you may want to change your post."
+            : "不需要邮箱、密码或真实姓名。如果以后想修改内容，请保存私密管理凭证。"}
+        </p>
+      </form>
       <section className="mt-10 space-y-5" aria-live="polite">
         {loading ? (
           <p role="status">{en ? "Loading discussions…" : "正在读取讨论…"}</p>
@@ -312,7 +489,7 @@ function DiscussionsPage() {
             <article key={post.id} className="paper border-2 border-foreground p-5 md:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2 label-mono text-paper-muted">
                 <span>
-                  {categories.find((c) => c.slug === post.category_slug)?.[
+                  {categories.find((item) => item.slug === post.category_slug)?.[
                     en ? "title_en" : "title_zh"
                   ] ?? post.category_slug}
                 </span>
@@ -323,20 +500,23 @@ function DiscussionsPage() {
                 </time>
               </div>
               {editId === post.id ? (
-                <form onSubmit={(e) => void updatePost(e, post.id)} className="mt-4 grid gap-3">
+                <form
+                  onSubmit={(event) => void updatePost(event, post.id)}
+                  className="mt-4 grid gap-3"
+                >
                   <input
                     required
                     minLength={3}
                     maxLength={160}
                     value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
+                    onChange={(event) => setEditTitle(event.target.value)}
                     className="border-2 border-paper-foreground bg-transparent p-2 font-bold"
                   />
                   <textarea
                     required
                     maxLength={8000}
                     value={editBody}
-                    onChange={(e) => setEditBody(e.target.value)}
+                    onChange={(event) => setEditBody(event.target.value)}
                     rows={4}
                     className="border-2 border-paper-foreground bg-transparent p-2"
                   />
@@ -360,7 +540,8 @@ function DiscussionsPage() {
                 </>
               )}
               <p className="mt-4 text-sm text-paper-muted">
-                {post.author_name} · {post.comment_count} {en ? "replies" : "条回复"}
+                {post.author_name || (en ? "Guest" : "访客")} · {post.comment_count}{" "}
+                {en ? "replies" : "条回复"}
               </p>
               <div className="mt-4 flex flex-wrap gap-4">
                 <button
@@ -376,7 +557,7 @@ function DiscussionsPage() {
                       : "查看 / 回复"}{" "}
                   ↗
                 </button>
-                {session?.user && post.is_author === 1 && (
+                {tokenFor("post", post.id) && (
                   <>
                     <button
                       onClick={() => {
@@ -396,14 +577,12 @@ function DiscussionsPage() {
                     </button>
                   </>
                 )}
-                {session?.user && (
-                  <button
-                    onClick={() => setReportTarget("post:" + post.id + ":" + post.id)}
-                    className="border-b-2 border-foreground pb-1"
-                  >
-                    {en ? "Report" : "举报"}
-                  </button>
-                )}
+                <button
+                  onClick={() => setReportTarget(`post:${post.id}`)}
+                  className="border-b-2 border-foreground pb-1"
+                >
+                  {en ? "Report" : "举报"}
+                </button>
               </div>
               {expanded === post.id && (
                 <div className="mt-5 border-t border-paper-foreground/30 pt-4">
@@ -412,14 +591,14 @@ function DiscussionsPage() {
                       <div key={comment.id} className="border-l-2 border-primary pl-3">
                         {editCommentId === comment.id ? (
                           <form
-                            onSubmit={(e) => void updateComment(e, comment.id, post.id)}
+                            onSubmit={(event) => void updateComment(event, comment.id, post.id)}
                             className="flex flex-col gap-2"
                           >
                             <textarea
                               required
                               maxLength={4000}
                               value={editCommentBody}
-                              onChange={(e) => setEditCommentBody(e.target.value)}
+                              onChange={(event) => setEditCommentBody(event.target.value)}
                               rows={3}
                               className="border-2 border-paper-foreground bg-transparent p-2"
                             />
@@ -440,92 +619,122 @@ function DiscussionsPage() {
                           <p className="whitespace-pre-wrap">{comment.body}</p>
                         )}
                         <p className="mt-1 text-xs text-paper-muted">
-                          {comment.author_name}
-                          {comment.parent_id ? (en ? " · reply" : " · 回复") : ""}{" "}
-                          {session?.user && (
-                            <button
-                              onClick={() =>
-                                setReportTarget("comment:" + comment.id + ":" + post.id)
-                              }
-                              className="underline"
-                            >
-                              {en ? "Report" : "举报"}
-                            </button>
-                          )}{" "}
-                          {session?.user &&
-                            comment.is_author === 1 &&
-                            editCommentId !== comment.id && (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    setEditCommentId(comment.id);
-                                    setEditCommentBody(comment.body);
-                                  }}
-                                  className="underline"
-                                >
-                                  {en ? "Edit" : "编辑"}
-                                </button>
-                                <button
-                                  onClick={() => void deleteComment(comment.id, post.id)}
-                                  className="underline"
-                                >
-                                  {en ? "Delete" : "删除"}
-                                </button>
-                              </>
-                            )}
+                          {comment.author_name || (en ? "Guest" : "访客")}{" "}
+                          {comment.parent_id ? (en ? " · reply" : " · 回复") : ""} ·{" "}
+                          <button
+                            onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
+                            className="underline"
+                          >
+                            {en ? "Reply" : "回复"}
+                          </button>{" "}
+                          ·{" "}
+                          <button
+                            onClick={() => setReportTarget(`comment:${comment.id}`)}
+                            className="underline"
+                          >
+                            {en ? "Report" : "举报"}
+                          </button>{" "}
+                          {tokenFor("comment", comment.id) && editCommentId !== comment.id && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditCommentId(comment.id);
+                                  setEditCommentBody(comment.body);
+                                }}
+                                className="underline"
+                              >
+                                {en ? "Edit" : "编辑"}
+                              </button>
+                              <button
+                                onClick={() => void deleteComment(comment.id, post.id)}
+                                className="underline"
+                              >
+                                {en ? "Delete" : "删除"}
+                              </button>
+                            </>
+                          )}
                         </p>
                       </div>
                     ))}
                   </div>
-                  {session?.user ? (
-                    <form
-                      onSubmit={(e) => void createComment(e, post.id)}
-                      className="mt-4 flex flex-col gap-2 sm:flex-row"
-                    >
-                      <input
-                        required
-                        maxLength={4000}
-                        value={commentDraft}
-                        onChange={(e) => setCommentDraft(e.target.value)}
-                        placeholder={en ? "Write a reply" : "写下回复"}
-                        className="min-w-0 flex-1 border-2 border-paper-foreground bg-transparent px-3 py-2"
-                      />
-                      <button className="bg-primary px-4 py-2 font-bold text-primary-foreground">
-                        {en ? "Reply" : "回复"}
+                  <form
+                    onSubmit={(event) => void createComment(event, post.id)}
+                    className="mt-4 flex flex-col gap-2"
+                  >
+                    {replyTo && (
+                      <p className="text-sm">
+                        {en ? "Replying to a comment" : "正在回复一条评论"}{" "}
+                        <button
+                          type="button"
+                          onClick={() => setReplyTo(null)}
+                          className="underline"
+                        >
+                          {en ? "Cancel" : "取消"}
+                        </button>
+                      </p>
+                    )}
+                    <textarea
+                      required
+                      maxLength={4000}
+                      value={commentDraft}
+                      onChange={(event) => setCommentDraft(event.target.value)}
+                      rows={3}
+                      placeholder={en ? "Write a reply" : "写下回复"}
+                      className="min-w-0 border-2 border-paper-foreground bg-transparent px-3 py-2"
+                    />
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-xs">{commentDraft.length}/4000</span>
+                      {siteKey ? (
+                        <TurnstileWidget
+                          key={`${post.id}-${commentCaptchaCycle}`}
+                          siteKey={siteKey}
+                          onToken={setCommentTurnstileToken}
+                        />
+                      ) : (
+                        <span className="text-xs">
+                          {en ? "Anti-spam verification unavailable." : "反垃圾验证暂不可用。"}
+                        </span>
+                      )}
+                      <button
+                        disabled={!siteKey || !commentTurnstileToken}
+                        className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
+                      >
+                        {en ? "Submit reply for review" : "提交回复审核"}
                       </button>
-                    </form>
-                  ) : (
-                    <Link
-                      to="/join"
-                      className="mt-4 inline-block border-b-2 border-foreground pb-1 font-bold"
-                    >
-                      {en ? "Sign in to reply" : "登录后回复"} ↗
-                    </Link>
-                  )}
+                    </div>
+                  </form>
                 </div>
               )}
-              {reportTarget && reportTarget.endsWith(":" + post.id) && (
-                <form
-                  onSubmit={(e) => void submitReport(e)}
-                  className="mt-4 flex flex-col gap-2 sm:flex-row"
-                >
-                  <input
-                    required
-                    minLength={3}
-                    maxLength={1000}
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                    placeholder={en ? "Why are you reporting this?" : "请简要说明举报原因"}
-                    className="min-w-0 flex-1 border-2 border-paper-foreground bg-transparent px-3 py-2"
-                  />
-                  <button className="border-2 border-paper-foreground px-4 py-2 font-bold">
-                    {en ? "Send report" : "提交举报"}
-                  </button>
-                  <button type="button" onClick={() => setReportTarget(null)} className="px-3 py-2">
-                    {en ? "Cancel" : "取消"}
-                  </button>
-                </form>
-              )}
+              {reportTarget &&
+                (reportTarget === `post:${post.id}` ||
+                  (comments[post.id] ?? []).some(
+                    (comment) => reportTarget === `comment:${comment.id}`,
+                  )) && (
+                  <form
+                    onSubmit={(event) => void submitReport(event)}
+                    className="mt-4 flex flex-col gap-2 sm:flex-row"
+                  >
+                    <input
+                      required
+                      minLength={3}
+                      maxLength={1000}
+                      value={reportReason}
+                      onChange={(event) => setReportReason(event.target.value)}
+                      placeholder={en ? "Why are you reporting this?" : "请简要说明举报原因"}
+                      className="min-w-0 flex-1 border-2 border-paper-foreground bg-transparent px-3 py-2"
+                    />
+                    <button className="border-2 border-paper-foreground px-4 py-2 font-bold">
+                      {en ? "Send report" : "提交举报"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setReportTarget(null)}
+                      className="px-3 py-2"
+                    >
+                      {en ? "Cancel" : "取消"}
+                    </button>
+                  </form>
+                )}
             </article>
           ))
         )}

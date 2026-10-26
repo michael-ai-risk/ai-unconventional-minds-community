@@ -9,7 +9,8 @@
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy` (or repository script `npm run deploy`, which builds first)
 - D1 binding: `DB`
-- Secret name: `BETTER_AUTH_SECRET`
+- Worker secrets: `BETTER_AUTH_SECRET`, `TURNSTILE_SECRET_KEY`; set `ADMIN_BOOTSTRAP_SECRET` only for initial staff setup, then remove it
+- Build-time public variable: `VITE_TURNSTILE_SITE_KEY`
 - Plain-text variable name: `SITE_ORIGIN` (exact preview origin)
 
 Cloudflare's official setup guide for TanStack Start documents the Cloudflare Vite plugin and Worker server entry used here: [TanStack Start on Cloudflare Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/). Workers Builds separates the build command from the deploy command and supports non-production branch previews: [Build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
@@ -23,10 +24,11 @@ User-provided record: Cloudflare Build `#1f3c5a03` connected to the GitHub repos
 1. Set the Cloudflare Worker Builds build command to `npm run build` and deploy command to `npx wrangler deploy`.
 2. Set non-production preview branch to `feat/community-migration-and-mvp`; do not merge `main` to trigger a test.
 3. Create/reuse one D1 database for this preview, apply `migrations/` to the preview database, and replace the placeholder `database_id` in `wrangler.jsonc` with Cloudflare's real generated ID.
-4. Add Worker secret `BETTER_AUTH_SECRET` with a newly generated random value; do not paste it into Git or a plain `vars` field.
-5. Set `SITE_ORIGIN` to the exact preview origin. Better Auth uses it as `baseURL` and its trusted origin.
-6. Trigger the feature-branch build, read the full build/deploy log, and capture the exact test URL.
-7. Open the URL in a real browser, verify runtime logs, account creation, posts, comments, ownership checks, and mobile/desktop layout. Do not bind a production domain or announce a launch.
+4. Add Worker secrets `BETTER_AUTH_SECRET` and `TURNSTILE_SECRET_KEY`; never paste them into Git or a plain `vars` field. Set the public `VITE_TURNSTILE_SITE_KEY` build variable to the matching Turnstile site key.
+5. Set `SITE_ORIGIN` to the exact preview origin. Better Auth uses it as its trusted origin; Turnstile response hostnames are checked against it.
+6. For first staff setup only, configure a random `ADMIN_BOOTSTRAP_SECRET`, call the one-time bootstrap endpoint over HTTPS, then remove that secret. The admin credential is not a visitor account.
+7. Trigger the feature-branch build, read the full build/deploy log, and capture the exact test URL.
+8. Open the URL in a real browser, verify runtime logs, anonymous posting/commenting, moderation, ownership checks, and mobile/desktop layout. Do not bind a production domain or announce a launch.
 
 Do not apply the historical PostgreSQL files under `drizzle/migrations/` to D1. They belong to the original Supabase backend. Apply only the root `migrations/` directory.
 

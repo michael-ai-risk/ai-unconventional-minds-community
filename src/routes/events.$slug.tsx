@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
 
 type EventRecord = {
@@ -30,10 +29,8 @@ function EventDetailPage() {
   const { slug } = Route.useParams();
   const { lang, t } = useI18n();
   const en = lang === "en";
-  const { data: session } = authClient.useSession();
   const [event, setEvent] = useState<EventRecord | null>(null);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   useEffect(() => {
     fetch("/api/community/events/" + encodeURIComponent(slug))
       .then(async (r) => {
@@ -43,22 +40,6 @@ function EventDetailPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, [slug]);
-  const interest = async () => {
-    setError("");
-    setMessage("");
-    try {
-      const r = await fetch("/api/community/events/" + event?.id + "/interest", {
-        method: "POST",
-        credentials: "include",
-        headers: { Origin: window.location.origin },
-      });
-      const data = (await r.json()) as { error?: string };
-      if (!r.ok) throw new Error(data.error || "Could not save interest");
-      setMessage(en ? "Your interest was saved." : "已记录你的兴趣。");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  };
   const date = event?.starts_at
     ? new Date(event.starts_at).toLocaleString(en ? "en-GB" : "zh-CN", {
         dateStyle: "medium",
@@ -126,26 +107,18 @@ function EventDetailPage() {
               <p className="mt-3 whitespace-pre-wrap">{en ? event.recap_en : event.recap_zh}</p>
             </section>
           ) : null}
-          {event.status === "scheduled" &&
-            (session?.user ? (
-              <button
-                onClick={() => void interest()}
-                className="mt-8 bg-primary px-5 py-3 font-bold text-primary-foreground"
-              >
-                {en ? "Let us know you're interested" : "登记参加兴趣"}
-              </button>
-            ) : (
-              <p className="mt-8">
-                {en ? "Sign in to register interest." : "登录后可登记参加兴趣。"}
-              </p>
-            ))}
-          {message && (
-            <p role="status" className="mt-4">
-              {message}
-            </p>
-          )}
-          <p className="mt-5 text-sm text-muted-foreground">
-            {en ? "Interest is not a confirmed booking." : "登记兴趣不代表报名已确认。"}
+          <a
+            href="https://tally.so/r/PRdaO5"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-8 inline-block bg-primary px-5 py-3 font-bold text-primary-foreground"
+          >
+            {en ? "Share your thoughts (optional)" : "参与活动小调查（自愿填写）"} ↗
+          </a>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {en
+              ? "The survey is optional and is not a booking or account sign-up."
+              : "问卷完全自愿，不是活动报名、座位确认或加入社区的条件。"}
           </p>
         </article>
       )}

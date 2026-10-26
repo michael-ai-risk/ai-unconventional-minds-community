@@ -77,3 +77,37 @@ This section records the Phase 2 changes and tests. The Phase 1 limitations abov
 - Initial `vite dev` and `wrangler dev` attempts failed with `uv_interface_addresses returned Unknown system error 1` in this network-isolated environment. A local loopback-only Node preload was used to expose loopback interface metadata for Wrangler; no application/network security control was disabled. The local API smoke suite then passed.
 - First Better Auth registration attempts exposed missing `rateLimit` storage schema (first missing table, then missing generated `id`); migration `0002` was corrected before end-to-end smoke tests. No failed entries above have been removed.
 - The first full `npm run lint` attempt after adding the new routes failed with 2 Prettier errors in `src/lib/i18n.tsx` and 7 Fast Refresh warnings. The file was formatted; the final full lint run exits 0 with the same 7 warnings. The earlier failure is retained here.
+
+## Anonymous participation product change — 2026-10-26
+
+This update supersedes the previous registration-based product behavior. The historical phase results above are retained as historical evidence and are not claims about the current product.
+
+### IMPLEMENTED
+
+- Removed the visitor join page and account prompts. Visitors can browse public discussions without a session; signup POST routes now return `410`.
+- Better Auth is retained for staff. Staff email sign-in is checked against the server-side `roles` table before Better Auth handles credentials. Non-staff sign-in is rejected; admin APIs still verify the session and role independently.
+- Added D1 migration `0004_guest_posting.sql`: optional public author labels, SHA-256 edit-key hashes, anonymous report fingerprints, a non-login guest foreign-key identity, and a one-time admin-bootstrap lock.
+- Anonymous post/comment creation validates same-origin writes, streams a bounded request body, applies per-source/action limits, verifies Turnstile server-side, and inserts new content as `pending`. Report submission is anonymous and rate-limited. Content owners may edit/delete only with the unguessable key returned once at creation; staff moderation remains role-gated.
+- Added one-time staff bootstrap using a secret request header. Remove `ADMIN_BOOTSTRAP_SECRET` immediately after setup. The discussion UI now puts a separate Turnstile control next to the post and comment forms and warns when browser storage cannot keep a private edit key.
+- Updated the privacy page, product spec, architecture, deployment instructions, and README for no-account participation, moderation, request metadata, content deletion requests, and independent Tally handling.
+- Fixed local Wrangler D1 persistence configuration so the preview Worker and local migration command use the same persistence directory.
+
+### TESTED
+
+- `npm run build`: passed, including TypeScript. Vite reports the existing CSS post-processing sourcemap warning.
+- `npm test`: 12 tests passed across 2 files.
+- `npm run lint`: exit 0, with 7 existing Fast Refresh warnings and no errors.
+- `git diff --check`: passed.
+- Local Wrangler + isolated D1: public categories, events, and discussion feed returned `200`; public signup returned `410`; non-staff sign-in returned `401`; first staff bootstrap returned `201`, repeat bootstrap `409`, staff sign-in `200`, and anonymous moderation access `401`; an invalid Turnstile token returned `403`. The Worker and migration state now share the same explicit persistence directory.
+
+### BLOCKED
+
+- The local Worker runtime could not resolve `challenges.cloudflare.com` (`Temporary failure in name resolution`). Therefore a valid Turnstile response could not be verified through the real endpoint in this sandbox. Anonymous post/comment `201` creation, fresh-read persistence, pending moderation, owner-key authorization, and the end-to-end admin moderation flow are not claimed as tested in this run. Do not disable Turnstile to work around this local network restriction.
+- No Cloudflare preview credentials, remote D1 database ID, or deployed preview URL were available. Cloudflare-hosted Turnstile and browser verification remain outstanding.
+- No connected browser could reach the local Worker in this environment, so mobile and desktop screenshots, menu navigation, Tally click-through, and mobile posting usability were not browser-verified.
+
+### NOT_IMPLEMENTED / LIMITS
+
+- Visitor account registration, login, email collection, and member profiles are intentionally not part of this product.
+- Staff account setup still depends on the one-time bootstrap secret and Better Auth password login. Email delivery, recovery, and second-factor configuration are not set up; restrict any preview to intended reviewers and remove the bootstrap secret after setup.
+- The D1 `database_id` in `wrangler.jsonc` remains the zero UUID placeholder. Replace it only with a real ID from the user's Cloudflare account before a remote migration/deploy. No remote D1 migration was run.

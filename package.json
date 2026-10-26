@@ -4,11 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "npm run build && npm run d1:migrate:preview && wrangler dev --local --ip 127.0.0.1 --config dist/server/wrangler.json",
+    "dev": "npm run build && npm run d1:migrate:preview && wrangler dev --local --ip 127.0.0.1 --config dist/server/wrangler.json --persist-to dist/server/.wrangler/state",
     "dev:worker": "vite dev",
     "build": "vite build && tsc --noEmit",
     "build:dev": "vite build --mode development",
-    "preview": "wrangler dev --local --ip 127.0.0.1 --config dist/server/wrangler.json",
+    "preview": "wrangler dev --local --ip 127.0.0.1 --config dist/server/wrangler.json --persist-to dist/server/.wrangler/state",
     "deploy": "npm run build && wrangler deploy",
     "d1:migrate:local": "wrangler d1 migrations apply ai-unconventional-minds-community --local",
     "d1:migrate:remote": "wrangler d1 migrations apply ai-unconventional-minds-community --remote",
