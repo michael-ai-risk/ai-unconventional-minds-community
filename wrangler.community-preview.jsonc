@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "community-pr2-preview",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-10-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "preview_urls": true,
+  "observability": { "enabled": true },
+  "vars": {
+    "SITE_ORIGIN": "https://community-pr2-preview-ai-unconventional-minds-community.xiening668.workers.dev",
+  },
+  "assets": {
+    "directory": "dist/client",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-unconventional-minds-community-preview",
+      "database_id": "2a4ef7bf-09d2-4d91-997e-abfb3e86cb60",
+      "migrations_dir": "migrations",
+    },
+  ],
+}

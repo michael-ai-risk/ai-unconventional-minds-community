@@ -110,52 +110,6 @@ async function digest(value: string): Promise<string> {
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function sourceFingerprint(request: Request): Promise<string> {
-  const ip = request.headers.get("cf-connecting-ip") || "local-unknown";
-  // Anonymous writes need a keyed source fingerprint before Better Auth is
-  // initialized. Prefer the app secret, but allow the configured Preview secret
-  // as root key while auth setup is optional; HKDF keeps this use domain-separated.
-  const secret = env.BETTER_AUTH_SECRET || env.TURNSTILE_SECRET_KEY;
-  if (!secret) throw new Error("Rate-limit fingerprint secret is not configured");
-  const encoder = new TextEncoder();
-  const material = await crypto.subtle.importKey("raw", encoder.encode(secret), "HKDF", false, [
-    "deriveKey",
-  ]);
-  const key = await crypto.subtle.deriveKey(
-    {
-      name: "HKDF",
-      hash: "SHA-256",
-      salt: encoder.encode("ai-unconventional-minds-community:rate-limit:v1"),
-      info: encoder.encode("source-fingerprint"),
-    },
-    material,
-    { name: "HMAC", hash: "SHA-256", length: 256 },
-    false,
-    ["sign"],
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(ip));
-  return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
-}
-
-async function allowWrite(request: Request, action: string, max = 5): Promise<boolean> {
-  const now = Math.floor(Date.now() / 1000);
-  const key = `${await sourceFingerprint(request)}:${action}`;
-  await env.DB.prepare(
-    `INSERT INTO rate_limits(key,window_started,hits) VALUES(?,?,1)
-     ON CONFLICT(key) DO UPDATE SET
-       hits = CASE WHEN window_started <= ? THEN 1 ELSE hits + 1 END,
-       window_started = CASE WHEN window_started <= ? THEN excluded.window_started ELSE window_started END`,
-  )
-    .bind(key, now, now - 60, now - 60)
-    .run();
-  const row = await env.DB.prepare("SELECT hits FROM rate_limits WHERE key = ?")
-    .bind(key)
-    .first<{ hits: number }>();
-  return (row?.hits ?? 0) <= max;
-}
-
 function createEditToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   let binary = "";
@@ -265,8 +219,6 @@ async function createPost(request: Request) {
   const displayName = text(body?.displayName ?? "", 0, 60) || "访客 / Guest";
   if (!title || !content || !category)
     return fail(400, "Check the title, body, and category lengths.");
-  if (!(await allowWrite(request, "post:create", 12)))
-    return fail(429, "Too many posts from this network. Please wait a little and try again.");
   const categoryRow = await env.DB.prepare("SELECT slug FROM categories WHERE slug=? AND enabled=1")
     .bind(category)
     .first();
@@ -287,8 +239,6 @@ async function createComment(request: Request, postId: string) {
   const displayName = text(body?.displayName ?? "", 0, 60) || "访客 / Guest";
   const parentId = typeof body?.parentId === "string" ? body.parentId : null;
   if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
-  if (!(await allowWrite(request, "comment:create", 60)))
-    return fail(429, "Too many comments from this network. Please wait a little and try again.");
   const post = await env.DB.prepare("SELECT id FROM posts WHERE id=? AND status='visible'")
     .bind(postId)
     .first();
@@ -312,8 +262,6 @@ async function createComment(request: Request, postId: string) {
 }
 
 async function createReport(request: Request, type: string, id: string) {
-  if (!(await allowWrite(request, "report:create", 20)))
-    return fail(429, "Too many reports from this network. Please wait before trying again.");
   if (type !== "post" && type !== "comment") return fail(400, "Unsupported report target.");
   const body = await bodyObject(request, 2_000);
   const reason = text(body?.reason, 3, 1_000);
@@ -321,13 +269,7 @@ async function createReport(request: Request, type: string, id: string) {
   const table = type === "post" ? "posts" : "comments";
   const target = await env.DB.prepare(`SELECT id FROM ${table} WHERE id=?`).bind(id).first();
   if (!target) return fail(404, "Report target not found.");
-  const fingerprint = await digest(`${await sourceFingerprint(request)}:${type}:${id}`);
-  const duplicate = await env.DB.prepare(
-    "SELECT id FROM reports WHERE reporter_fingerprint=? AND status='open' LIMIT 1",
-  )
-    .bind(fingerprint)
-    .first();
-  if (duplicate) return json({ accepted: true });
+  const fingerprint = crypto.randomUUID();
   const reportId = crypto.randomUUID();
   await env.DB.prepare(
     "INSERT INTO reports(id,reporter_id,reporter_fingerprint,target_type,target_id,reason) VALUES(?,?,?,?,?,?)",
@@ -577,8 +519,6 @@ async function handle(request: Request) {
     const staff = actor ? await hasStaffRole(actor) : false;
     if (!staff && !(await ownsContent(request, "posts", id)))
       return fail(403, "The private edit key is invalid or missing.");
-    if (!(await allowWrite(request, "post:update", 30)))
-      return fail(429, "Too many edits from this network. Please wait before trying again.");
     const body = await bodyObject(request, 9_000);
     if (!body) return fail(400, "Invalid request data.");
     const title = text(body.title, 3, 160);
@@ -615,8 +555,6 @@ async function handle(request: Request) {
     const staff = actor ? await hasStaffRole(actor) : false;
     if (!staff && !(await ownsContent(request, "comments", id)))
       return fail(403, "The private edit key is invalid or missing.");
-    if (!(await allowWrite(request, "comment:update", 40)))
-      return fail(429, "Too many edits from this network. Please wait before trying again.");
     const body = await bodyObject(request, 5_000);
     const content = text(body?.body, 1, 4_000);
     if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
