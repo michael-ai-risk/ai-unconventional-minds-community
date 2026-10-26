@@ -1,0 +1,1 @@
+update public.articles set source_links = array['https://www.immigration.go.th','https://www.mfa.go.th'] where slug = 'chiang-mai-remote-work-questions';
