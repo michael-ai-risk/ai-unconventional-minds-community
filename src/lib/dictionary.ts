@@ -242,6 +242,18 @@ export const dict = d({
     en: "Compare practical uses of AI in investment research, marketing, e-commerce, business operations, and digital products. Share questions and experience, and see what collaboration might emerge.",
     th: "แลกเปลี่ยนการใช้ AI จริงในงานวิจัยการลงทุน การตลาด อีคอมเมิร์ซ การบริหารธุรกิจ และผลิตภัณฑ์ดิจิทัล แบ่งปันคำถามกับประสบการณ์ และสำรวจความเป็นไปได้ในการร่วมมือ",
   },
+  aboutTopic6Title: {
+    zh: "AI 就业与未来发展",
+    zhTW: "AI 就業與未來發展",
+    en: "AI, employment, and the future",
+    th: "AI การจ้างงาน และอนาคตการทำงาน",
+  },
+  aboutTopic6Body: {
+    zh: "关注 AI 带来的就业变化、新兴职业与技能需求，交流如何利用 AI 提升竞争力、寻找工作与创业机会，探索未来职业发展的更多可能。",
+    zhTW: "關注 AI 帶來的就業變化、新興職業與技能需求，交流如何運用 AI 提升競爭力、尋找工作與創業機會，探索未來職涯發展的更多可能。",
+    en: "Explore how AI is changing work, the new roles and skills emerging, and ways to use AI to strengthen your edge, find work, pursue entrepreneurial opportunities, and shape future career paths.",
+    th: "พูดคุยถึงการเปลี่ยนแปลงด้านการจ้างงานที่เกิดจาก AI อาชีพใหม่และทักษะที่ต้องการ แลกเปลี่ยนวิธีใช้ AI เพื่อเพิ่มความสามารถในการแข่งขัน หางาน และมองหาโอกาสในการเริ่มธุรกิจ พร้อมสำรวจความเป็นไปได้ใหม่ ๆ สำหรับเส้นทางอาชีพในอนาคต",
+  },
   aboutExploreNote: {
     zh: "这些是社区交流方向，不是正式课程、专业投资建议或保证交付的商业服务。",
     zhTW: "這些是社群交流方向，不是正式課程、專業投資建議或保證交付的商業服務。",

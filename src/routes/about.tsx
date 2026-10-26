@@ -15,6 +15,7 @@ function AboutPage() {
     ["aboutTopic3Title", "aboutTopic3Body"],
     ["aboutTopic4Title", "aboutTopic4Body"],
     ["aboutTopic5Title", "aboutTopic5Body"],
+    ["aboutTopic6Title", "aboutTopic6Body"],
   ] as const;
   const participationPoints = [
     "aboutParticipationPoint1",
