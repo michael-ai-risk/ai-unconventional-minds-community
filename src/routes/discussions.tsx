@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { useI18n } from "@/lib/i18n";
 
 type Category = { slug: string; title_zh: string; title_en: string };
@@ -26,7 +25,6 @@ type ContentKeys = Record<string, string>;
 type ApiResult = Record<string, unknown> & { id?: string; editToken?: string; status?: string };
 
 const contentKeysStorage = "ai-station-content-keys";
-const siteKey = import.meta.env["VITE_TURNSTILE_SITE_KEY"] || "";
 
 export const Route = createFileRoute("/discussions")({
   head: () => ({ meta: [{ title: "社区讨论 · AI非正常人类情报站" }] }),
@@ -95,10 +93,6 @@ function DiscussionsPage() {
   const [keys, setKeys] = useState<ContentKeys>({});
   const [lastKey, setLastKey] = useState("");
   const [lastContentId, setLastContentId] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
-  const [captchaCycle, setCaptchaCycle] = useState(0);
-  const [commentTurnstileToken, setCommentTurnstileToken] = useState("");
-  const [commentCaptchaCycle, setCommentCaptchaCycle] = useState(0);
 
   const persistKeys = (next: ContentKeys) => {
     try {
@@ -122,15 +116,6 @@ function DiscussionsPage() {
     setLastContentId(kind + ":" + id);
   };
   const tokenFor = (kind: "post" | "comment", id: string) => keys[`${kind}:${id}`];
-  const consumeTurnstile = () => {
-    setTurnstileToken("");
-    setCaptchaCycle((value) => value + 1);
-  };
-  const consumeCommentTurnstile = () => {
-    setCommentTurnstileToken("");
-    setCommentCaptchaCycle((value) => value + 1);
-  };
-
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -192,7 +177,6 @@ function DiscussionsPage() {
           body,
           category: category === "all" ? "general" : category,
           displayName,
-          turnstileToken,
         }),
       });
       if (result.id && result.editToken) saveKey("post", result.id, result.editToken);
@@ -203,13 +187,8 @@ function DiscussionsPage() {
           ? "Submitted for review. Your private edit key is shown below."
           : "已提交审核。你的私密管理凭证显示在下方。",
       );
-      consumeTurnstile();
       await load();
     } catch (e) {
-      // Turnstile tokens are single-use and expire quickly. Start a fresh
-      // challenge after a rejected request so the form never stays stuck on a
-      // token that the server has already consumed or rejected.
-      consumeTurnstile();
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setPosting(false);
@@ -227,14 +206,12 @@ function DiscussionsPage() {
           body: commentDraft,
           parentId: replyTo,
           displayName,
-          turnstileToken: commentTurnstileToken,
         }),
       });
       if (result.id && result.editToken) saveKey("comment", result.id, result.editToken);
       setCommentDraft("");
       setReplyTo(null);
       setMessage(en ? "Reply submitted for review." : "回复已提交审核。");
-      consumeCommentTurnstile();
       const resultAfter = await api<{ comments?: Comment[] }>(
         "posts/" + postId,
         undefined,
@@ -243,7 +220,6 @@ function DiscussionsPage() {
       setComments((previous) => ({ ...previous, [postId]: resultAfter.comments ?? [] }));
       await load();
     } catch (e) {
-      consumeCommentTurnstile();
       setError(e instanceof Error ? e.message : String(e));
     }
   };
@@ -457,17 +433,8 @@ function DiscussionsPage() {
         </label>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <span className="text-sm text-muted-foreground">{body.length}/8000</span>
-          {siteKey ? (
-            <TurnstileWidget key={captchaCycle} siteKey={siteKey} onToken={setTurnstileToken} />
-          ) : (
-            <span className="text-sm text-muted-foreground">
-              {en
-                ? "Posting is temporarily unavailable: anti-spam verification is not configured."
-                : "发帖暂不可用：网站尚未配置反垃圾验证。"}
-            </span>
-          )}
           <button
-            disabled={posting || !siteKey || !turnstileToken}
+            disabled={posting}
             className="bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-50"
           >
             {posting ? (en ? "Posting…" : "提交中…") : en ? "Post for review" : "提交审核"}
@@ -689,21 +656,7 @@ function DiscussionsPage() {
                     />
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <span className="text-xs">{commentDraft.length}/4000</span>
-                      {siteKey ? (
-                        <TurnstileWidget
-                          key={`${post.id}-${commentCaptchaCycle}`}
-                          siteKey={siteKey}
-                          onToken={setCommentTurnstileToken}
-                        />
-                      ) : (
-                        <span className="text-xs">
-                          {en ? "Anti-spam verification unavailable." : "反垃圾验证暂不可用。"}
-                        </span>
-                      )}
-                      <button
-                        disabled={!siteKey || !commentTurnstileToken}
-                        className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
-                      >
+                      <button className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50">
                         {en ? "Submit reply for review" : "提交回复审核"}
                       </button>
                     </div>

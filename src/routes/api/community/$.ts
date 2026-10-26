@@ -24,7 +24,6 @@ type Body = {
   venueEn?: unknown;
   categorySlug?: unknown;
   displayName?: unknown;
-  turnstileToken?: unknown;
   [key: string]: unknown;
 };
 
@@ -114,18 +113,14 @@ async function digest(value: string): Promise<string> {
 async function sourceFingerprint(request: Request): Promise<string> {
   const ip = request.headers.get("cf-connecting-ip") || "local-unknown";
   // Anonymous writes need a keyed source fingerprint before Better Auth is
-  // initialized. Prefer the app secret, but allow the already-required
-  // Turnstile secret as root key in Preview; HKDF keeps this use domain-separated.
+  // initialized. Prefer the app secret, but allow the configured Preview secret
+  // as root key while auth setup is optional; HKDF keeps this use domain-separated.
   const secret = env.BETTER_AUTH_SECRET || env.TURNSTILE_SECRET_KEY;
   if (!secret) throw new Error("Rate-limit fingerprint secret is not configured");
   const encoder = new TextEncoder();
-  const material = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    "HKDF",
-    false,
-    ["deriveKey"],
-  );
+  const material = await crypto.subtle.importKey("raw", encoder.encode(secret), "HKDF", false, [
+    "deriveKey",
+  ]);
   const key = await crypto.subtle.deriveKey(
     {
       name: "HKDF",
@@ -159,67 +154,6 @@ async function allowWrite(request: Request, action: string, max = 5): Promise<bo
     .bind(key)
     .first<{ hits: number }>();
   return (row?.hits ?? 0) <= max;
-}
-
-type TurnstileVerification = {
-  ok: boolean;
-  reason?: string;
-  errorCodes?: string[];
-  status?: number;
-  hostname?: string;
-};
-
-async function verifyTurnstile(request: Request, token: unknown): Promise<TurnstileVerification> {
-  if (typeof token !== "string" || token.length < 10 || token.length > 2_048)
-    return { ok: false, reason: "missing_or_malformed_token" };
-  if (!env.TURNSTILE_SECRET_KEY) return { ok: false, reason: "secret_not_configured" };
-  const form = new FormData();
-  form.set("secret", env.TURNSTILE_SECRET_KEY);
-  form.set("response", token);
-  const ip = request.headers.get("cf-connecting-ip");
-  if (ip) form.set("remoteip", ip);
-  try {
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      body: form,
-    });
-    if (!response.ok)
-      return { ok: false, reason: "siteverify_http_error", status: response.status };
-    const result = (await response.json().catch(() => null)) as {
-      success?: boolean;
-      hostname?: string;
-      "error-codes"?: string[];
-      metadata?: { result_with_testing_key?: boolean };
-    } | null;
-    if (result?.success !== true)
-      return {
-        ok: false,
-        reason: "siteverify_rejected",
-        errorCodes: result?.["error-codes"] ?? [],
-        ...(result?.hostname ? { hostname: result.hostname } : {}),
-      };
-    const expectedHost = new URL(env.SITE_ORIGIN).hostname;
-    if (result["hostname"] === expectedHost) return { ok: true };
-    const requestHost = new URL(request.url).hostname;
-    if (
-      result.metadata?.result_with_testing_key === true &&
-      ["localhost", "127.0.0.1"].includes(requestHost)
-    )
-      return { ok: true };
-    return {
-      ok: false,
-      reason: "hostname_mismatch",
-      ...(result["hostname"] ? { hostname: result["hostname"] } : {}),
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      reason:
-        error instanceof Error
-          ? `siteverify_request_error:${error.name}`
-          : "siteverify_request_error",
-    };
-  }
 }
 
 function createEditToken(): string {
@@ -333,11 +267,6 @@ async function createPost(request: Request) {
     return fail(400, "Check the title, body, and category lengths.");
   if (!(await allowWrite(request, "post:create", 12)))
     return fail(429, "Too many posts from this network. Please wait a little and try again.");
-  const verification = await verifyTurnstile(request, body?.turnstileToken);
-  if (!verification.ok) {
-    console.warn("Turnstile verification rejected", verification);
-    return fail(403, "Anti-spam verification failed or is not configured.");
-  }
   const categoryRow = await env.DB.prepare("SELECT slug FROM categories WHERE slug=? AND enabled=1")
     .bind(category)
     .first();
@@ -360,11 +289,6 @@ async function createComment(request: Request, postId: string) {
   if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
   if (!(await allowWrite(request, "comment:create", 60)))
     return fail(429, "Too many comments from this network. Please wait a little and try again.");
-  const verification = await verifyTurnstile(request, body?.turnstileToken);
-  if (!verification.ok) {
-    console.warn("Turnstile verification rejected", verification);
-    return fail(403, "Anti-spam verification failed or is not configured.");
-  }
   const post = await env.DB.prepare("SELECT id FROM posts WHERE id=? AND status='visible'")
     .bind(postId)
     .first();
