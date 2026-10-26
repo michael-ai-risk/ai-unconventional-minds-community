@@ -28,6 +28,16 @@ function Home() {
                 {t("homeTitleB")}
               </span>
             </h1>
+            <div className="mt-6 grid gap-4 border-y-2 border-foreground py-4 sm:grid-cols-2 sm:gap-6">
+              <div>
+                <p className="label-mono text-accent">{t("homeSloganLabel")}</p>
+                <p className="mt-2 font-bold leading-relaxed">{t("homeSlogan")}</p>
+              </div>
+              <div>
+                <p className="label-mono text-accent">{t("homePhilosophyLabel")}</p>
+                <p className="mt-2 leading-relaxed">{t("homePhilosophy")}</p>
+              </div>
+            </div>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               {t("homeIntro")}
             </p>

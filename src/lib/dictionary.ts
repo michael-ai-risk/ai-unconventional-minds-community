@@ -60,6 +60,20 @@ export const dict = d({
     en: "Share real experiences. Meet curious people.",
     th: "แบ่งปันประสบการณ์จริง พบปะผู้คนที่ช่างสงสัย",
   },
+  homeSloganLabel: { zh: "我们的口号", zhTW: "我們的口號", en: "OUR MOTTO", th: "คำขวัญของเรา" },
+  homeSlogan: {
+    zh: "来和 ChatGPT、Codex、Claude 做朋友吧。",
+    zhTW: "來和 ChatGPT、Codex、Claude 做朋友吧。",
+    en: "Come make friends with ChatGPT, Codex, and Claude.",
+    th: "มาเป็นเพื่อนกับ ChatGPT, Codex และ Claude กันเถอะ",
+  },
+  homePhilosophyLabel: { zh: "我们的理念", zhTW: "我們的理念", en: "OUR IDEA", th: "แนวคิดของเรา" },
+  homePhilosophy: {
+    zh: "为什么叫非正常人类？因为我们是碳基生命与硅基生命的集合体。",
+    zhTW: "為什麼叫非正常人類？因為我們是碳基生命與矽基生命的集合體。",
+    en: "Why “Unconventional Minds”? Because we are a gathering of carbon-based and silicon-based life.",
+    th: "ทำไมถึงเรียกว่า “มนุษย์นอกกรอบ”? เพราะเราเป็นการรวมตัวของสิ่งมีชีวิตฐานคาร์บอนและฐานซิลิคอน",
+  },
   homeIntro: {
     zh: "欢迎任何对 AI 感兴趣的人。不需要技术背景、不需要商业资源，也不用带着明确目标来。可以聊最近的新发现，也可以聊一次失败的尝试，或只是认识新朋友。",
     zhTW: "歡迎所有對 AI 感興趣的人。不需要技術背景或商業資源，也不用帶著明確目標前來。可以聊聊最近的新發現、一次不太成功的嘗試，或單純認識新朋友。",
