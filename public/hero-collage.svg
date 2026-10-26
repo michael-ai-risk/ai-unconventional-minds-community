@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">AI Unconventional Minds editorial collage</title>
+  <desc id="desc">A hand-built zine-style illustration about curious people meeting to talk about AI in Chiang Mai.</desc>
+  <defs>
+    <pattern id="grain" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1" fill="#141414" opacity=".16"/>
+      <circle cx="13" cy="14" r=".8" fill="#141414" opacity=".12"/>
+    </pattern>
+    <pattern id="stripes" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+      <rect width="14" height="14" fill="#111"/><path d="M0 0v14" stroke="#d7ff38" stroke-width="5"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="900" fill="#e9e1ce"/>
+  <path d="M0 0h900v900H0z" fill="url(#grain)"/>
+  <path d="M34 40h830v820H34z" fill="none" stroke="#111" stroke-width="6"/>
+  <path d="M55 70h790v54H55z" fill="#d7ff38" stroke="#111" stroke-width="5"/>
+  <text x="78" y="108" font-family="monospace" font-size="25" font-weight="900" letter-spacing="2">CHIANG MAI · OPEN AI MEETUP</text>
+  <path d="M66 152 839 142 820 590 54 601z" fill="#d7ff38" stroke="#111" stroke-width="7"/>
+  <text x="82" y="280" font-family="Arial,sans-serif" font-size="142" font-weight="900" letter-spacing="-9" fill="#111">AI</text>
+  <text x="81" y="352" font-family="Arial,sans-serif" font-size="41" font-weight="900" fill="#111">CURIOUS MINDS</text>
+  <text x="82" y="403" font-family="Arial,sans-serif" font-size="41" font-weight="900" fill="#111">WELCOME HERE</text>
+  <path d="m559 208 224 6-8 295-220-7z" fill="#f4ecdc" stroke="#111" stroke-width="6"/>
+  <path d="m591 290 160-29-37 78-112 16z" fill="url(#stripes)" stroke="#111" stroke-width="5"/>
+  <circle cx="673" cy="407" r="60" fill="#111"/>
+  <path d="M617 400q55-53 111-2l-9 27q-54-33-94 9z" fill="#f4ecdc"/>
+  <circle cx="655" cy="408" r="6" fill="#d7ff38"/><circle cx="695" cy="408" r="6" fill="#d7ff38"/>
+  <path d="M643 440q32 26 62-4" fill="none" stroke="#d7ff38" stroke-width="7"/>
+  <path d="M597 486q75-28 148 8l-20 45-113-4z" fill="#ed5b3f" stroke="#111" stroke-width="5"/>
+  <path d="m82 465 400-3-5 96-397 8z" fill="#111"/>
+  <text x="103" y="528" font-family="Arial,sans-serif" font-size="34" font-weight="900" fill="#f4ecdc">TALK · SHARE · MEET</text>
+  <path d="M54 629h796v186H54z" fill="#111"/>
+  <path d="M75 650h269v143H75z" fill="#ed5b3f" stroke="#f4ecdc" stroke-width="4"/>
+  <path d="m93 772 69-86 45 47 39-57 78 96z" fill="#d7ff38" stroke="#111" stroke-width="4"/>
+  <circle cx="287" cy="678" r="15" fill="#f4ecdc"/>
+  <text x="375" y="691" font-family="monospace" font-size="24" font-weight="800" fill="#d7ff38">NO TECH TEST</text>
+  <text x="375" y="733" font-family="monospace" font-size="24" font-weight="800" fill="#f4ecdc">NO BUSINESS PITCH</text>
+  <text x="375" y="775" font-family="monospace" font-size="24" font-weight="800" fill="#f4ecdc">JUST CURIOSITY</text>
+  <path d="m720 45 100 43-64 99-102-46z" fill="#ed5b3f" stroke="#111" stroke-width="5"/>
+  <text x="690" y="118" transform="rotate(23 690 118)" font-family="monospace" font-size="20" font-weight="900">ISSUE 001</text>
+</svg>
