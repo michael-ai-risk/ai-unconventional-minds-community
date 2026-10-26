@@ -113,14 +113,32 @@ async function digest(value: string): Promise<string> {
 
 async function sourceFingerprint(request: Request): Promise<string> {
   const ip = request.headers.get("cf-connecting-ip") || "local-unknown";
-  const key = await crypto.subtle.importKey(
+  // Anonymous writes need a keyed source fingerprint before Better Auth is
+  // initialized. Prefer the app secret, but allow the already-required
+  // Turnstile secret as root key in Preview; HKDF keeps this use domain-separated.
+  const secret = env.BETTER_AUTH_SECRET || env.TURNSTILE_SECRET_KEY;
+  if (!secret) throw new Error("Rate-limit fingerprint secret is not configured");
+  const encoder = new TextEncoder();
+  const material = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(env.BETTER_AUTH_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
+    encoder.encode(secret),
+    "HKDF",
+    false,
+    ["deriveKey"],
+  );
+  const key = await crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: encoder.encode("ai-unconventional-minds-community:rate-limit:v1"),
+      info: encoder.encode("source-fingerprint"),
+    },
+    material,
+    { name: "HMAC", hash: "SHA-256", length: 256 },
     false,
     ["sign"],
   );
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(ip));
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(ip));
   return Array.from(new Uint8Array(signature), (byte) => byte.toString(16).padStart(2, "0")).join(
     "",
   );
