@@ -5,6 +5,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "observability": { "enabled": true },
+  "preview_urls": true,
   "vars": {
     "SITE_ORIGIN": "http://localhost:8787",
   },
