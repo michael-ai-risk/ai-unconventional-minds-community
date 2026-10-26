@@ -27,8 +27,7 @@ export const Route = createFileRoute("/events")({
 });
 
 function EventsPage() {
-  const { lang, t } = useI18n();
-  const en = lang === "en";
+  const { lang, t, pick } = useI18n();
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -42,36 +41,44 @@ function EventsPage() {
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, []);
-  const date = (value: string | null) =>
-    value
-      ? new Date(value).toLocaleString(en ? "en-GB" : "zh-CN", {
+  const date = (value: string | null) => {
+    const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : "en-GB";
+    return value
+      ? new Date(value).toLocaleString(locale, {
           dateStyle: "medium",
           timeStyle: "short",
         })
-      : en
-        ? "Not confirmed"
-        : "尚未确认";
+      : t("notConfirmed");
+  };
+  const statusLabel = (status: string) =>
+    status === "tba"
+      ? t("eventTba")
+      : status === "scheduled"
+        ? t("eventScheduled")
+        : status === "past"
+          ? t("eventPast")
+          : status === "cancelled"
+            ? t("eventCancelled")
+            : status;
   return (
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
       <p className="label-mono text-accent">4SEAS / EVENTS</p>
-      <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{en ? "Events" : "活动"}</h1>
+      <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{t("navEvents")}</h1>
       <p className="mt-5 max-w-3xl text-lg text-muted-foreground">
-        {en
-          ? "Free, relaxed gatherings in Chiang Mai. A survey shares interest only; it does not reserve a seat."
-          : "清迈免费、轻松的线下聚会。小调查只收集兴趣，不代表确认座位。"}
+        {t("eventsIntro")}
       </p>
       {error && (
         <p role="alert" className="mt-6 border-2 border-red-700 p-4 text-red-800">
-          {en ? "Event service unavailable: " + error : "活动服务暂不可用：" + error}
+          {t("eventServiceUnavailable") + error}
         </p>
       )}
       {loading ? (
         <p role="status" className="mt-8">
-          {en ? "Loading events…" : "正在读取活动…"}
+          {t("loadingEvents")}
         </p>
       ) : !events.length && !error ? (
         <p className="mt-8 border-2 border-foreground p-5">
-          {en ? "There are no published events yet." : "目前还没有发布的活动。"}
+          {t("noEvents")}
         </p>
       ) : (
         <div className="mt-8 space-y-6">
@@ -79,38 +86,32 @@ function EventsPage() {
             <article key={item.id} className="paper border-2 border-foreground p-6 md:p-9">
               <div className="flex flex-wrap gap-2 label-mono">
                 <span className="bg-primary px-2 py-1 text-primary-foreground">
-                  {item.is_free ? t("freeEvent") : en ? "Paid" : "收费"}
+                  {item.is_free ? t("freeEvent") : t("paid")}
                 </span>
                 <span className="border border-paper-foreground px-2 py-1">
-                  {item.status === "tba" ? t("eventTba") : item.status}
+                  {statusLabel(item.status)}
                 </span>
                 <span className="border border-paper-foreground px-2 py-1">
-                  {en ? item.language_en : item.language_zh}
+                  {pick(item, "language")}
                 </span>
               </div>
               <h2 className="mt-6 font-cn-black text-2xl md:text-4xl">
-                {en ? item.title_en : item.title_zh}
+                {pick(item, "title")}
               </h2>
               <p className="mt-4 max-w-3xl text-lg leading-relaxed">
-                {en ? item.summary_en : item.summary_zh}
+                {pick(item, "summary")}
               </p>
               <dl className="mt-6 grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
                 <div>
                   <dt className="label-mono text-paper-muted">
-                    {en ? "Date and time" : "日期与时间"}
+                    {t("dateTime")}
                   </dt>
                   <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
                 </div>
                 <div>
-                  <dt className="label-mono text-paper-muted">{en ? "Venue" : "地点"}</dt>
+                  <dt className="label-mono text-paper-muted">{t("venue")}</dt>
                   <dd className="mt-1 font-bold">
-                    {item.status === "scheduled"
-                      ? en
-                        ? item.venue_en
-                        : item.venue_zh
-                      : en
-                        ? "Not confirmed"
-                        : "尚未确认"}
+                    {item.status === "scheduled" ? pick(item, "venue") : t("notConfirmed")}
                   </dd>
                 </div>
               </dl>
@@ -120,7 +121,7 @@ function EventsPage() {
                   params={{ slug: item.slug }}
                   className="border-2 border-paper-foreground px-5 py-3 font-bold"
                 >
-                  {en ? "Event details" : "活动详情"} ↗
+                  {t("eventDetails")} ↗
                 </Link>
                 <a
                   href="https://tally.so/r/PRdaO5"
@@ -133,7 +134,7 @@ function EventsPage() {
               </div>
               {item.recap_zh || item.recap_en ? (
                 <p className="mt-6 border-t border-paper-foreground/30 pt-4">
-                  {en ? item.recap_en : item.recap_zh}
+                  {pick(item, "recap")}
                 </p>
               ) : null}
             </article>
@@ -141,9 +142,7 @@ function EventsPage() {
         </div>
       )}
       <p className="mt-5 text-sm text-muted-foreground">
-        {en
-          ? "The survey is optional and does not confirm a booking."
-          : "问卷自愿填写，不代表正式报名或座位确认。"}
+        {t("surveyFooter")}
       </p>
     </main>
   );

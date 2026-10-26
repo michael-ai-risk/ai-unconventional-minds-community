@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { firstEvent, themes, topics } from "@/lib/content";
+import { localizeContent } from "@/lib/content-locales";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "AI非正常人类情报站 · AI Unconventional Minds Station" }] }),
@@ -9,7 +10,8 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { lang, t } = useI18n();
-  const pick = (value: { zh: string; en: string }) => value[lang];
+  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string }) =>
+    localizeContent(value, lang);
 
   return (
     <main>
@@ -50,19 +52,13 @@ function Home() {
           <figure className="overflow-hidden border-2 border-foreground bg-paper shadow-[8px_8px_0_0_var(--foreground)]">
             <img
               src="/hero-collage.svg"
-              alt={
-                lang === "zh"
-                  ? "清迈AI情报站复古拼贴主题插画"
-                  : "Retro zine collage for the Chiang Mai AI community"
-              }
+              alt={t("homeAlt")}
               className="block h-full min-h-[20rem] w-full object-cover"
               width="900"
               height="900"
             />
             <figcaption className="border-t-2 border-foreground bg-background px-3 py-2 label-mono">
-              {lang === "zh"
-                ? "社区制作的拼贴插画 · ORIGINAL ASSET UNAVAILABLE"
-                : "COMMUNITY-MADE COLLAGE · ORIGINAL ASSET UNAVAILABLE"}
+              {t("homeCaption")}
             </figcaption>
           </figure>
         </div>
@@ -74,14 +70,10 @@ function Home() {
       >
         <div className="marquee-track flex w-max whitespace-nowrap label-mono">
           <span className="px-4">
-            {lang === "zh"
-              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
-              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
+            {t("marquee")}
           </span>
           <span className="px-4">
-            {lang === "zh"
-              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
-              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
+            {t("marquee")}
           </span>
         </div>
       </div>
@@ -93,9 +85,7 @@ function Home() {
             <h2 className="mt-2 font-cn-black text-3xl">{t("homeThemes")}</h2>
           </div>
           <p className="max-w-xl text-sm text-muted-foreground">
-            {lang === "zh"
-              ? "从海报的开放讨论精神出发，主题可以很技术，也可以很日常。"
-              : "Inspired by the poster's open-conversation spirit, topics can be technical or everyday."}
+            {t("themesNote")}
           </p>
         </div>
         <div className="mt-7 grid border-t-2 border-foreground sm:grid-cols-2 lg:grid-cols-4">

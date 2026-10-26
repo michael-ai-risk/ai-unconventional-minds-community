@@ -14,14 +14,22 @@ type Body = {
   slug?: unknown;
   titleZh?: unknown;
   titleEn?: unknown;
+  titleZhTW?: unknown;
+  titleTh?: unknown;
   summaryZh?: unknown;
   summaryEn?: unknown;
+  summaryZhTW?: unknown;
+  summaryTh?: unknown;
   bodyZh?: unknown;
   bodyEn?: unknown;
+  bodyZhTW?: unknown;
+  bodyTh?: unknown;
   published?: unknown;
   startsAt?: unknown;
   venueZh?: unknown;
   venueEn?: unknown;
+  venueZhTW?: unknown;
+  venueTh?: unknown;
   categorySlug?: unknown;
   displayName?: unknown;
   [key: string]: unknown;
@@ -341,19 +349,31 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
     const slug = text(body.slug, 3, 120);
     const titleZh = text(body.titleZh, 1, 160);
     const titleEn = text(body.titleEn, 1, 160);
+    const titleZhTW = text(body.titleZhTW ?? "", 0, 160);
+    const titleTh = text(body.titleTh ?? "", 0, 160);
     const summaryZh = text(body.summaryZh ?? "", 0, 2_000);
     const summaryEn = text(body.summaryEn ?? "", 0, 2_000);
+    const summaryZhTW = text(body.summaryZhTW ?? "", 0, 2_000);
+    const summaryTh = text(body.summaryTh ?? "", 0, 2_000);
     const bodyZh = text(body.bodyZh ?? "", 0, 20_000);
     const bodyEn = text(body.bodyEn ?? "", 0, 20_000);
+    const bodyZhTW = text(body.bodyZhTW ?? "", 0, 20_000);
+    const bodyTh = text(body.bodyTh ?? "", 0, 20_000);
     const published = body.published === true ? 1 : 0;
     if (
       !slug ||
       !titleZh ||
       !titleEn ||
+      titleZhTW === null ||
+      titleTh === null ||
       summaryZh === null ||
       summaryEn === null ||
+      summaryZhTW === null ||
+      summaryTh === null ||
       bodyZh === null ||
-      bodyEn === null
+      bodyEn === null ||
+      bodyZhTW === null ||
+      bodyTh === null
     )
       return fail(400, "Required bilingual fields are missing or too long.");
     if (table === "events") {
@@ -364,24 +384,34 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
         status === "scheduled" && typeof body.startsAt === "string" ? body.startsAt : null;
       const venueZh = typeof body.venueZh === "string" ? text(body.venueZh, 0, 300) : null;
       const venueEn = typeof body.venueEn === "string" ? text(body.venueEn, 0, 300) : null;
+      const venueZhTW = typeof body.venueZhTW === "string" ? text(body.venueZhTW, 0, 300) : null;
+      const venueTh = typeof body.venueTh === "string" ? text(body.venueTh, 0, 300) : null;
       if (status === "scheduled" && (!startsAt || !venueZh || !venueEn))
         return fail(400, "Scheduled events need a confirmed date and both venue names.");
       if (id && request.method === "PUT") {
         const result = await env.DB.prepare(
-          `UPDATE events SET slug=?,title_zh=?,title_en=?,summary_zh=?,summary_en=?,body_zh=?,body_en=?,status=?,starts_at=?,venue_zh=?,venue_en=?,published=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+          `UPDATE events SET slug=?,title_zh=?,title_en=?,title_zh_tw=?,title_th=?,summary_zh=?,summary_en=?,summary_zh_tw=?,summary_th=?,body_zh=?,body_en=?,body_zh_tw=?,body_th=?,status=?,starts_at=?,venue_zh=?,venue_en=?,venue_zh_tw=?,venue_th=?,published=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
         )
           .bind(
             slug,
             titleZh,
             titleEn,
+            titleZhTW,
+            titleTh,
             summaryZh,
             summaryEn,
+            summaryZhTW,
+            summaryTh,
             bodyZh,
             bodyEn,
+            bodyZhTW,
+            bodyTh,
             status,
             startsAt,
             venueZh,
             venueEn,
+            venueZhTW,
+            venueTh,
             published,
             id,
           )
@@ -390,22 +420,30 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
       }
       const eventId = crypto.randomUUID();
       await env.DB.prepare(
-        `INSERT INTO events(id,slug,title_zh,title_en,summary_zh,summary_en,body_zh,body_en,status,starts_at,venue_zh,venue_en,published,created_by)
-         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        `INSERT INTO events(id,slug,title_zh,title_en,title_zh_tw,title_th,summary_zh,summary_en,summary_zh_tw,summary_th,body_zh,body_en,body_zh_tw,body_th,status,starts_at,venue_zh,venue_en,venue_zh_tw,venue_th,published,created_by)
+         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
         .bind(
           eventId,
           slug,
           titleZh,
           titleEn,
+          titleZhTW,
+          titleTh,
           summaryZh,
           summaryEn,
+          summaryZhTW,
+          summaryTh,
           bodyZh,
           bodyEn,
+          bodyZhTW,
+          bodyTh,
           status,
           startsAt,
           venueZh,
           venueEn,
+          venueZhTW,
+          venueTh,
           published,
           actor.id,
         )
@@ -415,16 +453,22 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
     const category = text(body.categorySlug, 1, 60) ?? "learning";
     if (id && request.method === "PUT") {
       const result = await env.DB.prepare(
-        `UPDATE articles SET slug=?,title_zh=?,title_en=?,excerpt_zh=?,excerpt_en=?,body_zh=?,body_en=?,category_slug=?,published=?,published_at=CASE WHEN ?=1 THEN COALESCE(published_at,CURRENT_TIMESTAMP) ELSE NULL END,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+        `UPDATE articles SET slug=?,title_zh=?,title_en=?,title_zh_tw=?,title_th=?,excerpt_zh=?,excerpt_en=?,excerpt_zh_tw=?,excerpt_th=?,body_zh=?,body_en=?,body_zh_tw=?,body_th=?,category_slug=?,published=?,published_at=CASE WHEN ?=1 THEN COALESCE(published_at,CURRENT_TIMESTAMP) ELSE NULL END,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
       )
         .bind(
           slug,
           titleZh,
           titleEn,
+          titleZhTW,
+          titleTh,
           summaryZh,
           summaryEn,
+          summaryZhTW,
+          summaryTh,
           bodyZh,
           bodyEn,
+          bodyZhTW,
+          bodyTh,
           category,
           published,
           published,
@@ -435,18 +479,24 @@ async function adminApi(request: Request, actor: Actor, segments: string[]) {
     }
     const articleId = crypto.randomUUID();
     await env.DB.prepare(
-      `INSERT INTO articles(id,slug,title_zh,title_en,excerpt_zh,excerpt_en,body_zh,body_en,category_slug,published,published_at,created_by)
-       VALUES(?,?,?,?,?,?,?,?,?,?,CASE WHEN ?=1 THEN CURRENT_TIMESTAMP ELSE NULL END,?)`,
+      `INSERT INTO articles(id,slug,title_zh,title_en,title_zh_tw,title_th,excerpt_zh,excerpt_en,excerpt_zh_tw,excerpt_th,body_zh,body_en,body_zh_tw,body_th,category_slug,published,published_at,created_by)
+       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, ?,CASE WHEN ?=1 THEN CURRENT_TIMESTAMP ELSE NULL END,?)`,
     )
       .bind(
         articleId,
         slug,
         titleZh,
         titleEn,
+        titleZhTW,
+        titleTh,
         summaryZh,
         summaryEn,
+        summaryZhTW,
+        summaryTh,
         bodyZh,
         bodyEn,
+        bodyZhTW,
+        bodyTh,
         category,
         published,
         published,
@@ -477,7 +527,7 @@ async function handle(request: Request) {
     if (resource === "articles") return listPublic("articles", id);
     if (resource === "categories") {
       const rows = await env.DB.prepare(
-        "SELECT slug,title_zh,title_en FROM categories WHERE enabled=1 ORDER BY sort_order",
+        "SELECT slug,title_zh,title_en,title_zh_tw,title_th FROM categories WHERE enabled=1 ORDER BY sort_order",
       ).all();
       return json({ categories: rows.results });
     }

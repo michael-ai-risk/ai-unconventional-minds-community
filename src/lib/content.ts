@@ -1,4 +1,6 @@
-export type Bilingual = { zh: string; en: string };
+import type { LocaleText } from "./i18n";
+
+export type Bilingual = LocaleText;
 export type Topic = {
   slug: string;
   title: Bilingual;

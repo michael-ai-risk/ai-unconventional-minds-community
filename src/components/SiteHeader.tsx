@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Lang } from "@/lib/i18n";
 
 export function SiteHeader() {
   const { t, lang, setLang } = useI18n();
@@ -23,7 +23,7 @@ export function SiteHeader() {
           <span className="font-cn-black text-sm md:text-base">{t("siteName")}</span>
         </Link>
         <nav
-          aria-label={lang === "zh" ? "主导航" : "Main navigation"}
+          aria-label={t("mainNavigation")}
           className="hidden items-center gap-1 lg:flex"
         >
           {links.map((item) => (
@@ -38,13 +38,17 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex shrink-0 items-center gap-2">
-          <button
-            onClick={() => setLang(lang === "zh" ? "en" : "zh")}
+          <select
+            value={lang}
+            onChange={(event) => setLang(event.target.value as Lang)}
             aria-label={t("langSwitchLabel")}
-            className="label-mono border-2 border-primary px-3 py-1.5 text-primary hover:bg-primary hover:text-primary-foreground"
+            className="border-2 border-primary bg-background px-2 py-1.5 text-sm text-foreground hover:bg-primary hover:text-primary-foreground"
           >
-            {t("langSwitch")}
-          </button>
+            <option value="zh">简体中文</option>
+            <option value="zhTW">繁體中文</option>
+            <option value="en">English</option>
+            <option value="th">ไทย</option>
+          </select>
           <button
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
@@ -58,7 +62,7 @@ export function SiteHeader() {
       {open && (
         <nav
           id="mobile-navigation"
-          aria-label={lang === "zh" ? "主导航" : "Main navigation"}
+          aria-label={t("mainNavigation")}
           className="border-t-2 border-foreground bg-paper text-paper-foreground lg:hidden"
         >
           <div className="mx-auto grid max-w-7xl grid-cols-2 px-4 py-3 sm:grid-cols-3">

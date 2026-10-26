@@ -3,7 +3,13 @@ import { useCallback, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
 
-type Category = { slug: string; title_zh: string; title_en: string };
+type Category = {
+  slug: string;
+  title_zh: string;
+  title_en: string;
+  title_zh_tw?: string | null;
+  title_th?: string | null;
+};
 type Post = {
   id: string;
   category_slug: string;
@@ -55,8 +61,7 @@ async function api<T extends Record<string, unknown> = Record<string, unknown>>(
 }
 
 function DiscussionsPage() {
-  const { lang } = useI18n();
-  const en = lang === "en";
+  const { t, pick, fmtDate } = useI18n();
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -132,7 +137,7 @@ function DiscussionsPage() {
     setAuthBusy(true);
     try {
       const result = await authClient.signIn.social({ provider: "google", callbackURL: "/discussions" });
-      if (result.error) throw new Error(result.error.message || (en ? "Google sign-in failed" : "Google 登录失败"));
+      if (result.error) throw new Error(result.error.message || t("googleSignInFailed"));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -143,7 +148,7 @@ function DiscussionsPage() {
   const signOut = async () => {
     setError("");
     const result = await authClient.signOut();
-    if (result.error) setError(result.error.message || (en ? "Sign-out failed" : "退出登录失败"));
+    if (result.error) setError(result.error.message || t("signOutFailed"));
     setCanPost(false);
   };
 
@@ -179,7 +184,7 @@ function DiscussionsPage() {
       });
       setTitle("");
       setBody("");
-      setMessage(en ? "Your post is now public." : "帖子已发布并公开显示。");
+      setMessage(t("postPublished"));
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -203,7 +208,7 @@ function DiscussionsPage() {
       });
       setCommentDraft("");
       setReplyTo(null);
-      setMessage(en ? "Your reply is now public." : "回复已发布并公开显示。");
+      setMessage(t("replyPublished"));
       const resultAfter = await api<{ comments?: Comment[] }>("posts/" + postId);
       setComments((previous) => ({ ...previous, [postId]: resultAfter.comments ?? [] }));
       await load();
@@ -230,7 +235,7 @@ function DiscussionsPage() {
     }
   };
   const deletePost = async (postId: string) => {
-    if (!window.confirm(en ? "Delete this post and its replies?" : "删除这条帖子及其回复？"))
+    if (!window.confirm(t("deletePostConfirm")))
       return;
     try {
       await api("posts/" + postId, { method: "DELETE" });
@@ -259,7 +264,7 @@ function DiscussionsPage() {
     }
   };
   const deleteComment = async (commentId: string, postId: string) => {
-    if (!window.confirm(en ? "Delete your reply?" : "删除这条回复？")) return;
+    if (!window.confirm(t("deleteReplyConfirm"))) return;
     try {
       await api("comments/" + commentId, { method: "DELETE" });
       const result = await api<{ comments?: Comment[] }>("posts/" + postId);
@@ -280,7 +285,7 @@ function DiscussionsPage() {
       });
       setReportTarget(null);
       setReportReason("");
-      setMessage(en ? "Report sent to the moderation queue." : "举报已提交给管理人员。");
+      setMessage(t("reportSent"));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -289,37 +294,35 @@ function DiscussionsPage() {
   return (
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
       <p className="label-mono text-accent">4SEAS / DISCUSSIONS</p>
-      <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{en ? "Discussions" : "社区讨论"}</h1>
+      <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{t("discussionTitle")}</h1>
       <p className="mt-5 max-w-3xl text-lg text-muted-foreground">
-        {en
-          ? "Browse freely. Sign in with Google to post or reply; contributions appear immediately."
-          : "浏览无需登录。使用 Google 登录后即可发帖和回复，内容会立即公开显示。"}
+        {t("discussionIntro")}
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
         <input
-          aria-label={en ? "Search discussions" : "搜索讨论"}
+          aria-label={t("searchDiscussions")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={en ? "Search discussions" : "搜索帖子"}
+          placeholder={t("searchPosts")}
           className="min-w-48 flex-1 border-2 border-foreground bg-background px-3 py-2"
         />
         <select
-          aria-label={en ? "Category" : "分类"}
+          aria-label={t("category")}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="border-2 border-foreground bg-background px-3 py-2"
         >
-          <option value="all">{en ? "All topics" : "全部分类"}</option>
+          <option value="all">{t("allTopics")}</option>
           {categories.map((item) => (
             <option key={item.slug} value={item.slug}>
-              {en ? item.title_en : item.title_zh}
+              {pick(item, "title")}
             </option>
           ))}
         </select>
       </div>
       {error && (
         <p role="alert" className="mt-4 border-2 border-red-700 p-3 text-red-800">
-          {en ? "Service message: " + error : "服务提示：" + error}
+          {t("serviceMessage") + error}
         </p>
       )}
       {message && (
@@ -331,20 +334,12 @@ function DiscussionsPage() {
         <div>
           <p className="font-bold">
             {sessionPending || !authStatusLoaded
-              ? en
-                ? "Checking Google sign-in…"
-                : "正在确认 Google 登录状态…"
+              ? t("checkingSignIn")
               : canPost
-                ? en
-                  ? "Signed in with Google. You can post and reply."
-                  : "已使用 Google 登录，可以发帖和回复。"
+                ? t("signedInCanPost")
                 : googleConfigured
-                  ? en
-                    ? "Sign in with Google to post and reply."
-                    : "发帖和回复需要先使用 Google 登录。"
-                  : en
-                    ? "Google sign-in is not configured for this preview yet."
-                    : "此预览环境尚未配置 Google 登录。"}
+                  ? t("signInToPost")
+                  : t("signInNotConfigured")}
           </p>
           {canPost && session?.user?.email && (
             <p className="mt-1 text-sm text-muted-foreground">{session.user.email}</p>
@@ -356,7 +351,7 @@ function DiscussionsPage() {
             onClick={() => void signOut()}
             className="border-2 border-foreground px-4 py-2 font-bold"
           >
-            {en ? "Sign out" : "退出登录"}
+            {t("signOut")}
           </button>
         ) : googleConfigured ? (
           <button
@@ -365,13 +360,7 @@ function DiscussionsPage() {
             onClick={() => void signInWithGoogle()}
             className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
           >
-            {authBusy
-              ? en
-                ? "Opening Google…"
-                : "正在打开 Google…"
-              : en
-                ? "Sign in with Google"
-                : "使用 Google 登录"}
+            {authBusy ? t("openingProvider") : t("signInWithGoogle")}
           </button>
         ) : null}
       </div>
@@ -379,19 +368,19 @@ function DiscussionsPage() {
         onSubmit={(event) => void createPost(event)}
         className="paper mt-8 border-2 border-foreground p-5 md:p-7"
       >
-        <h2 className="font-cn-black text-2xl">{en ? "Start a conversation" : "发起一个话题"}</h2>
+        <h2 className="font-cn-black text-2xl">{t("startConversation")}</h2>
         <label className="mt-5 block font-bold">
-          {en ? "Nickname (optional)" : "昵称（自愿填写）"}
+          {t("nicknameOptional")}
           <input
             maxLength={60}
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
-            placeholder={en ? "Guest" : "访客"}
+            placeholder={t("guest")}
             className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
           />
         </label>
         <label className="mt-4 block font-bold">
-          {en ? "Title" : "标题"}
+          {t("title")}
           <input
             required
             minLength={3}
@@ -402,7 +391,7 @@ function DiscussionsPage() {
           />
         </label>
         <label className="mt-4 block font-bold">
-          {en ? "Your thoughts" : "想聊什么"}
+          {t("yourThoughts")}
           <textarea
             required
             maxLength={8000}
@@ -418,23 +407,21 @@ function DiscussionsPage() {
             disabled={posting || !canPost}
             className="bg-primary px-5 py-3 font-bold text-primary-foreground disabled:opacity-50"
           >
-            {posting ? (en ? "Posting…" : "提交中…") : en ? "Publish post" : "发布帖子"}
+            {posting ? t("posting") : t("publish")}
           </button>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
-          {en
-            ? "Google sign-in is required to publish. Your email is not shown publicly."
-            : "发布需要 Google 登录；你的邮箱不会公开显示。"}
+          {t("publishNeedsSignIn")}
         </p>
       </form>
       <section className="mt-10 space-y-5" aria-live="polite">
         {loading ? (
-          <p role="status">{en ? "Loading discussions…" : "正在读取讨论…"}</p>
+          <p role="status">{t("loadingDiscussions")}</p>
         ) : posts.length === 0 ? (
           <div className="border-2 border-foreground p-6">
-            <h2 className="font-cn-black text-xl">{en ? "No conversations yet" : "还没有讨论"}</h2>
+            <h2 className="font-cn-black text-xl">{t("noConversations")}</h2>
             <p className="mt-2 text-muted-foreground">
-              {en ? "Be the first to start a conversation." : "你可以开启第一个话题。"}
+              {t("firstConversation")}
             </p>
           </div>
         ) : (
@@ -442,14 +429,16 @@ function DiscussionsPage() {
             <article key={post.id} className="paper border-2 border-foreground p-5 md:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2 label-mono text-paper-muted">
                 <span>
-                  {categories.find((item) => item.slug === post.category_slug)?.[
-                    en ? "title_en" : "title_zh"
-                  ] ?? post.category_slug}
+                  {pick(
+                    categories.find((item) => item.slug === post.category_slug) ?? {
+                      title_zh: post.category_slug,
+                      title_en: post.category_slug,
+                    },
+                    "title",
+                  )}
                 </span>
                 <time>
-                  {new Date(
-                    post.created_at + (post.created_at.endsWith("Z") ? "" : "Z"),
-                  ).toLocaleDateString(en ? "en-GB" : "zh-CN")}
+                  {fmtDate(post.created_at + (post.created_at.endsWith("Z") ? "" : "Z"))}
                 </time>
               </div>
               {editId === post.id ? (
@@ -475,14 +464,14 @@ function DiscussionsPage() {
                   />
                   <div className="flex gap-3">
                     <button className="bg-primary px-4 py-2 font-bold text-primary-foreground">
-                      {en ? "Save" : "保存修改"}
+                      {t("save")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditId(null)}
                       className="border border-foreground px-4 py-2"
                     >
-                      {en ? "Cancel" : "取消"}
+                      {t("cancel")}
                     </button>
                   </div>
                 </form>
@@ -493,21 +482,14 @@ function DiscussionsPage() {
                 </>
               )}
               <p className="mt-4 text-sm text-paper-muted">
-                {post.author_name || (en ? "Guest" : "访客")} · {post.comment_count}{" "}
-                {en ? "replies" : "条回复"}
+                {post.author_name || t("guest")} · {post.comment_count} {t("replies")}
               </p>
               <div className="mt-4 flex flex-wrap gap-4">
                 <button
                   className="border-b-2 border-foreground pb-1 font-bold"
                   onClick={() => void openPost(post.id)}
                 >
-                  {expanded === post.id
-                    ? en
-                      ? "Hide replies"
-                      : "收起回复"
-                    : en
-                      ? "Read / reply"
-                      : "查看 / 回复"}{" "}
+                  {expanded === post.id ? t("hideReplies") : t("readReply")} {" "}
                   ↗
                 </button>
                 {post.is_owner && (
@@ -520,13 +502,13 @@ function DiscussionsPage() {
                       }}
                       className="border-b-2 border-foreground pb-1"
                     >
-                      {en ? "Edit" : "编辑"}
+                      {t("edit")}
                     </button>
                     <button
                       onClick={() => void deletePost(post.id)}
                       className="border-b-2 border-foreground pb-1"
                     >
-                      {en ? "Delete" : "删除"}
+                      {t("delete")}
                     </button>
                   </>
                 )}
@@ -534,7 +516,7 @@ function DiscussionsPage() {
                   onClick={() => setReportTarget(`post:${post.id}`)}
                   className="border-b-2 border-foreground pb-1"
                 >
-                  {en ? "Report" : "举报"}
+                  {t("report")}
                 </button>
               </div>
               {expanded === post.id && (
@@ -557,14 +539,14 @@ function DiscussionsPage() {
                             />
                             <div className="flex gap-3">
                               <button className="font-bold underline">
-                                {en ? "Save" : "保存"}
+                                {t("save")}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setEditCommentId(null)}
                                 className="underline"
                               >
-                                {en ? "Cancel" : "取消"}
+                                {t("cancel")}
                               </button>
                             </div>
                           </form>
@@ -572,20 +554,20 @@ function DiscussionsPage() {
                           <p className="whitespace-pre-wrap">{comment.body}</p>
                         )}
                         <p className="mt-1 text-xs text-paper-muted">
-                          {comment.author_name || (en ? "Guest" : "访客")}{" "}
-                          {comment.parent_id ? (en ? " · reply" : " · 回复") : ""} ·{" "}
+                          {comment.author_name || t("guest")} {" "}
+                          {comment.parent_id ? t("replyLabel") : ""} ·{" "}
                           <button
                             onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
                             className="underline"
                           >
-                            {en ? "Reply" : "回复"}
+                            {t("reply")}
                           </button>{" "}
                           ·{" "}
                           <button
                             onClick={() => setReportTarget(`comment:${comment.id}`)}
                             className="underline"
                           >
-                            {en ? "Report" : "举报"}
+                            {t("report")}
                           </button>{" "}
                           {comment.is_owner && editCommentId !== comment.id && (
                             <>
@@ -596,13 +578,13 @@ function DiscussionsPage() {
                                 }}
                                 className="underline"
                               >
-                                {en ? "Edit" : "编辑"}
+                                {t("edit")}
                               </button>
                               <button
                                 onClick={() => void deleteComment(comment.id, post.id)}
                                 className="underline"
                               >
-                                {en ? "Delete" : "删除"}
+                                {t("delete")}
                               </button>
                             </>
                           )}
@@ -616,13 +598,13 @@ function DiscussionsPage() {
                   >
                     {replyTo && (
                       <p className="text-sm">
-                        {en ? "Replying to a comment" : "正在回复一条评论"}{" "}
+                        {t("isReplyingTo")}{" "}
                         <button
                           type="button"
                           onClick={() => setReplyTo(null)}
                           className="underline"
                         >
-                          {en ? "Cancel" : "取消"}
+                          {t("cancel")}
                         </button>
                       </p>
                     )}
@@ -632,7 +614,7 @@ function DiscussionsPage() {
                       value={commentDraft}
                       onChange={(event) => setCommentDraft(event.target.value)}
                       rows={3}
-                      placeholder={en ? "Write a reply" : "写下回复"}
+                      placeholder={t("writeReply")}
                       className="min-w-0 border-2 border-paper-foreground bg-transparent px-3 py-2"
                     />
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -641,7 +623,7 @@ function DiscussionsPage() {
                         disabled={!canPost}
                         className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
                       >
-                        {en ? "Publish reply" : "发布回复"}
+                        {t("publishReply")}
                       </button>
                     </div>
                   </form>
@@ -662,18 +644,18 @@ function DiscussionsPage() {
                       maxLength={1000}
                       value={reportReason}
                       onChange={(event) => setReportReason(event.target.value)}
-                      placeholder={en ? "Why are you reporting this?" : "请简要说明举报原因"}
+                      placeholder={t("reportReason")}
                       className="min-w-0 flex-1 border-2 border-paper-foreground bg-transparent px-3 py-2"
                     />
                     <button className="border-2 border-paper-foreground px-4 py-2 font-bold">
-                      {en ? "Send report" : "提交举报"}
+                      {t("sendReport")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setReportTarget(null)}
                       className="px-3 py-2"
                     >
-                      {en ? "Cancel" : "取消"}
+                      {t("cancel")}
                     </button>
                   </form>
                 )}

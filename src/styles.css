@@ -11,10 +11,10 @@
  */
 
 @theme inline {
-  --font-display: "Anton", "Noto Sans SC", sans-serif;
-  --font-cn: "Noto Sans SC", sans-serif;
-  --font-sans: "IBM Plex Sans", "Noto Sans SC", sans-serif;
-  --font-mono: "JetBrains Mono", "Noto Sans SC", monospace;
+  --font-display: "Anton", "Noto Sans Thai", "Noto Sans SC", sans-serif;
+  --font-cn: "Noto Sans SC", "Noto Sans Thai", sans-serif;
+  --font-sans: "IBM Plex Sans", "Noto Sans Thai", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Noto Sans Thai", "Noto Sans SC", monospace;
 
   --radius-sm: 0px;
   --radius-md: 0px;
