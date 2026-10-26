@@ -39,8 +39,8 @@ export const dict = d({
   latestTopics: { zh: "最近的AI话题", en: "AI topics to start with" },
   latestDiscussions: { zh: "社区讨论", en: "Community discussions" },
   noDiscussions: {
-    zh: "讨论区还没有接入持久化服务，暂时不能发布或评论。这里不会显示虚构的帖子。",
-    en: "The discussion board is not connected to persistent storage yet, so posting and commenting are unavailable. No sample member posts are shown.",
+    zh: "社区讨论支持免注册参与；新发言需审核后公开。当前预览环境尚未配置反垃圾验证，暂不能发帖。",
+    en: "Join community discussions without an account. New contributions are reviewed before becoming public. Anti-spam verification is not configured in this preview yet, so posting is temporarily unavailable.",
   },
   eventTba: { zh: "时间与地点待确认", en: "Date and venue to be confirmed" },
   freeEvent: { zh: "免费参与", en: "Free to attend" },
