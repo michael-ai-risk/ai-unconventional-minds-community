@@ -1,76 +1,193 @@
-import { createFileRoute } from "@tanstack/react-router";
-import hero from "@/assets/hero-collage.jpg";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
+import { firstEvent, themes, topics } from "@/lib/content";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "AI非正常人类情报站 · AI Unconventional Minds Station" },
-      { name: "description", content: "清迈免费线下AI知识社区 · A free in-person AI knowledge community in Chiang Mai." },
-      { property: "og:title", content: "AI非正常人类情报站 · AI Unconventional Minds Station" },
-      { property: "og:description", content: "借AI跨越专业边界，不必成为全能专家 / Go beyond your discipline with AI—without mastering everything." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "AI非正常人类情报站 · AI Unconventional Minds Station" }] }),
   component: Home,
 });
 
 function Home() {
-  const { t } = useI18n();
-  const pillars = [1, 2, 3, 4] as const;
+  const { lang, t } = useI18n();
+  const pick = (value: { zh: string; en: string }) => value[lang];
+
   return (
     <main>
       <section className="grain border-b-2 border-foreground">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-[1.2fr_1fr] md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-[1.1fr_.9fr] md:items-center md:py-20">
           <div className="rise-in">
-            <p className="label-mono text-accent">{t("heroKicker")}<span className="blink">_</span></p>
-            <h1 className="mt-4 font-cn-black text-4xl md:text-6xl">
-              {t("heroTitleA")}
-              <span className="mt-2 block bg-primary px-2 text-primary-foreground">{t("heroTitleB")}</span>
+            <p className="label-mono text-accent">
+              {t("homeKicker")}
+              <span className="blink">_</span>
+            </p>
+            <h1 className="mt-5 font-cn-black text-4xl leading-tight md:text-6xl">
+              {t("homeTitleA")}
+              <span className="mt-3 block bg-primary px-2 py-2 text-primary-foreground">
+                {t("homeTitleB")}
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">{t("heroBody")}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="https://tally.so/r/PRdaO5" target="_blank" rel="noopener noreferrer" className="stamp border-2 border-primary bg-primary px-5 py-3 font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
-                {t("ctaSurvey")} ↗
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+              {t("homeIntro")}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <a
+                href="https://tally.so/r/PRdaO5"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="stamp border-2 border-primary bg-primary px-5 py-3 font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+              >
+                {t("survey")} ↗
               </a>
+              <Link
+                to="/events"
+                className="border-2 border-foreground px-5 py-3 font-bold hover:bg-secondary"
+              >
+                {t("navEvents")} ↗
+              </Link>
             </div>
             <p className="mt-3 label-mono text-muted-foreground">{t("surveyNote")}</p>
           </div>
-          <img src={hero} alt="" width={1280} height={1280} className="w-full border-2 border-foreground" />
+          <div
+            className="paper flex min-h-[20rem] flex-col justify-between border-2 border-foreground p-6 sm:p-9"
+            aria-label={lang === "zh" ? "社区视觉主题" : "Community visual theme"}
+          >
+            <p className="label-mono">4SEAS · CHIANG MAI</p>
+            <div>
+              <p className="font-display text-7xl sm:text-8xl">AI</p>
+              <p className="mt-3 font-cn-black text-3xl sm:text-4xl">
+                {lang === "zh" ? "好奇心不设门槛" : "Curiosity has no entry test"}
+              </p>
+            </div>
+            <p className="label-mono">
+              {lang === "zh"
+                ? "真实经历 · 开放讨论 · 新朋友"
+                : "REAL STORIES · OPEN CONVERSATION · NEW FRIENDS"}
+            </p>
+            <p className="mt-5 border-t border-paper-foreground/30 pt-3 text-xs text-paper-muted">
+              {lang === "zh"
+                ? "原海报拼贴素材尚待从 Lovable 恢复；此处保留原设计版位，不以替代图片冒充原稿。"
+                : "The original poster collage is still being recovered from Lovable. Its design slot is retained; no substitute image is presented as the original."}
+            </p>
+          </div>
         </div>
       </section>
-      <div className="overflow-hidden border-b-2 border-foreground bg-primary py-2 text-primary-foreground">
+
+      <div
+        className="overflow-hidden border-b-2 border-foreground bg-primary py-2 text-primary-foreground"
+        aria-hidden="true"
+      >
         <div className="marquee-track flex w-max whitespace-nowrap label-mono">
-          <span className="px-4">{t("marquee")}</span><span className="px-4">{t("marquee")}</span>
+          <span className="px-4">
+            {lang === "zh"
+              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
+              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
+          </span>
+          <span className="px-4">
+            {lang === "zh"
+              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
+              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
+          </span>
         </div>
       </div>
+
       <section className="mx-auto max-w-7xl px-4 py-14">
-        <h2 className="font-cn-black text-3xl">{t("homePillarsTitle")}</h2>
-        <div className="mt-8 grid border-t-2 border-foreground md:grid-cols-4">
-          {pillars.map((n) => (
-            <div key={n} className="border-b-2 border-foreground p-5 md:border-r-2 md:last:border-r-0">
-              <p className="font-display text-5xl text-primary">0{n}</p>
-              <h3 className="mt-3 font-cn-black text-xl">{t(`pillar${n}T`)}</h3>
-              <p className="mt-2 text-muted-foreground">{t(`pillar${n}B`)}</p>
-            </div>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="label-mono text-accent">01 / THEMES</p>
+            <h2 className="mt-2 font-cn-black text-3xl">{t("homeThemes")}</h2>
+          </div>
+          <p className="max-w-xl text-sm text-muted-foreground">
+            {lang === "zh"
+              ? "从海报的开放讨论精神出发，主题可以很技术，也可以很日常。"
+              : "Inspired by the poster's open-conversation spirit, topics can be technical or everyday."}
+          </p>
+        </div>
+        <div className="mt-7 grid border-t-2 border-foreground sm:grid-cols-2 lg:grid-cols-4">
+          {themes.map((item) => (
+            <article
+              key={item.number}
+              className="border-b-2 border-foreground p-5 sm:border-r-2 lg:last:border-r-0"
+            >
+              <p className="font-display text-5xl text-primary">{item.number}</p>
+              <h3 className="mt-4 font-cn-black text-xl">{pick(item.title)}</h3>
+              <p className="mt-2 text-muted-foreground">{pick(item.body)}</p>
+            </article>
           ))}
         </div>
       </section>
+
       <section className="paper border-y-2 border-foreground">
         <div className="mx-auto max-w-7xl px-4 py-12">
-          <span className="label-mono bg-accent px-2 py-1 text-accent-foreground">{t("draftBadge")}</span>
-          <h2 className="mt-4 font-cn-black text-3xl">{t("showcaseTitle")}</h2>
-          <p className="mt-3 max-w-2xl">{t("showcaseBody")}</p>
-          <a href="https://view.genially.com/6adebb6469f1a5f7e73b6825" target="_blank" rel="noopener noreferrer" className="stamp-ink mt-6 inline-block border-2 border-paper-foreground px-5 py-3 font-bold">
-            {t("showcaseCta")} ↗
-          </a>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="label-mono">02 / EVENTS</p>
+              <h2 className="mt-2 font-cn-black text-3xl">{t("latestEvent")}</h2>
+            </div>
+            <Link to="/events" className="font-bold underline underline-offset-4">
+              {t("seeAll")} ↗
+            </Link>
+          </div>
+          <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[1fr_auto] md:items-center md:p-7">
+            <div>
+              <p className="label-mono text-paper-muted">
+                {t("freeEvent")} · {pick(firstEvent.language)}
+              </p>
+              <h3 className="mt-3 font-cn-black text-2xl">{pick(firstEvent.title)}</h3>
+              <p className="mt-3 max-w-3xl">{pick(firstEvent.description)}</p>
+            </div>
+            <div className="border-l-0 border-paper-foreground/30 pt-4 label-mono md:border-l md:pl-6 md:pt-0">
+              {t("eventTba")}
+            </div>
+          </article>
         </div>
       </section>
-      <footer className="mx-auto max-w-7xl px-4 py-10 label-mono text-muted-foreground">
-        <p>{t("notPromise")}</p>
-        <p className="mt-2">{t("footerNote")}</p>
-      </footer>
+
+      <section className="mx-auto max-w-7xl px-4 py-14">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="label-mono text-accent">03 / EDITORIAL</p>
+            <h2 className="mt-2 font-cn-black text-3xl">{t("latestTopics")}</h2>
+          </div>
+          <Link to="/ai-topics" className="font-bold underline underline-offset-4">
+            {t("seeAll")} ↗
+          </Link>
+        </div>
+        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {topics.slice(0, 3).map((topic, i) => (
+            <Link
+              key={topic.slug}
+              to="/ai-topics/$slug"
+              params={{ slug: topic.slug }}
+              className="group border-2 border-foreground p-5 transition-colors hover:bg-secondary"
+            >
+              <p className="label-mono text-accent">
+                {t("editorialLabel")} · 0{i + 1}
+              </p>
+              <h3 className="mt-4 font-cn-black text-xl">{pick(topic.title)}</h3>
+              <p className="mt-3 text-sm text-muted-foreground">{pick(topic.summary)}</p>
+              <p className="mt-6 font-bold group-hover:text-primary">{t("readTopic")} ↗</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="paper border-y-2 border-foreground">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 md:grid-cols-[.8fr_1.2fr] md:items-center">
+          <div>
+            <p className="label-mono">04 / CONVERSATION</p>
+            <h2 className="mt-2 font-cn-black text-3xl">{t("latestDiscussions")}</h2>
+          </div>
+          <div className="border-l-4 border-accent bg-white/40 p-5">
+            <p>{t("noDiscussions")}</p>
+            <Link
+              to="/discussions"
+              className="mt-4 inline-block font-bold underline underline-offset-4"
+            >
+              {t("navDiscussions")} ↗
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

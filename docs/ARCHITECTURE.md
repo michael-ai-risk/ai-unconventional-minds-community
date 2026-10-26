@@ -2,12 +2,24 @@
 
 ## Source findings
 
-The Lovable source is a React 19 / TypeScript TanStack Start application with SSR/server entry code, Vite, Tailwind CSS v4, Supabase JS client files, and Drizzle/PostgreSQL migration files. Drizzle schema is empty. The original Vite configuration depended on `@lovable.dev/vite-tanstack-config`, which bundled build behavior and a Cloudflare Nitro target; this wrapper is platform-specific and must be replaced before independent startup can be claimed.
+The imported project is React 19 / TypeScript on TanStack Start, with SSR and server entry code, Vite, Tailwind CSS v4, Supabase auth/client helpers, and Drizzle/PostgreSQL migration files. It is not a static-only Vite app. The generated Drizzle schema is intentionally empty; three SQL migration files are retained from Lovable for review, but they do not define a usable community schema. The original `.env` was excluded.
 
-## MVP target
+The raw source baseline is preserved as the first feature-branch migration commit (`cf4b02de575c29d8c71aed627b9026c57770c50f`). The current app removes Lovable preview authentication and Supabase server-role glue from the runtime. Those integrations depended on external credentials and would not provide a secure discussion service after migration. The current MVP does not use a database, account system, or fake browser persistence.
 
-Keep the existing TanStack Start app and its visual tokens. Remove runtime dependence on Lovable preview services. Implement informational pages and editorial topic starters first. Do not present browser storage as a database. Public discussion reads and member posting are deferred until a backend with authenticated identity, row-level authorization, moderation, abuse controls, and durable storage is connected.
+## Hosting choice
 
-## Cloudflare decision
+Keep TanStack Start SSR and use Cloudflare Workers with the official `@cloudflare/vite-plugin`; remove the Lovable Vite wrapper and Nitro adapter. Cloudflare's current TanStack Start guide documents the Cloudflare Vite plugin, the TanStack Start Vite plugin, React plugin, and a Wrangler entry using `@tanstack/react-start/server-entry`. That matches this project's real framework structure. See [Cloudflare's TanStack Start guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/) and [TanStack Start hosting guide](https://tanstack.com/start/latest/docs/framework/react/guide/hosting).
 
-No deployment configuration has been applied. Verify current TanStack Start and Cloudflare Workers compatibility against official documentation before selecting Workers or Pages. The current SSR server entry means static Pages output must not be assumed. Prefer the simplest free Workers deployment with durable storage only after the backend design and permissions are tested. See `CLOUDFLARE_DEPLOYMENT.md`.
+The project includes a preview-oriented `wrangler.jsonc`; this alone does not create or deploy a Cloudflare project. No production domain, secret, database binding, or deployment has been configured.
+
+## Data service decision
+
+Informational pages and editorial prompts can run without a database. Persistent discussions, user accounts, posting, comments, reports, and moderation are deferred. Before enabling them, design authorization and moderation first. A later Cloudflare Workers + D1 design is a reasonable no-extra-vendor option, but requires authenticated identity, server-side ownership checks, rate limits, spam controls, report handling, and explicit D1 bindings/migrations. D1 remains available on Workers Free for prototyping, with daily query limits; queries fail after a free daily limit is reached. See [D1 pricing/limits](https://developers.cloudflare.com/d1/platform/pricing/).
+
+## Runtime boundaries
+
+- The first event date and location are not set and must stay marked unconfirmed.
+- `AI Topics` contains bilingual community-editorial prompts, not live news or user submissions.
+- The discussion page truthfully states that persistent storage and posting are unavailable.
+- The Tally survey is an external optional link; responses are not synced into this app.
+- Environment variables are currently unnecessary; `.env.example` contains comments only.

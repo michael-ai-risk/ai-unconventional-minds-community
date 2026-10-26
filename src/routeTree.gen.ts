@@ -10,33 +10,140 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AiTopicsRouteImport } from './routes/ai-topics'
+import { Route as ChiangMaiRouteImport } from './routes/chiang-mai'
+import { Route as CommunityRulesRouteImport } from './routes/community-rules'
+import { Route as DiscussionsRouteImport } from './routes/discussions'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as AiTopicsSlugRouteImport } from './routes/ai-topics.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTopicsRoute = AiTopicsRouteImport.update({
+  id: '/ai-topics',
+  path: '/ai-topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChiangMaiRoute = ChiangMaiRouteImport.update({
+  id: '/chiang-mai',
+  path: '/chiang-mai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRulesRoute = CommunityRulesRouteImport.update({
+  id: '/community-rules',
+  path: '/community-rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscussionsRoute = DiscussionsRouteImport.update({
+  id: '/discussions',
+  path: '/discussions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTopicsSlugRoute = AiTopicsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AiTopicsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ai-topics': typeof AiTopicsRouteWithChildren
+  '/chiang-mai': typeof ChiangMaiRoute
+  '/community-rules': typeof CommunityRulesRoute
+  '/discussions': typeof DiscussionsRoute
+  '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
+  '/ai-topics/$slug': typeof AiTopicsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ai-topics': typeof AiTopicsRouteWithChildren
+  '/chiang-mai': typeof ChiangMaiRoute
+  '/community-rules': typeof CommunityRulesRoute
+  '/discussions': typeof DiscussionsRoute
+  '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
+  '/ai-topics/$slug': typeof AiTopicsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ai-topics': typeof AiTopicsRouteWithChildren
+  '/chiang-mai': typeof ChiangMaiRoute
+  '/community-rules': typeof CommunityRulesRoute
+  '/discussions': typeof DiscussionsRoute
+  '/events': typeof EventsRoute
+  '/privacy': typeof PrivacyRoute
+  '/ai-topics/$slug': typeof AiTopicsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/ai-topics'
+    | '/chiang-mai'
+    | '/community-rules'
+    | '/discussions'
+    | '/events'
+    | '/privacy'
+    | '/ai-topics/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/ai-topics'
+    | '/chiang-mai'
+    | '/community-rules'
+    | '/discussions'
+    | '/events'
+    | '/privacy'
+    | '/ai-topics/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/ai-topics'
+    | '/chiang-mai'
+    | '/community-rules'
+    | '/discussions'
+    | '/events'
+    | '/privacy'
+    | '/ai-topics/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AiTopicsRoute: typeof AiTopicsRouteWithChildren
+  ChiangMaiRoute: typeof ChiangMaiRoute
+  CommunityRulesRoute: typeof CommunityRulesRoute
+  DiscussionsRoute: typeof DiscussionsRoute
+  EventsRoute: typeof EventsRoute
+  PrivacyRoute: typeof PrivacyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +155,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-topics': {
+      id: '/ai-topics'
+      path: '/ai-topics'
+      fullPath: '/ai-topics'
+      preLoaderRoute: typeof AiTopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chiang-mai': {
+      id: '/chiang-mai'
+      path: '/chiang-mai'
+      fullPath: '/chiang-mai'
+      preLoaderRoute: typeof ChiangMaiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-rules': {
+      id: '/community-rules'
+      path: '/community-rules'
+      fullPath: '/community-rules'
+      preLoaderRoute: typeof CommunityRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discussions': {
+      id: '/discussions'
+      path: '/discussions'
+      fullPath: '/discussions'
+      preLoaderRoute: typeof DiscussionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-topics/$slug': {
+      id: '/ai-topics/$slug'
+      path: '/$slug'
+      fullPath: '/ai-topics/$slug'
+      preLoaderRoute: typeof AiTopicsSlugRouteImport
+      parentRoute: typeof AiTopicsRoute
+    }
   }
 }
 
+interface AiTopicsRouteChildren {
+  AiTopicsSlugRoute: typeof AiTopicsSlugRoute
+}
+
+const AiTopicsRouteChildren: AiTopicsRouteChildren = {
+  AiTopicsSlugRoute: AiTopicsSlugRoute,
+}
+
+const AiTopicsRouteWithChildren = AiTopicsRoute._addFileChildren(
+  AiTopicsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AiTopicsRoute: AiTopicsRouteWithChildren,
+  ChiangMaiRoute: ChiangMaiRoute,
+  CommunityRulesRoute: CommunityRulesRoute,
+  DiscussionsRoute: DiscussionsRoute,
+  EventsRoute: EventsRoute,
+  PrivacyRoute: PrivacyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

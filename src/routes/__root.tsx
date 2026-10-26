@@ -11,9 +11,9 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 function NotFoundComponent() {
   return (
@@ -41,7 +41,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error(error);
   }, [error]);
 
   return (
@@ -80,8 +80,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AI非正常人类情报站" },
-      { name: "description", content: "Chiang Mai AI community" },
+      { title: "AI非正常人类情报站 · AI Unconventional Minds Station" },
+      { name: "description", content: "在清迈，一起聊AI、分享真实经历、认识有趣的人。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -92,7 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+SC:wght@400;700;900&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+SC:wght@400;700;900&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -103,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <head>
         <HeadContent />
       </head>
@@ -124,6 +127,7 @@ function RootComponent() {
       <I18nProvider>
         <SiteHeader />
         <Outlet />
+        <SiteFooter />
       </I18nProvider>
     </QueryClientProvider>
   );
