@@ -206,6 +206,10 @@ function DiscussionsPage() {
       consumeTurnstile();
       await load();
     } catch (e) {
+      // Turnstile tokens are single-use and expire quickly. Start a fresh
+      // challenge after a rejected request so the form never stays stuck on a
+      // token that the server has already consumed or rejected.
+      consumeTurnstile();
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setPosting(false);
@@ -239,6 +243,7 @@ function DiscussionsPage() {
       setComments((previous) => ({ ...previous, [postId]: resultAfter.comments ?? [] }));
       await load();
     } catch (e) {
+      consumeCommentTurnstile();
       setError(e instanceof Error ? e.message : String(e));
     }
   };
