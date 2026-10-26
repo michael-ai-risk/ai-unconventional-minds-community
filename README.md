@@ -8,17 +8,20 @@ This repository contains the source migration and community website MVP. It is f
 
 ## Local development
 
-Use Node.js 22+ and npm. After reviewing dependencies, run:
+Use Node.js 22+ and npm. After reviewing dependencies, create an ignored `.dev.vars` with a local random `BETTER_AUTH_SECRET`, then run:
 
 ```sh
 npm install
-npm run dev
+printf 'BETTER_AUTH_SECRET=%s\n' "$(openssl rand -hex 32)" > .dev.vars
+npm run build
+npm run d1:migrate:preview
+npm run preview
 ```
 
-The app uses React, TypeScript, TanStack Start, and Tailwind CSS. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SOURCE_MIGRATION_AUDIT.md](docs/SOURCE_MIGRATION_AUDIT.md) for migration status and backend constraints.
+The app uses React, TypeScript, TanStack Start, Cloudflare Workers, D1, and Better Auth. For local network-isolated agent environments where Wrangler cannot enumerate interfaces, use the documented `NODE_OPTIONS` fallback in the acceptance report; never put a production secret in `.dev.vars` or Git. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/CLOUDFLARE_DEPLOYMENT.md](docs/CLOUDFLARE_DEPLOYMENT.md), and [docs/SOURCE_MIGRATION_AUDIT.md](docs/SOURCE_MIGRATION_AUDIT.md).
 
 ## Status
 
-The first event is **AI非正常人类情报站｜第一期免费AI聚会**. Its date and venue are not confirmed. Discussions are not yet connected to persistent accounts or storage; the site will say so instead of claiming submissions succeeded.
+The first event is **AI非正常人类情报站｜第一期免费AI聚会**. Its date and venue are not confirmed. The discussion MVP provides persistent registration, posts, comments, reports, and moderator/admin APIs on D1. Browser-based UI acceptance and Cloudflare preview deployment remain blocked and must be completed before release.
 
 The event interest survey is hosted by Tally: https://tally.so/r/PRdaO5

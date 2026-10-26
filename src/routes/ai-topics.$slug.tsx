@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { topics } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 
@@ -11,7 +12,26 @@ function TopicDetailPage() {
   const { slug } = Route.useParams();
   const { lang, t } = useI18n();
   const topic = topics.find((item) => item.slug === slug);
-  if (!topic)
+  const [article, setArticle] = useState<Record<string, string> | null>(null);
+  const [articleLoading, setArticleLoading] = useState(true);
+  useEffect(() => {
+    fetch("/api/community/articles/" + encodeURIComponent(slug))
+      .then(async (r) => {
+        if (!r.ok) return null;
+        const data = (await r.json()) as { article?: Record<string, string> };
+        return data.article ?? null;
+      })
+      .then(setArticle)
+      .catch(() => setArticle(null))
+      .finally(() => setArticleLoading(false));
+  }, [slug]);
+  if (!topic && articleLoading)
+    return (
+      <main className="mx-auto min-h-[65vh] max-w-3xl px-4 py-16">
+        <p role="status">{lang === "zh" ? "正在读取文章…" : "Loading article…"}</p>
+      </main>
+    );
+  if (!topic && !article)
     return (
       <main className="mx-auto min-h-[65vh] max-w-3xl px-4 py-16">
         <h1 className="font-cn-black text-4xl">
@@ -22,6 +42,30 @@ function TopicDetailPage() {
         </Link>
       </main>
     );
+  if (article)
+    return (
+      <main className="mx-auto min-h-[65vh] max-w-4xl px-4 py-12 md:py-16">
+        <Link to="/ai-topics" className="label-mono text-primary">
+          ← {t("backToTopics")}
+        </Link>
+        <p className="mt-8 label-mono text-accent">PUBLISHED ARTICLE</p>
+        <h1 className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
+          {article["title_" + lang]}
+        </h1>
+        <p className="mt-5 text-xl text-muted-foreground">{article["excerpt_" + lang]}</p>
+        <article className="prose-zine mt-9 whitespace-pre-wrap">{article["body_" + lang]}</article>
+        <div className="paper mt-10 border-2 border-foreground p-5">
+          <p className="font-bold">{lang === "zh" ? "继续聊聊" : "Keep the conversation going"}</p>
+          <Link
+            to="/discussions"
+            className="mt-4 inline-block font-bold underline underline-offset-4"
+          >
+            {t("navDiscussions")} ↗
+          </Link>
+        </div>
+      </main>
+    );
+  if (!topic) return null;
   const pick = (value: { zh: string; en: string }) => value[lang];
   return (
     <main className="mx-auto min-h-[65vh] max-w-4xl px-4 py-12 md:py-16">
@@ -45,8 +89,8 @@ function TopicDetailPage() {
         <p className="font-bold">{lang === "zh" ? "接下来可以怎么做？" : "Where to go next"}</p>
         <p className="mt-2">
           {lang === "zh"
-            ? "欢迎带着自己的经历，在线下聚会或未来开放的讨论区继续聊。"
-            : "Bring your own experience to a gathering or to the discussion board when it becomes available."}
+            ? "欢迎带着自己的经历，在线下聚会或公开讨论区继续聊。"
+            : "Bring your own experience to a gathering or the public discussion board."}
         </p>
         <Link
           to="/discussions"

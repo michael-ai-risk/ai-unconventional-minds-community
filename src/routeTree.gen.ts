@@ -11,13 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AiTopicsRouteImport } from './routes/ai-topics'
 import { Route as ChiangMaiRouteImport } from './routes/chiang-mai'
 import { Route as CommunityRulesRouteImport } from './routes/community-rules'
 import { Route as DiscussionsRouteImport } from './routes/discussions'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AiTopicsSlugRouteImport } from './routes/ai-topics.$slug'
+import { Route as EventsSlugRouteImport } from './routes/events.$slug'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCommunitySplatRouteImport } from './routes/api/community/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiTopicsRoute = AiTopicsRouteImport.update({
@@ -54,6 +64,11 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -64,86 +79,135 @@ const AiTopicsSlugRoute = AiTopicsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AiTopicsRoute,
 } as any)
+const EventsSlugRoute = EventsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => EventsRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCommunitySplatRoute = ApiCommunitySplatRouteImport.update({
+  id: '/api/community/$',
+  path: '/api/community/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/ai-topics': typeof AiTopicsRouteWithChildren
   '/chiang-mai': typeof ChiangMaiRoute
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
+  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/community/$': typeof ApiCommunitySplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/ai-topics': typeof AiTopicsRouteWithChildren
   '/chiang-mai': typeof ChiangMaiRoute
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
+  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/community/$': typeof ApiCommunitySplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/ai-topics': typeof AiTopicsRouteWithChildren
   '/chiang-mai': typeof ChiangMaiRoute
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
+  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/community/$': typeof ApiCommunitySplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/ai-topics'
     | '/chiang-mai'
     | '/community-rules'
     | '/discussions'
     | '/events'
+    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
+    | '/events/$slug'
+    | '/api/auth/$'
+    | '/api/community/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/ai-topics'
     | '/chiang-mai'
     | '/community-rules'
     | '/discussions'
     | '/events'
+    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
+    | '/events/$slug'
+    | '/api/auth/$'
+    | '/api/community/$'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/ai-topics'
     | '/chiang-mai'
     | '/community-rules'
     | '/discussions'
     | '/events'
+    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
+    | '/events/$slug'
+    | '/api/auth/$'
+    | '/api/community/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   AiTopicsRoute: typeof AiTopicsRouteWithChildren
   ChiangMaiRoute: typeof ChiangMaiRoute
   CommunityRulesRoute: typeof CommunityRulesRoute
   DiscussionsRoute: typeof DiscussionsRoute
-  EventsRoute: typeof EventsRoute
+  EventsRoute: typeof EventsRouteWithChildren
+  JoinRoute: typeof JoinRoute
   PrivacyRoute: typeof PrivacyRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCommunitySplatRoute: typeof ApiCommunitySplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,6 +224,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-topics': {
@@ -197,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -210,6 +288,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/ai-topics/$slug'
       preLoaderRoute: typeof AiTopicsSlugRouteImport
       parentRoute: typeof AiTopicsRoute
+    }
+    '/events/$slug': {
+      id: '/events/$slug'
+      path: '/$slug'
+      fullPath: '/events/$slug'
+      preLoaderRoute: typeof EventsSlugRouteImport
+      parentRoute: typeof EventsRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/community/$': {
+      id: '/api/community/$'
+      path: '/api/community/$'
+      fullPath: '/api/community/$'
+      preLoaderRoute: typeof ApiCommunitySplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -226,15 +325,30 @@ const AiTopicsRouteWithChildren = AiTopicsRoute._addFileChildren(
   AiTopicsRouteChildren,
 )
 
+interface EventsRouteChildren {
+  EventsSlugRoute: typeof EventsSlugRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsSlugRoute: EventsSlugRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   AiTopicsRoute: AiTopicsRouteWithChildren,
   ChiangMaiRoute: ChiangMaiRoute,
   CommunityRulesRoute: CommunityRulesRoute,
   DiscussionsRoute: DiscussionsRoute,
-  EventsRoute: EventsRoute,
+  EventsRoute: EventsRouteWithChildren,
+  JoinRoute: JoinRoute,
   PrivacyRoute: PrivacyRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCommunitySplatRoute: ApiCommunitySplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

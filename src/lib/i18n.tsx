@@ -38,7 +38,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     (row: Record<string, unknown>, field: string) => {
       const primary = row[`${field}_${lang}`];
       const fallback = row[`${field}_${lang === "zh" ? "en" : "zh"}`];
-      return (typeof primary === "string" && primary) || (typeof fallback === "string" ? fallback : "") || "";
+      return (
+        (typeof primary === "string" && primary) ||
+        (typeof fallback === "string" ? fallback : "") ||
+        ""
+      );
     },
     [lang],
   );
@@ -55,7 +59,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
-  return <I18nContext.Provider value={{ lang, setLang, t, pick, fmtDate }}>{children}</I18nContext.Provider>;
+  return (
+    <I18nContext.Provider value={{ lang, setLang, t, pick, fmtDate }}>
+      {children}
+    </I18nContext.Provider>
+  );
 }
 
 export function useI18n() {

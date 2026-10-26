@@ -47,28 +47,24 @@ function Home() {
             </div>
             <p className="mt-3 label-mono text-muted-foreground">{t("surveyNote")}</p>
           </div>
-          <div
-            className="paper flex min-h-[20rem] flex-col justify-between border-2 border-foreground p-6 sm:p-9"
-            aria-label={lang === "zh" ? "社区视觉主题" : "Community visual theme"}
-          >
-            <p className="label-mono">4SEAS · CHIANG MAI</p>
-            <div>
-              <p className="font-display text-7xl sm:text-8xl">AI</p>
-              <p className="mt-3 font-cn-black text-3xl sm:text-4xl">
-                {lang === "zh" ? "好奇心不设门槛" : "Curiosity has no entry test"}
-              </p>
-            </div>
-            <p className="label-mono">
+          <figure className="overflow-hidden border-2 border-foreground bg-paper shadow-[8px_8px_0_0_var(--foreground)]">
+            <img
+              src="/hero-collage.svg"
+              alt={
+                lang === "zh"
+                  ? "清迈AI情报站复古拼贴主题插画"
+                  : "Retro zine collage for the Chiang Mai AI community"
+              }
+              className="block h-full min-h-[20rem] w-full object-cover"
+              width="900"
+              height="900"
+            />
+            <figcaption className="border-t-2 border-foreground bg-background px-3 py-2 label-mono">
               {lang === "zh"
-                ? "真实经历 · 开放讨论 · 新朋友"
-                : "REAL STORIES · OPEN CONVERSATION · NEW FRIENDS"}
-            </p>
-            <p className="mt-5 border-t border-paper-foreground/30 pt-3 text-xs text-paper-muted">
-              {lang === "zh"
-                ? "原海报拼贴素材尚待从 Lovable 恢复；此处保留原设计版位，不以替代图片冒充原稿。"
-                : "The original poster collage is still being recovered from Lovable. Its design slot is retained; no substitute image is presented as the original."}
-            </p>
-          </div>
+                ? "社区制作的拼贴插画 · ORIGINAL ASSET UNAVAILABLE"
+                : "COMMUNITY-MADE COLLAGE · ORIGINAL ASSET UNAVAILABLE"}
+            </figcaption>
+          </figure>
         </div>
       </section>
 

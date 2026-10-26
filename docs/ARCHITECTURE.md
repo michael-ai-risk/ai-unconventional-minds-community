@@ -1,25 +1,36 @@
 # Architecture
 
-## Source findings
+## Application
 
-The imported project is React 19 / TypeScript on TanStack Start, with SSR and server entry code, Vite, Tailwind CSS v4, Supabase auth/client helpers, and Drizzle/PostgreSQL migration files. It is not a static-only Vite app. The generated Drizzle schema is intentionally empty; three SQL migration files are retained from Lovable for review, but they do not define a usable community schema. The original `.env` was excluded.
+- React 19 + TypeScript + TanStack Start with server rendering.
+- Vite builds both client and Worker server bundles using `@cloudflare/vite-plugin`.
+- Cloudflare Workers hosts the app and API; Cloudflare D1 stores accounts and community content.
+- Better Auth handles email/password registration, login, sessions, password hashing, and database-backed auth rate limiting. Passwords are never implemented or stored by application code.
+- `wrangler.jsonc` binds D1 as `DB`. `BETTER_AUTH_SECRET` is a Cloudflare Worker secret; `SITE_ORIGIN` must match the exact active origin.
 
-The raw source baseline is preserved as the first feature-branch migration commit (`cf4b02de575c29d8c71aed627b9026c57770c50f`). The current app removes Lovable preview authentication and Supabase server-role glue from the runtime. Those integrations depended on external credentials and would not provide a secure discussion service after migration. The current MVP does not use a database, account system, or fake browser persistence.
+## Migration boundary
 
-## Hosting choice
+The initial text baseline is preserved at `cf4b02de575c29d8c71aed627b9026c57770c50f`. The Lovable Drizzle schema was empty, while its SQL migrations describe Supabase/PostgreSQL tables and RLS. Those files remain in `drizzle/migrations/` as audit history; they are not compatible D1 migrations and are never applied by Wrangler. The D1 schema is defined separately in `migrations/`.
 
-Keep TanStack Start SSR and use Cloudflare Workers with the official `@cloudflare/vite-plugin`; remove the Lovable Vite wrapper and Nitro adapter. Cloudflare's current TanStack Start guide documents the Cloudflare Vite plugin, the TanStack Start Vite plugin, React plugin, and a Wrangler entry using `@tanstack/react-start/server-entry`. That matches this project's real framework structure. See [Cloudflare's TanStack Start guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/) and [TanStack Start hosting guide](https://tanstack.com/start/latest/docs/framework/react/guide/hosting).
+No `.env` values were migrated. The historical Lovable/Supabase integrations remain available in Git history, not the runtime.
 
-The project includes a preview-oriented `wrangler.jsonc`; this alone does not create or deploy a Cloudflare project. No production domain, secret, database binding, or deployment has been configured.
+## D1 data and access
 
-## Data service decision
+`migrations/0001_community.sql` creates Better Auth core tables and community members/profiles, roles, categories, posts, comments, events, articles, event interests, reports, and application rate-limit state. `0002` adds Better Auth's optional database rate-limit table; `0003` prevents duplicate per-member event interest.
 
-Informational pages and editorial prompts can run without a database. Persistent discussions, user accounts, posting, comments, reports, and moderation are deferred. Before enabling them, design authorization and moderation first. A later Cloudflare Workers + D1 design is a reasonable no-extra-vendor option, but requires authenticated identity, server-side ownership checks, rate limits, spam controls, report handling, and explicit D1 bindings/migrations. D1 remains available on Workers Free for prototyping, with daily query limits; queries fail after a free daily limit is reached. See [D1 pricing/limits](https://developers.cloudflare.com/d1/platform/pricing/).
+Public handlers return only published events/articles and visible posts/comments. Profile email is never joined into public responses. Profiles may hide their nickname. All create/update/delete operations require a Better Auth session, same-origin request, input size/length validation, per-user limits, and server-side ownership or staff role checks. Staff roles have no public claim endpoint; an administrator is assigned through a trusted D1 operation. Content management requires `admin`; report review and hiding content requires `moderator` or `admin`.
 
-## Runtime boundaries
+The `admin` route provides report review and event/article create/edit forms. It is inaccessible to ordinary members. The application ships no fake member profiles or discussion content. The one seed event is a real user-approved placeholder and explicitly leaves date and venue unconfirmed.
 
-- The first event date and location are not set and must stay marked unconfirmed.
-- `AI Topics` contains bilingual community-editorial prompts, not live news or user submissions.
-- The discussion page truthfully states that persistent storage and posting are unavailable.
-- The Tally survey is an external optional link; responses are not synced into this app.
-- Environment variables are currently unnecessary; `.env.example` contains comments only.
+## Cloudflare configuration and free-tier constraints
+
+Worker builds use `npm run build`, then Wrangler deploys the SSR Worker. A D1 database must exist and its Cloudflare-generated ID must replace the placeholder in `wrangler.jsonc` before deployment. The local smoke setup uses `dist/server/wrangler.json`, because Wrangler resolves local D1 state relative to that generated config; run `npm run build` before `npm run d1:migrate:preview`.
+
+No paid service, add-on, image hosting, or external database is configured. Cloudflare D1 Free has daily read/write and storage limits; requests can fail if usage exceeds the included limits. Confirm current limits and account conditions in Cloudflare's [D1 FAQ](https://developers.cloudflare.com/d1/reference/faq/) and [pricing page](https://developers.cloudflare.com/d1/platform/pricing/) before a public preview. Better Auth and other dependencies are open-source npm packages; there are no new paid dependencies.
+
+## Known limits
+
+- Cloudflare API/dashboard authentication is not available in this execution, so the failed Build #1 log, account build settings, D1 creation, secrets, preview deployment, and test URL are not yet verified.
+- Actual browser checks are blocked by the current browser URL security policy for local test origins. Shell-level Worker/API checks pass, but they do not replace real mobile/desktop browser QA.
+- The original collage/favicon bytes could not be safely downloaded from the Lovable connector. The repository includes explicitly labeled, community-made vector replacements.
+- Email verification and outbound email delivery are not configured. Signup accepts an email address but does not prove mailbox ownership; this is a preview limitation to address before wider release.
