@@ -67,7 +67,7 @@ function TopicDetailPage() {
       </main>
     );
   if (!topic) return null;
-  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string }) =>
+  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
     localizeContent(value, lang);
   return (
     <main className="mx-auto min-h-[65vh] max-w-4xl px-4 py-12 md:py-16">

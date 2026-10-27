@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { lang, t } = useI18n();
   const [expandedPair, setExpandedPair] = useState<string | null>(null);
-  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string }) =>
+  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
     localizeContent(value, lang);
 
   return (

@@ -18,10 +18,14 @@ function TopicsPage() {
       title_zh_tw?: string;
       title_en: string;
       title_th?: string;
+      title_ja?: string;
+      title_ko?: string;
       excerpt_zh: string;
       excerpt_zh_tw?: string;
       excerpt_en: string;
       excerpt_th?: string;
+      excerpt_ja?: string;
+      excerpt_ko?: string;
       category_slug: string;
     }>
   >([]);
@@ -35,7 +39,7 @@ function TopicsPage() {
       })
       .catch((e) => setApiError(e instanceof Error ? e.message : String(e)));
   }, []);
-  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string }) =>
+  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
     localizeContent(value, lang);
   return (
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
@@ -79,10 +83,24 @@ function TopicsPage() {
               >
                 <p className="label-mono">{article.category_slug}</p>
                 <h3 className="mt-3 font-cn-black text-xl">
-                  {pick({ zh: article.title_zh, zhTW: article.title_zh_tw ?? "", en: article.title_en, th: article.title_th ?? "" })}
+                  {pick({
+                    zh: article.title_zh,
+                    zhTW: article.title_zh_tw ?? "",
+                    en: article.title_en,
+                    th: article.title_th ?? "",
+                    ...(article.title_ja ? { ja: article.title_ja } : {}),
+                    ...(article.title_ko ? { ko: article.title_ko } : {}),
+                  })}
                 </h3>
                 <p className="mt-2 text-muted-foreground">
-                  {pick({ zh: article.excerpt_zh, zhTW: article.excerpt_zh_tw ?? "", en: article.excerpt_en, th: article.excerpt_th ?? "" })}
+                  {pick({
+                    zh: article.excerpt_zh,
+                    zhTW: article.excerpt_zh_tw ?? "",
+                    en: article.excerpt_en,
+                    th: article.excerpt_th ?? "",
+                    ...(article.excerpt_ja ? { ja: article.excerpt_ja } : {}),
+                    ...(article.excerpt_ko ? { ko: article.excerpt_ko } : {}),
+                  })}
                 </p>
                 <span className="mt-4 inline-block font-bold">{t("readTopic")} ↗</span>
               </Link>

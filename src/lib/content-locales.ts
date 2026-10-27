@@ -1,6 +1,8 @@
 import type { Lang, LocaleText } from "./i18n";
+import { jaContent } from "./content-locales-ja";
+import { koContent } from "./content-locales-ko";
 
-const translations: Record<string, Partial<Record<"zhTW" | "th", string>>> = {
+const translations: Record<string, Partial<Record<Lang, string>>> = {
   "AI的新发展": { zhTW: "AI 的新發展", th: "พัฒนาการใหม่ของ AI" },
   "聊值得关注的变化，也一起分辨哪些内容只是热闹。": {
     zhTW: "聊聊值得關注的變化，也一起分辨哪些只是話題熱度。",
@@ -159,6 +161,14 @@ const translations: Record<string, Partial<Record<"zhTW" | "th", string>>> = {
     th: "แบ่งปันวิธีเรียน ทำงาน หรือใช้ AI ในเชียงใหม่ โดยไม่คิดว่าทุกคนมีเป้าหมายเหมือนกัน",
   },
 };
+
+for (const [source, translation] of Object.entries(jaContent)) {
+  translations[source] = { ...translations[source], ja: translation };
+}
+
+for (const [source, translation] of Object.entries(koContent)) {
+  translations[source] = { ...translations[source], ko: translation };
+}
 
 export function localizeContent(value: LocaleText, lang: Lang): string {
   if (lang === "zh") return value.zh;

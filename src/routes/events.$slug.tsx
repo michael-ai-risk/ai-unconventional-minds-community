@@ -39,7 +39,7 @@ function EventDetailPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, [slug]);
-  const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : "en-GB";
+  const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-GB";
   const statusLabel = (status: string) =>
     status === "tba"
       ? t("eventTba")

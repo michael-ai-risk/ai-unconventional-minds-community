@@ -1,11 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { dict, type DictKey } from "./dictionary";
+import { jaDict } from "./dictionary-ja";
+import { koDict } from "./dictionary-ko";
 
-export type Lang = "zh" | "zhTW" | "en" | "th";
-export type LocaleText = { zh: string; en: string; zhTW?: string; th?: string };
+export type Lang = "zh" | "zhTW" | "en" | "th" | "ja" | "ko";
+export type LocaleText = { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string };
 
 export function selectLocale(value: LocaleText, lang: Lang): string {
-  return value[lang] || (lang === "zhTW" ? value.zh : lang === "th" ? value.en : "");
+  return value[lang] || (lang === "zhTW" ? value.zh : value.en);
 }
 const STORAGE_KEY = "aims.lang";
 
@@ -25,13 +27,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "en" || saved === "zh" || saved === "zhTW" || saved === "th")
+    if (saved === "en" || saved === "zh" || saved === "zhTW" || saved === "th" || saved === "ja" || saved === "ko")
       setLangState(saved);
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang =
-      lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th" : "en";
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang;
   }, [lang]);
 
   const setLang = useCallback((l: Lang) => {
@@ -39,7 +40,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, l);
   }, []);
 
-  const t = useCallback((key: DictKey) => dict[key]?.[lang] ?? key, [lang]);
+  const t = useCallback(
+    (key: DictKey) => (lang === "ja" ? jaDict[key] : lang === "ko" ? koDict[key] : dict[key]?.[lang]) ?? dict[key]?.en ?? key,
+    [lang],
+  );
 
   const pick = useCallback(
     (row: object, field: string) => {
@@ -49,6 +53,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         zhTW: ["zh_tw", "zhTW", "zh", "en"],
         en: ["en", "zh", "zh_tw"],
         th: ["th", "en", "zh", "zh_tw"],
+        ja: ["ja", "en", "zh", "zh_tw"],
+        ko: ["ko", "en", "zh", "zh_tw"],
       };
       for (const suffix of suffixes[lang]) {
         const candidate = fields[`${field}_${suffix}`];
@@ -62,7 +68,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const fmtDate = useCallback(
     (iso: string | null | undefined) => {
       if (!iso) return "";
-      const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : "en-GB";
+      const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-GB";
       return new Date(iso).toLocaleDateString(locale, {
         year: "numeric",
         month: "short",

@@ -1,6 +1,4 @@
-import type { Lang } from "./i18n";
-
-type Localized = Record<Lang, string>;
+type Localized = { zh: string; en: string; zhTW?: string; th?: string };
 const d = <T extends Record<string, Localized>>(x: T) => x;
 
 export const dict = d({

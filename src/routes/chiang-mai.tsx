@@ -10,7 +10,7 @@ export const Route = createFileRoute("/chiang-mai")({
 
 function ChiangMaiPage() {
   const { lang, t } = useI18n();
-  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string }) =>
+  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
     localizeContent(value, lang);
   return (
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">

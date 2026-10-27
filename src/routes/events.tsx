@@ -42,7 +42,7 @@ function EventsPage() {
       .finally(() => setLoading(false));
   }, []);
   const date = (value: string | null) => {
-    const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : "en-GB";
+    const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-GB";
     return value
       ? new Date(value).toLocaleString(locale, {
           dateStyle: "medium",

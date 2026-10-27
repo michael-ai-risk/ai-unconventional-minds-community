@@ -48,6 +48,8 @@ export function SiteHeader() {
             <option value="zhTW">繁體中文</option>
             <option value="en">English</option>
             <option value="th">ไทย</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
           </select>
           <button
             onClick={() => setOpen((o) => !o)}
