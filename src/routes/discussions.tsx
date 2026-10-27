@@ -76,8 +76,11 @@ function DiscussionsPage() {
   const [posting, setPosting] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
   const [authStatusLoaded, setAuthStatusLoaded] = useState(false);
-  const [googleConfigured, setGoogleConfigured] = useState(false);
+  const [emailOtpConfigured, setEmailOtpConfigured] = useState(false);
   const [canPost, setCanPost] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [commentDraft, setCommentDraft] = useState("");
@@ -114,10 +117,10 @@ function DiscussionsPage() {
 
   useEffect(() => {
     let active = true;
-    void api<{ googleConfigured?: boolean; canPost?: boolean }>("session")
+    void api<{ emailOtpConfigured?: boolean; canPost?: boolean }>("session")
       .then((result) => {
         if (!active) return;
-        setGoogleConfigured(result.googleConfigured === true);
+        setEmailOtpConfigured(result.emailOtpConfigured === true);
         setCanPost(result.canPost === true);
         setAuthStatusLoaded(true);
       })
@@ -132,12 +135,39 @@ function DiscussionsPage() {
     };
   }, [session?.user?.id]);
 
-  const signInWithGoogle = async () => {
+  const requestEmailCode = async (event?: React.FormEvent) => {
+    event?.preventDefault();
+    if (!emailOtpConfigured) return;
     setError("");
+    setMessage("");
     setAuthBusy(true);
     try {
-      const result = await authClient.signIn.social({ provider: "google", callbackURL: "/discussions" });
-      if (result.error) throw new Error(result.error.message || t("googleSignInFailed"));
+      const result = await authClient.emailOtp.sendVerificationOtp({
+        email: loginEmail.trim(),
+        type: "sign-in",
+      });
+      if (result.error) throw new Error(result.error.message || t("emailCodeSendFailed"));
+      setCodeSent(true);
+      setMessage(t("emailCodeSent"));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const signInWithEmailCode = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setAuthBusy(true);
+    try {
+      const result = await authClient.signIn.emailOtp({
+        email: loginEmail.trim(),
+        otp: verificationCode.trim(),
+      });
+      if (result.error) throw new Error(result.error.message || t("emailCodeInvalid"));
+      window.location.reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -337,12 +367,17 @@ function DiscussionsPage() {
               ? t("checkingSignIn")
               : canPost
                 ? t("signedInCanPost")
-                : googleConfigured
+                : emailOtpConfigured
                   ? t("signInToPost")
-                  : t("signInNotConfigured")}
+                  : t("emailSignInNotConfigured")}
           </p>
           {canPost && session?.user?.email && (
             <p className="mt-1 text-sm text-muted-foreground">{session.user.email}</p>
+          )}
+          {!canPost && emailOtpConfigured && (
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              {t("emailLoginIntro")}
+            </p>
           )}
         </div>
         {canPost ? (
@@ -353,15 +388,67 @@ function DiscussionsPage() {
           >
             {t("signOut")}
           </button>
-        ) : googleConfigured ? (
-          <button
-            type="button"
-            disabled={authBusy || sessionPending}
-            onClick={() => void signInWithGoogle()}
-            className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
+        ) : emailOtpConfigured ? (
+          <form
+            onSubmit={(event) =>
+              void (codeSent ? signInWithEmailCode(event) : requestEmailCode(event))
+            }
+            className="flex w-full flex-wrap items-end gap-3 lg:w-auto"
           >
-            {authBusy ? t("openingProvider") : t("signInWithGoogle")}
-          </button>
+            <label className="min-w-56 flex-1 font-bold lg:flex-none">
+              {t("emailAddress")}
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={loginEmail}
+                onChange={(event) => {
+                  setLoginEmail(event.target.value);
+                  setCodeSent(false);
+                  setVerificationCode("");
+                }}
+                className="mt-1 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+              />
+            </label>
+            {codeSent && (
+              <label className="min-w-36 flex-1 font-bold lg:flex-none">
+                {t("emailVerificationCode")}
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value)}
+                  className="mt-1 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+                />
+              </label>
+            )}
+            <button
+              disabled={authBusy || sessionPending}
+              className="bg-primary px-4 py-2 font-bold text-primary-foreground disabled:opacity-50"
+            >
+              {authBusy
+                ? codeSent
+                  ? t("verifyingCode")
+                  : t("sendingCode")
+                : codeSent
+                  ? t("verifyAndSignIn")
+                  : t("sendVerificationCode")}
+            </button>
+            {codeSent && (
+              <button
+                type="button"
+                disabled={authBusy}
+                onClick={() => void requestEmailCode()}
+                className="border-b-2 border-foreground px-2 py-2 font-bold disabled:opacity-50"
+              >
+                {t("resendCode")}
+              </button>
+            )}
+          </form>
         ) : null}
       </div>
       <form

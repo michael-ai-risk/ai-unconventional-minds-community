@@ -2,20 +2,59 @@ import { auth } from "@/lib/auth";
 import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
 
+async function isWithinBodyLimit(request: Request, limit: number): Promise<boolean> {
+  if (Number(request.headers.get("content-length") || 0) > limit) return false;
+  const reader = request.clone().body?.getReader();
+  if (!reader) return false;
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) return true;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel();
+      return false;
+    }
+  }
+}
+
 export const Route = createFileRoute("/api/auth/$")({
   server: {
     handlers: {
       GET: ({ request }) => auth.handler(request),
-      POST: ({ request }) => {
+      POST: async ({ request }) => {
         const path = new URL(request.url).pathname.toLowerCase();
         if (path.startsWith("/api/auth/sign-up") || path.startsWith("/api/auth/signup")) {
           return Response.json(
             {
               error:
-                "Public account registration is disabled. Community posting does not require an account.",
+                "Password registration is disabled. Use email code sign-in for community access.",
             },
             { status: 410, headers: { "Cache-Control": "no-store" } },
           );
+        }
+        if (
+          path === "/api/auth/email-otp/send-verification-otp" ||
+          path === "/api/auth/sign-in/email-otp"
+        ) {
+          if (!env.RESEND_API_KEY?.trim() || !env.EMAIL_FROM?.trim())
+            return Response.json(
+              { error: "Email sign-in is not configured yet." },
+              { status: 503, headers: { "Cache-Control": "no-store" } },
+            );
+          if (!(await isWithinBodyLimit(request, 4_000)))
+            return Response.json({ error: "Invalid request." }, { status: 413 });
+          if (path === "/api/auth/email-otp/send-verification-otp") {
+            return (async () => {
+              const body = (await request.clone().json().catch(() => null)) as
+                | { type?: unknown }
+                | null;
+              if (body?.type !== "sign-in")
+                return Response.json({ error: "Only sign-in codes are supported." }, { status: 400 });
+              return auth.handler(request);
+            })();
+          }
+          return auth.handler(request);
         }
         if (path === "/api/auth/sign-in/email") {
           return (async () => {
@@ -65,22 +104,10 @@ export const Route = createFileRoute("/api/auth/$")({
           })();
         }
         if (path === "/api/auth/sign-in/social") {
-          if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET)
-            return Response.json(
-              { error: "Google sign-in is not configured yet." },
-              { status: 503, headers: { "Cache-Control": "no-store" } },
-            );
-          return (async () => {
-            const length = Number(request.headers.get("content-length") || 0);
-            if (length > 4_000)
-              return Response.json({ error: "Invalid request." }, { status: 413 });
-            const body = (await request.clone().json().catch(() => null)) as
-              | { provider?: unknown }
-              | null;
-            if (body?.provider !== "google")
-              return Response.json({ error: "Only Google sign-in is supported." }, { status: 400 });
-            return auth.handler(request);
-          })();
+          return Response.json(
+            { error: "Social sign-in is disabled. Use email code sign-in." },
+            { status: 410, headers: { "Cache-Control": "no-store" } },
+          );
         }
         if (path !== "/api/auth/sign-out")
           return Response.json({ error: "Authentication endpoint unavailable." }, { status: 404 });

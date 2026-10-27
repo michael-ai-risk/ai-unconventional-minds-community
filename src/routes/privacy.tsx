@@ -43,8 +43,8 @@ function PrivacyPage() {
       <p className="label-mono text-accent">4SEAS / PRIVACY</p>
       <h1 className="mt-3 font-cn-black text-4xl md:text-5xl">{t("privacyTitle")}</h1>
       <div className="prose-zine mt-8">
-        <h2>{t("privacyGoogleHeading")}</h2>
-        <p>{t("privacyGoogleBody")}</p>
+        <h2>{t("privacyEmailHeading")}</h2>
+        <p>{t("privacyEmailBody")}</p>
         <h2>{t("privacyPostsHeading")}</h2>
         <p>{t("privacyPostsBody")}</p>
         <h2>{t("privacyRequestHeading")}</h2>

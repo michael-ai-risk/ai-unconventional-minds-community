@@ -111,3 +111,25 @@ This update supersedes the previous registration-based product behavior. The his
 - Visitor account registration, login, email collection, and member profiles are intentionally not part of this product.
 - Staff account setup still depends on the one-time bootstrap secret and Better Auth password login. Email delivery, recovery, and second-factor configuration are not set up; restrict any preview to intended reviewers and remove the bootstrap secret after setup.
 - The D1 `database_id` in `wrangler.jsonc` remains the zero UUID placeholder. Replace it only with a real ID from the user's Cloudflare account before a remote migration/deploy. No remote D1 migration was run.
+
+## Email-code sign-in implementation — 2026-10-27
+
+This section records the current Draft branch source state and supersedes the prior `NOT_IMPLEMENTED / LIMITS` statement about visitor email login. It does not claim a deployed or end-to-end verified email flow.
+
+### IMPLEMENTED
+
+- Added Better Auth email OTP delivery through the Resend REST API. Codes are six digits, expire after five minutes, are stored hashed, and allow three verification attempts; code sends have a separate authentication limit. The existing D1 `verification` and `rateLimit` tables are reused.
+- First successful email-code sign-in creates the Better Auth user automatically. Public password registration and social sign-in are disabled; the API requires a verified-email session to create posts or comments. Post/comment/report endpoints remain without Turnstile or action-frequency limits.
+- Added email/code sign-in and resend controls, error and success feedback, and privacy copy in Simplified Chinese, Traditional Chinese, English, Thai, Japanese, and Korean. The email address is not included in public contribution responses.
+- Updated architecture, product, deployment, and local setup documentation for the email-code flow.
+
+### TESTED
+
+- `npm run build`: passed (Vite client and Worker bundles plus `tsc --noEmit`); Vite emitted its existing CSS sourcemap warning.
+- `git diff --check`: passed before this report update.
+- Scoped ESLint: failed with Prettier formatting diagnostics. The baseline versions at `06e992147ff7a4238a9e9104c4cd2c8635992abe` also contain extensive existing Prettier diagnostics in these files; no repository-wide formatting was applied.
+
+### BLOCKED
+
+- No `RESEND_API_KEY` or verified `EMAIL_FROM` was supplied to the implementation environment. The feature branch has not been deployed for this flow, so delivery to a real mailbox, OTP sign-in, account creation, and posting are not runtime-verified. Configure `RESEND_API_KEY` as a Preview Worker Secret and `EMAIL_FROM` as a Preview Worker variable directly in Cloudflare; never send the secret through chat or commit it.
+- No production environment, production domain, or paid plan was changed.

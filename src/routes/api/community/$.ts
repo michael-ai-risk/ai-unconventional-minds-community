@@ -113,15 +113,9 @@ async function hasAdminRole(actor: Actor): Promise<boolean> {
   return !!role;
 }
 
-async function googleActor(request: Request): Promise<Actor | null> {
-  const actor = await signedIn(request);
-  if (!actor) return null;
-  const account = await env.DB.prepare(
-    `SELECT 1 FROM "account" WHERE userId=? AND providerId='google' LIMIT 1`,
-  )
-    .bind(actor.id)
-    .first();
-  return account ? actor : null;
+async function verifiedEmailActor(request: Request): Promise<Actor | null> {
+  const session = await auth.api.getSession({ headers: request.headers });
+  return session?.user?.id && session.user.emailVerified ? { id: session.user.id } : null;
 }
 
 async function ownsContent(actor: Actor, table: "posts" | "comments", id: string): Promise<boolean> {
@@ -218,7 +212,7 @@ async function createPost(request: Request, actor: Actor) {
   const title = text(body?.title, 3, 160);
   const content = text(body?.body, 1, 8_000);
   const category = text(body?.category, 1, 40);
-  const displayName = text(body?.displayName ?? "", 0, 60) || "Google 用户";
+  const displayName = text(body?.displayName ?? "", 0, 60) || "社区成员";
   if (!title || !content || !category)
     return fail(400, "Check the title, body, and category lengths.");
   const categoryRow = await env.DB.prepare("SELECT slug FROM categories WHERE slug=? AND enabled=1")
@@ -237,7 +231,7 @@ async function createPost(request: Request, actor: Actor) {
 async function createComment(request: Request, postId: string, actor: Actor) {
   const body = await bodyObject(request, 5_000);
   const content = text(body?.body, 1, 4_000);
-  const displayName = text(body?.displayName ?? "", 0, 60) || "Google 用户";
+  const displayName = text(body?.displayName ?? "", 0, 60) || "社区成员";
   const parentId = typeof body?.parentId === "string" ? body.parentId : null;
   if (!content) return fail(400, "Comment must be between 1 and 4000 characters.");
   const post = await env.DB.prepare("SELECT id FROM posts WHERE id=? AND status='visible'")
@@ -520,8 +514,8 @@ async function handle(request: Request) {
     if (resource === "posts" && id) return postDetail(request, id);
     if (resource === "session")
       return json({
-        googleConfigured: !!env.GOOGLE_CLIENT_ID && !!env.GOOGLE_CLIENT_SECRET,
-        canPost: !!(await googleActor(request)),
+        emailOtpConfigured: !!env.RESEND_API_KEY?.trim() && !!env.EMAIL_FROM?.trim(),
+        canPost: !!(await verifiedEmailActor(request)),
       });
     if (resource === "events") return listPublic("events", id);
     if (resource === "articles") return listPublic("articles", id);
@@ -547,13 +541,13 @@ async function handle(request: Request) {
   }
 
   if (resource === "posts" && !id && request.method === "POST") {
-    const actor = await googleActor(request);
-    if (!actor) return fail(401, "Sign in with Google to publish a post.");
+    const actor = await verifiedEmailActor(request);
+    if (!actor) return fail(401, "Sign in with a verified email address to publish a post.");
     return createPost(request, actor);
   }
   if (resource === "posts" && id && subresource === "comments" && request.method === "POST") {
-    const actor = await googleActor(request);
-    if (!actor) return fail(401, "Sign in with Google to reply.");
+    const actor = await verifiedEmailActor(request);
+    if (!actor) return fail(401, "Sign in with a verified email address to reply.");
     return createComment(request, id, actor);
   }
   if (resource === "posts" && id && request.method === "PATCH") {

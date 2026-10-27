@@ -22,16 +22,16 @@ A free, open, relaxed space for beginners, students, professionals, technologist
 - Home: community introduction, four poster themes, event status, editorial AI prompts, recent discussions entry, voluntary survey.
 - Events: first event “AI非正常人类情报站｜第一期免费AI聚会”; free; date and venue TBA; D1-backed list/detail, staff create/edit, and recap fields. The Tally survey is optional and is not event registration.
 - AI Topics: bilingual editorial discussion starters and staff-managed articles. News must have real sources; the site does not fabricate live news.
-- Discussions: public browsing, Google-authenticated posting and replies, categories/search, account-based owner edit/delete, anonymous reports, and staff handling of reported content. New posts and replies publish immediately.
+- Discussions: public browsing, email-code authenticated posting and replies, categories/search, account-based owner edit/delete, anonymous reports, and staff handling of reported content. New posts and replies publish immediately.
 - Chiang Mai: lived experiences, language, places, events, habits/costs, friendships, and AI in local life; no invented live facts.
 - About: community purpose, welcome, and participation principles.
 - Privacy and community rules have focused pages.
 
-## Google-authenticated participation
+## Email-code participation
 
-Browsing is public. Posting and replying require Google OAuth; public email/password registration is disabled. A nickname remains optional, and the email address is never displayed publicly. Google OAuth credentials are configured as Worker secrets, with the preview callback registered in Google Cloud.
+Browsing is public. Posting and replying require a one-time code sent to the visitor's email. The first successful verification automatically creates a sign-in account; password registration and social sign-in are disabled for community participation. A nickname remains optional, and the email address is never displayed publicly. Resend sends the OTP email from a verified sender address configured in the selected Worker environment.
 
-Posts and replies publish immediately. The authenticated account ID owns each contribution; the same account is required to edit or delete it. The site does not generate private edit keys, run Turnstile, or apply community API rate limits. Previously pending content is changed to hidden during migration rather than automatically published.
+Posts and replies publish immediately. The authenticated account ID owns each contribution; the same verified email login is required to edit or delete it. The site does not generate private edit keys, run Turnstile, or apply post/reply/report rate limits. Authentication endpoints retain narrow abuse limits. Previously pending content is changed to hidden during migration rather than automatically published.
 
 ## Staff access
 
@@ -39,6 +39,6 @@ Posts and replies publish immediately. The authenticated account ID owns each co
 
 ## Privacy and external survey
 
-Posts, comments, optional nicknames, author account IDs, timestamps, and publication status are stored in D1. Better Auth stores Google account email and session information; the email is not public. Google, Cloudflare, and hosting providers may process authentication and request data under their service terms. Public content may be read and shared. Visitors may report content without signing in or submit a deletion request through the Privacy page.
+Posts, comments, optional nicknames, author account IDs, timestamps, and publication status are stored in D1. Better Auth stores verified email and session information; the email is not public. Resend sends verification email; Resend, Cloudflare, and hosting providers may process authentication and request data under their service terms. Public content may be read and shared. Visitors may report content without signing in or submit a deletion request through the Privacy page.
 
 The Tally survey is optional: https://tally.so/r/PRdaO5. Tally is an independent service; its responses are not represented as being stored on this site and are not linked to a member account.
