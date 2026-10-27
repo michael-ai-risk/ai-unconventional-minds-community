@@ -132,4 +132,5 @@ This section records the current Draft branch source state and supersedes the pr
 ### BLOCKED
 
 - No `RESEND_API_KEY` or verified `EMAIL_FROM` was supplied to the implementation environment. The feature branch has not been deployed for this flow, so delivery to a real mailbox, OTP sign-in, account creation, and posting are not runtime-verified. Configure `RESEND_API_KEY` as a Preview Worker Secret and `EMAIL_FROM` as a Preview Worker variable directly in Cloudflare; never send the secret through chat or commit it.
+- Read-only check of `https://community-pr2-preview-ai-unconventional-minds-community.xiening668.workers.dev/api/community/session` after the push returned `{"googleConfigured":false,"canPost":false}`. That response shape is from the prior deployment; it does not expose the new `emailOtpConfigured` field, confirming this commit is not live on that Preview URL yet.
 - No production environment, production domain, or paid plan was changed.
