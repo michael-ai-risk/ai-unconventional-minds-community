@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { FirstEventPoster } from "@/components/FirstEventPoster";
+import { firstMeetupContent } from "@/lib/first-meetup-content";
 
 type EventRecord = {
   id: string;
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/events")({
 
 function EventsPage() {
   const { lang, t, pick } = useI18n();
+  const firstMeetup = firstMeetupContent[lang];
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -87,21 +89,37 @@ function EventsPage() {
           {events.map((item) => (
             <article key={item.id} className="paper border-2 border-foreground p-6 md:p-9">
               <div className="flex flex-wrap gap-2 label-mono">
-                <span className="bg-primary px-2 py-1 text-primary-foreground">
-                  {item.is_free ? t("freeEvent") : t("paid")}
-                </span>
-                <span className="border border-paper-foreground px-2 py-1">
-                  {statusLabel(item.status)}
-                </span>
-                <span className="border border-paper-foreground px-2 py-1">
-                  {pick(item, "language")}
-                </span>
+                {item.slug === FIRST_EVENT_SLUG ? (
+                  <>
+                    <span className="bg-primary px-2 py-1 text-primary-foreground">
+                      {firstMeetup.freeTag}
+                    </span>
+                    <span className="border border-paper-foreground px-2 py-1">
+                      {firstMeetup.timeAndPlaceTag}
+                    </span>
+                    <span className="border border-paper-foreground px-2 py-1">
+                      {firstMeetup.languageTag}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="bg-primary px-2 py-1 text-primary-foreground">
+                      {item.is_free ? t("freeEvent") : t("paid")}
+                    </span>
+                    <span className="border border-paper-foreground px-2 py-1">
+                      {statusLabel(item.status)}
+                    </span>
+                    <span className="border border-paper-foreground px-2 py-1">
+                      {pick(item, "language")}
+                    </span>
+                  </>
+                )}
               </div>
               <h2 className="mt-6 font-cn-black text-2xl md:text-4xl">
-                {pick(item, "title")}
+                {item.slug === FIRST_EVENT_SLUG ? firstMeetup.title : pick(item, "title")}
               </h2>
               <p className="mt-4 max-w-3xl text-lg leading-relaxed">
-                {pick(item, "summary")}
+                {item.slug === FIRST_EVENT_SLUG ? firstMeetup.subtitle : pick(item, "summary")}
               </p>
               <div
                 className={`mt-6 grid gap-6 ${
@@ -111,20 +129,44 @@ function EventsPage() {
                 }`}
               >
                 <div>
-                  <dl className="grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
-                    <div>
-                      <dt className="label-mono text-paper-muted">
-                        {t("dateTime")}
-                      </dt>
-                      <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
-                    </div>
-                    <div>
-                      <dt className="label-mono text-paper-muted">{t("venue")}</dt>
-                      <dd className="mt-1 font-bold">
-                        {item.status === "scheduled" ? pick(item, "venue") : t("notConfirmed")}
-                      </dd>
-                    </div>
-                  </dl>
+                  {item.slug === FIRST_EVENT_SLUG ? (
+                    <dl className="grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
+                      <div>
+                        <dt className="label-mono text-paper-muted">{firstMeetup.cityLabel}</dt>
+                        <dd className="mt-1 font-bold">{firstMeetup.city}</dd>
+                      </div>
+                      <div>
+                        <dt className="label-mono text-paper-muted">{firstMeetup.venueLabel}</dt>
+                        <dd className="mt-1 font-bold">{firstMeetup.toBeAnnounced}</dd>
+                      </div>
+                      <div>
+                        <dt className="label-mono text-paper-muted">{firstMeetup.dateTimeLabel}</dt>
+                        <dd className="mt-1 font-bold">{firstMeetup.toBeAnnounced}</dd>
+                      </div>
+                      <div>
+                        <dt className="label-mono text-paper-muted">{firstMeetup.capacityLabel}</dt>
+                        <dd className="mt-1 font-bold">{firstMeetup.capacity}</dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <dl className="grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
+                      <div>
+                        <dt className="label-mono text-paper-muted">
+                          {t("dateTime")}
+                        </dt>
+                        <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
+                      </div>
+                      <div>
+                        <dt className="label-mono text-paper-muted">{t("venue")}</dt>
+                        <dd className="mt-1 font-bold">
+                          {item.status === "scheduled" ? pick(item, "venue") : t("notConfirmed")}
+                        </dd>
+                      </div>
+                    </dl>
+                  )}
+                  {item.slug === FIRST_EVENT_SLUG ? (
+                    <p className="mt-4 text-sm text-muted-foreground">{firstMeetup.eventNote}</p>
+                  ) : null}
                   <div className="mt-6 flex flex-wrap gap-4">
                     <Link
                       to="/events/$slug"

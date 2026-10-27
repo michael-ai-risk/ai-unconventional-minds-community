@@ -2,9 +2,10 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Code2, MessageCircle, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { firstEvent, themes, topics } from "@/lib/content";
+import { themes, topics } from "@/lib/content";
 import { localizeContent } from "@/lib/content-locales";
 import { FirstEventPoster } from "@/components/FirstEventPoster";
+import { firstMeetupContent } from "@/lib/first-meetup-content";
 
 const superTeam = [
   {
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { lang, t } = useI18n();
   const [expandedPair, setExpandedPair] = useState<string | null>(null);
+  const meetup = firstMeetupContent[lang];
   const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
     localizeContent(value, lang);
 
@@ -229,13 +231,16 @@ function Home() {
           <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] md:items-start md:p-7">
             <div>
               <p className="label-mono text-paper-muted">
-                {t("freeEvent")} · {pick(firstEvent.language)}
+                {meetup.freeTag} · {meetup.languageTag}
               </p>
-              <h3 className="mt-3 font-cn-black text-2xl">{pick(firstEvent.title)}</h3>
-              <p className="mt-3 max-w-3xl">{pick(firstEvent.description)}</p>
+              <h3 className="mt-3 font-cn-black text-2xl">{meetup.title}</h3>
+              <p className="mt-3 max-w-3xl">{meetup.subtitle}</p>
             </div>
             <div className="border-t border-paper-foreground/30 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
-              <p className="label-mono">{t("eventTba")}</p>
+              <p className="label-mono">{meetup.timeAndPlaceTag}</p>
+              <p className="mt-2 text-sm">
+                {meetup.capacityLabel}: {meetup.capacity}
+              </p>
               <FirstEventPoster className="mx-auto mt-3 w-full max-w-[21rem]" />
             </div>
           </article>

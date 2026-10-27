@@ -123,7 +123,6 @@ export const jaDict: Partial<Record<DictKey, string>> = {
   venue: "会場",
   languageLabel: "言語",
   notConfirmed: "未定",
-  firstEventPosterAlt: "第1回対面AI交流会のポスター。TelegramとウェブサイトのQRコードを含みます。",
   eventDetails: "イベント詳細",
   surveyFooter: "アンケートは任意です。回答しても予約は確定しません。",
   allEvents: "すべてのイベント",

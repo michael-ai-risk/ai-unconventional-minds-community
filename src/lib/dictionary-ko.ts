@@ -123,7 +123,6 @@ export const koDict: Partial<Record<DictKey, string>> = {
   venue: "장소",
   languageLabel: "언어",
   notConfirmed: "미정",
-  firstEventPosterAlt: "첫 오프라인 AI 모임 포스터입니다. Telegram 및 웹사이트 QR 코드가 포함되어 있습니다.",
   eventDetails: "모임 안내",
   surveyFooter: "설문은 선택 사항이며 예약이 확정되지 않습니다.",
   allEvents: "모든 모임",
