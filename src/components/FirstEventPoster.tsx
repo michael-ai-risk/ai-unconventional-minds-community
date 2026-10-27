@@ -7,16 +7,13 @@ export function FirstEventPoster({ className = "" }: { className?: string }) {
 
   return (
     <figure className={className} aria-label={copy.posterHeading}>
-      <div
-        role="status"
-        className="flex aspect-[1122/1832] w-full flex-col items-center justify-center border-2 border-paper-foreground bg-background p-6 text-center"
-      >
-        <span className="label-mono text-accent">{copy.posterHeading}</span>
-        <h2 className="mt-5 font-cn-black text-2xl">{copy.posterPending}</h2>
-        <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          {copy.posterNote}
-        </p>
-      </div>
+      <img
+        src="/posters/first-ai-meetup.png"
+        alt={`${copy.posterHeading}: ${copy.title}`}
+        className="block h-auto w-full border-2 border-paper-foreground object-contain"
+        loading="lazy"
+        decoding="async"
+      />
     </figure>
   );
 }
