@@ -399,6 +399,12 @@ export const dict = d({
   venue: { zh: "地点", zhTW: "地點", en: "Venue", th: "สถานที่" },
   languageLabel: { zh: "语言", zhTW: "語言", en: "Language", th: "ภาษา" },
   notConfirmed: { zh: "尚未确认", zhTW: "尚未確認", en: "Not confirmed", th: "ยังไม่ยืนยัน" },
+  firstEventPosterAlt: {
+    zh: "第一期线下 AI 交流活动海报，包含活动信息及 Telegram 和网站二维码。",
+    zhTW: "第一期線下 AI 交流活動海報，包含活動資訊及 Telegram 和網站 QR Code。",
+    en: "Poster for the first in-person AI community meetup, with Telegram and website QR codes.",
+    th: "โปสเตอร์งานพบปะพูดคุยเรื่อง AI แบบออฟไลน์ครั้งแรก พร้อม QR Code สำหรับ Telegram และเว็บไซต์",
+  },
   eventDetails: { zh: "活动详情", zhTW: "活動詳情", en: "Event details", th: "รายละเอียดกิจกรรม" },
   surveyFooter: { zh: "问卷自愿填写，不代表正式报名或座位确认。", zhTW: "問卷為自由填寫，不代表正式報名或已確認座位。", en: "The survey is optional and does not confirm a booking.", th: "แบบสอบถามตอบได้ตามสมัครใจ และไม่ถือเป็นการลงทะเบียนหรือยืนยันที่นั่ง" },
   allEvents: { zh: "全部活动", zhTW: "所有活動", en: "All events", th: "กิจกรรมทั้งหมด" },

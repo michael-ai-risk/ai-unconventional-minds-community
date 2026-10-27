@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { firstEvent, themes, topics } from "@/lib/content";
 import { localizeContent } from "@/lib/content-locales";
+import { FirstEventPoster } from "@/components/FirstEventPoster";
 
 const superTeam = [
   {
@@ -225,7 +226,7 @@ function Home() {
               {t("seeAll")} ↗
             </Link>
           </div>
-          <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[1fr_auto] md:items-center md:p-7">
+          <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] md:items-start md:p-7">
             <div>
               <p className="label-mono text-paper-muted">
                 {t("freeEvent")} · {pick(firstEvent.language)}
@@ -233,8 +234,9 @@ function Home() {
               <h3 className="mt-3 font-cn-black text-2xl">{pick(firstEvent.title)}</h3>
               <p className="mt-3 max-w-3xl">{pick(firstEvent.description)}</p>
             </div>
-            <div className="border-l-0 border-paper-foreground/30 pt-4 label-mono md:border-l md:pl-6 md:pt-0">
-              {t("eventTba")}
+            <div className="border-t border-paper-foreground/30 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+              <p className="label-mono">{t("eventTba")}</p>
+              <FirstEventPoster className="mx-auto mt-3 w-full max-w-[21rem]" />
             </div>
           </article>
         </div>

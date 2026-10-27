@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { FirstEventPoster } from "@/components/FirstEventPoster";
 
 type EventRecord = {
   id: string;
@@ -21,6 +22,7 @@ type EventRecord = {
   recap_zh: string | null;
   recap_en: string | null;
 };
+const FIRST_EVENT_SLUG = "ai-unconventional-minds-first-meetup";
 export const Route = createFileRoute("/events")({
   head: () => ({ meta: [{ title: "活动 · AI非正常人类情报站" }] }),
   component: EventsPage,
@@ -101,36 +103,49 @@ function EventsPage() {
               <p className="mt-4 max-w-3xl text-lg leading-relaxed">
                 {pick(item, "summary")}
               </p>
-              <dl className="mt-6 grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
+              <div
+                className={`mt-6 grid gap-6 ${
+                  item.slug === FIRST_EVENT_SLUG
+                    ? "md:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] md:items-start"
+                    : ""
+                }`}
+              >
                 <div>
-                  <dt className="label-mono text-paper-muted">
-                    {t("dateTime")}
-                  </dt>
-                  <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
+                  <dl className="grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
+                    <div>
+                      <dt className="label-mono text-paper-muted">
+                        {t("dateTime")}
+                      </dt>
+                      <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
+                    </div>
+                    <div>
+                      <dt className="label-mono text-paper-muted">{t("venue")}</dt>
+                      <dd className="mt-1 font-bold">
+                        {item.status === "scheduled" ? pick(item, "venue") : t("notConfirmed")}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="mt-6 flex flex-wrap gap-4">
+                    <Link
+                      to="/events/$slug"
+                      params={{ slug: item.slug }}
+                      className="border-2 border-paper-foreground px-5 py-3 font-bold"
+                    >
+                      {t("eventDetails")} ↗
+                    </Link>
+                    <a
+                      href="https://tally.so/r/PRdaO5"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="stamp-ink border-2 border-paper-foreground px-5 py-3 font-bold"
+                    >
+                      {t("survey")} ↗
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <dt className="label-mono text-paper-muted">{t("venue")}</dt>
-                  <dd className="mt-1 font-bold">
-                    {item.status === "scheduled" ? pick(item, "venue") : t("notConfirmed")}
-                  </dd>
-                </div>
-              </dl>
-              <div className="mt-6 flex flex-wrap gap-4">
-                <Link
-                  to="/events/$slug"
-                  params={{ slug: item.slug }}
-                  className="border-2 border-paper-foreground px-5 py-3 font-bold"
-                >
-                  {t("eventDetails")} ↗
-                </Link>
-                <a
-                  href="https://tally.so/r/PRdaO5"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="stamp-ink border-2 border-paper-foreground px-5 py-3 font-bold"
-                >
-                  {t("survey")} ↗
-                </a>
+                {item.slug === FIRST_EVENT_SLUG ? (
+                  <FirstEventPoster className="mx-auto w-full max-w-[22rem] md:mx-0 md:justify-self-end" />
+                ) : null}
               </div>
               {item.recap_zh || item.recap_en ? (
                 <p className="mt-6 border-t border-paper-foreground/30 pt-4">
