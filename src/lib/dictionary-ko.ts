@@ -137,7 +137,7 @@ export const koDict: Partial<Record<DictKey, string>> = {
   privacyPostsHeading: "게시글과 댓글",
   privacyPostsBody: "게시글과 답글은 제출 즉시 공개됩니다. 사이트는 내용, 선택한 닉네임, 연결된 계정 소유자, 제출 시간을 저장합니다. 작성한 글을 수정하거나 삭제하려면 작성 시 인증한 동일한 이메일로 로그인해야 합니다. 공개된 내용은 누구나 읽고 공유할 수 있습니다.",
   privacyRequestHeading: "데이터 처리",
-  privacyRequestBody: "게시글, 답글, 신고에는 Turnstile이나 작업 빈도 제한을 사용하지 않습니다. 이메일 인증 코드의 전송과 확인에는 악용 방지를 위한 제한이 있습니다. 이메일은 Resend가 전송합니다. Resend, Cloudflare, 호스팅 제공업체는 각 서비스 약관에 따라 이메일 주소, 인증, 네트워크 요청, 보안 로그를 처리할 수 있습니다.",
+  privacyRequestBody: "게시글, 답글, 신고에는 Turnstile이나 작업 빈도 제한을 사용하지 않습니다. 이메일 인증 코드의 전송과 확인에는 악용 방지를 위한 제한이 있습니다. 이메일은 Google Gmail / Resend가 전송합니다. Google Gmail / Resend, Cloudflare, 호스팅 제공업체는 각 서비스 약관에 따라 이메일 주소, 인증, 네트워크 요청, 보안 로그를 처리할 수 있습니다.",
   privacyReportsHeading: "삭제 및 신고",
   privacyReportsBody: "작성한 글을 수정하거나 삭제하려면 작성할 때 인증한 동일한 이메일로 로그인하세요. 방문자는 로그인 없이 콘텐츠를 신고하거나 아래에서 삭제를 요청할 수 있습니다. 운영자는 규칙을 위반한 콘텐츠를 숨기거나 삭제할 수 있습니다. 게시글과 답글은 공개 전에 검토되지 않습니다.",
   privacySurveyHeading: "행사 설문",

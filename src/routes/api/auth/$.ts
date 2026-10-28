@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { emailDeliveryConfigured } from "@/lib/email-config";
 import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/api/auth/$")({
           path === "/api/auth/email-otp/send-verification-otp" ||
           path === "/api/auth/sign-in/email-otp"
         ) {
-          if (!env.RESEND_API_KEY?.trim() || !env.EMAIL_FROM?.trim())
+          if (!emailDeliveryConfigured(env))
             return Response.json(
               { error: "Email sign-in is not configured yet." },
               { status: 503, headers: { "Cache-Control": "no-store" } },

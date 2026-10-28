@@ -137,7 +137,7 @@ export const jaDict: Partial<Record<DictKey, string>> = {
   privacyPostsHeading: "投稿とコメント",
   privacyPostsBody: "投稿や返信は送信するとすぐに公開されます。サイトは内容、任意のニックネーム、紐づくアカウント、送信時刻を保存します。自分の投稿を編集・削除するには、作成時と同じ認証済みメールアドレスでログインしてください。公開された内容は誰でも閲覧・共有できます。",
   privacyRequestHeading: "データの取り扱い",
-  privacyRequestBody: "投稿、返信、通報にTurnstileや操作頻度の制限はありません。メール認証コードの送信と確認回数には不正利用防止のため制限があります。メールはResendから送信されます。Resend、Cloudflare、ホスティング事業者は各サービスの規約に基づき、メールアドレス、認証、ネットワークリクエスト、セキュリティログを処理する場合があります。",
+  privacyRequestBody: "投稿、返信、通報にTurnstileや操作頻度の制限はありません。メール認証コードの送信と確認回数には不正利用防止のため制限があります。メールはGoogle Gmail / Resendから送信されます。Google Gmail / Resend、Cloudflare、ホスティング事業者は各サービスの規約に基づき、メールアドレス、認証、ネットワークリクエスト、セキュリティログを処理する場合があります。",
   privacyReportsHeading: "削除と通報",
   privacyReportsBody: "投稿を編集・削除するには、作成時と同じ認証済みメールアドレスでログインしてください。閲覧者はログインせずにコンテンツを通報したり、下記から削除を依頼したりできます。スタッフは通報を確認し、ルール違反の内容を非表示または削除できます。投稿や返信は公開前に審査されません。",
   privacySurveyHeading: "イベントアンケート",

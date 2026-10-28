@@ -1,3 +1,4 @@
+import { emailDeliveryConfigured } from "@/lib/email-config";
 import { auth } from "@/lib/auth";
 import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
@@ -514,7 +515,7 @@ async function handle(request: Request) {
     if (resource === "posts" && id) return postDetail(request, id);
     if (resource === "session")
       return json({
-        emailOtpConfigured: !!env.RESEND_API_KEY?.trim() && !!env.EMAIL_FROM?.trim(),
+        emailOtpConfigured: emailDeliveryConfigured(env),
         canPost: !!(await verifiedEmailActor(request)),
       });
     if (resource === "events") return listPublic("events", id);

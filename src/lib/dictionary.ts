@@ -424,10 +424,10 @@ export const dict = d({
   },
   privacyRequestHeading: { zh: "请求信息", zhTW: "請求資訊", en: "Request data", th: "ข้อมูลคำขอ" },
   privacyRequestBody: {
-    zh: "发帖、评论和举报不使用 Turnstile，也不限制这些操作的频率。为防止验证码被滥用，登录验证码的发送和验证次数有限制。邮件由 Resend 发送；Resend、Cloudflare 及托管服务可能按各自条款处理邮箱、登录请求、网络请求和安全日志。",
-    zhTW: "發文、留言和檢舉不使用 Turnstile，也不限制這些操作的頻率。為防止驗證碼遭濫用，登入驗證碼的寄送與驗證次數設有限制。郵件由 Resend 寄送；Resend、Cloudflare 與託管服務可能依各自條款處理電子郵件、登入請求、網路請求及安全記錄。",
-    en: "Posts, replies, and reports do not use Turnstile or have action-frequency limits. Email-code sending and verification are limited to prevent abuse. Resend sends the emails; Resend, Cloudflare, and the hosting provider may process email addresses, authentication, network requests, and security logs under their respective terms.",
-    th: "การโพสต์ ตอบกลับ และรายงานไม่ใช้ Turnstile และไม่มีการจำกัดความถี่ของการดำเนินการ เพื่อป้องกันการใช้รหัสในทางที่ผิด การส่งและการยืนยันรหัสทางอีเมลมีการจำกัดจำนวน Resend เป็นผู้ส่งอีเมล โดย Resend, Cloudflare และผู้ให้บริการโฮสติ้งอาจประมวลผลอีเมล การยืนยันตัวตน คำขอเครือข่าย และบันทึกความปลอดภัยตามเงื่อนไขของแต่ละบริการ",
+    zh: "发帖、评论和举报不使用 Turnstile，也不限制这些操作的频率。为防止验证码被滥用，登录验证码的发送和验证次数有限制。邮件由 Google Gmail / Resend 发送；Google Gmail / Resend、Cloudflare 及托管服务可能按各自条款处理邮箱、登录请求、网络请求和安全日志。",
+    zhTW: "發文、留言和檢舉不使用 Turnstile，也不限制這些操作的頻率。為防止驗證碼遭濫用，登入驗證碼的寄送與驗證次數設有限制。郵件由 Google Gmail / Resend 寄送；Google Gmail / Resend、Cloudflare 與託管服務可能依各自條款處理電子郵件、登入請求、網路請求及安全記錄。",
+    en: "Posts, replies, and reports do not use Turnstile or have action-frequency limits. Email-code sending and verification are limited to prevent abuse. Google Gmail / Resend sends the emails; Google Gmail / Resend, Cloudflare, and the hosting provider may process email addresses, authentication, network requests, and security logs under their respective terms.",
+    th: "การโพสต์ ตอบกลับ และรายงานไม่ใช้ Turnstile และไม่มีการจำกัดความถี่ของการดำเนินการ เพื่อป้องกันการใช้รหัสในทางที่ผิด การส่งและการยืนยันรหัสทางอีเมลมีการจำกัดจำนวน Google Gmail / Resend เป็นผู้ส่งอีเมล โดย Google Gmail / Resend, Cloudflare และผู้ให้บริการโฮสติ้งอาจประมวลผลอีเมล การยืนยันตัวตน คำขอเครือข่าย และบันทึกความปลอดภัยตามเงื่อนไขของแต่ละบริการ",
   },
   privacyReportsHeading: { zh: "删除与举报", zhTW: "刪除與檢舉", en: "Deletion and reports", th: "การลบและการรายงาน" },
   privacyReportsBody: {
