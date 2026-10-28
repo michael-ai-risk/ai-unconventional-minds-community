@@ -1,7 +1,7 @@
 # Topic catalog localization
 
 Scope: `/ai-topics` and its catalog detail routes. Source baseline:
-`1886c790692e3362129a22e6d778e65729af328e`, Draft PR #2.
+`fe8f4968f60f36691013e8d98e64125eda6424d1`, Draft PR #2 (full-article update).
 
 ## Content boundaries
 
@@ -14,17 +14,25 @@ Scope: `/ai-topics` and its catalog detail routes. Source baseline:
 - Traditional Chinese started with offline OpenCC `s2twp` conversion and terminology
   adjustments (for example 品質、職位、權限、數位、運算資源).
   Neither OpenCC nor any translation service is a runtime dependency.
-- All six full article bodies and references remain Chinese. A localized title,
-  summary and availability notice precede an explicit button to read the Chinese
-  original. The original is marked `lang="zh-CN"`; the user's interface language
-  remains unchanged. Catalog translations do not create translated full articles.
+- All six published articles now have full translations in
+  `src/lib/article-locales/{zhTW,en,th,ja,ko}.json`: title, article summary, every
+  section and paragraph, and reference dates/scopes. `article-localization.ts`
+  rejects incomplete translations for reading. Source URLs and reference titles
+  always come from the Chinese source records; original publication titles remain
+  in their original language. No citations are invented by the translation layer.
+- Translations open directly in the selected language. A button switches to the
+  Chinese original and back without changing the interface language. Article
+  `lang` attributes follow the actual text. Native-speaker review remains pending
+  and is disclosed. This is community editorial translation, not an official
+  translation or endorsement by the cited institutions.
 - No candidate becomes published through localization. No user discussions or
   database records are translated or modified by this change.
 
 ## Rendering and search
 
 `topic-localization.ts` supplies the same localized record to lists, candidate
-details, related links and editorial teasers. Missing or duplicate records are
+details and related links. Editorial teasers use the article's own localized
+title/summary. Missing or duplicate records are
 checked in tests. Simplified Chinese uses the existing source record unchanged.
 
 Search indexes the selected language's title, summary and category, with Chinese
@@ -45,13 +53,15 @@ Translations preserve uncertainty and distinguish:
 Run `npm test`, `npm run build`, and ESLint/Prettier on the changed TypeScript and
 TSX files. `src/test/topic-localization.test.ts` checks all 750 translated record
 pairs, category/source-language search, Unicode normalization and retained article
-publication boundaries.
+publication boundaries. `article-localization.test.ts` checks all 30 complete
+translations, section/paragraph counts, reference identity, the study's numerical
+limits, token terminology, and missing-translation behavior.
 
 Browser acceptance must separately check the actual language selector, all
 rendered catalog titles and summaries, categories/subcategories, localized search,
-empty results, detail links, refresh/back/forward, the six Chinese-original
-buttons, desktop/mobile overflow, keyboard and touch navigation, and console
+empty results, detail links, refresh/back/forward, all six full articles per
+language and original/translation toggles, desktop/mobile overflow, keyboard and touch navigation, and console
 errors. Passing unit tests is not visual or native-language acceptance.
 
 No main merge or production deployment is part of this change. Native-speaker
-review and full article translation remain separate pending work.
+review remains pending; translation completeness does not certify native-language quality.

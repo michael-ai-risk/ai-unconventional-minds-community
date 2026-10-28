@@ -2,7 +2,6 @@ import { Link, Outlet, createFileRoute, useRouterState } from "@tanstack/react-r
 import { useEffect, useMemo, useState } from "react";
 import {
   getArticleBySlug,
-  getTopicEntryBySlug,
   topicArticles,
   topicCategories,
   topicEntries,
@@ -12,6 +11,7 @@ import {
 } from "@/lib/ai-topic-catalog";
 import { useI18n } from "@/lib/i18n";
 import { localizeContent } from "@/lib/content-locales";
+import { hasArticleTranslation, localizeArticle } from "@/lib/article-localization";
 import { localizeTopic, matchesTopicSearch } from "@/lib/topic-localization";
 
 export const Route = createFileRoute("/ai-topics")({
@@ -106,9 +106,8 @@ function TopicsPage() {
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {topicArticles.map((article, index) => {
-            const canRead = article.status === "published";
-            const entry = getTopicEntryBySlug(article.slug);
-            const localized = entry && lang !== "zh" ? localizeTopic(entry, lang) : article;
+            const canRead = article.status === "published" && hasArticleTranslation(article, lang);
+            const localized = localizeArticle(article, lang);
             const className =
               "paper flex h-full flex-col border-2 border-foreground p-5 transition-colors hover:bg-primary";
             const contents = (
@@ -120,7 +119,7 @@ function TopicsPage() {
                 <h3 className="mt-3 font-cn-black text-xl">{localized.title}</h3>
                 <p className="mt-3 flex-1 text-paper-muted">{localized.summary}</p>
                 <span className="mt-5 inline-block font-bold">
-                  {canRead && lang === "zh"
+                  {canRead
                     ? `${topicText(topicPageCopy.read, lang)} ↗`
                     : topicText(topicPageCopy.chineseOnly, lang)}
                 </span>
@@ -259,7 +258,8 @@ function TopicsPage() {
             {filteredTopics.slice(0, visibleCount).map((topic) => {
               const localized = localizeTopic(topic, lang);
               const article = getArticleBySlug(topic.slug);
-              const canReadArticle = article?.status === "published" && lang === "zh";
+              const canReadArticle =
+                article?.status === "published" && hasArticleTranslation(article, lang);
               return (
                 <Link
                   key={topic.id}

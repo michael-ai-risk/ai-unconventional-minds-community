@@ -41,7 +41,7 @@ describe("localized topic catalog", () => {
     }
   });
 
-  it("preserves Chinese source records and never publishes translated article bodies", () => {
+  it("preserves Chinese source records and candidate publication states", () => {
     for (const topic of topicEntries) expect(localizeTopic(topic, "zh")).toBe(topic);
     expect(topicEntries.filter(({ status }) => status === "candidate")).toHaveLength(144);
     expect(topicArticles).toHaveLength(6);

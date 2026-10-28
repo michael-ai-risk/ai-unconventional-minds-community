@@ -13,6 +13,7 @@ import {
 import { topics } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { localizeContent } from "@/lib/content-locales";
+import { hasArticleTranslation, localizeArticle } from "@/lib/article-localization";
 import { localizeTopic } from "@/lib/topic-localization";
 
 export const Route = createFileRoute("/ai-topics/$slug")({
@@ -92,7 +93,7 @@ function TopicDetailPage() {
         </main>
       );
     }
-    if (lang !== "zh" && !showChineseOriginal) {
+    if (lang !== "zh" && !showChineseOriginal && !hasArticleTranslation(editorialArticle, lang)) {
       return (
         <main className="mx-auto min-h-[65vh] max-w-3xl px-4 py-12 md:py-16">
           <Link to="/ai-topics" className="label-mono text-primary">
@@ -105,7 +106,7 @@ function TopicDetailPage() {
             {localizedCandidate?.summary ?? editorialArticle.summary}
           </p>
           <p className="mt-5 border-2 border-foreground p-5" role="status">
-            {copy("articlesNote")}
+            {copy("translationUnavailable")}
           </p>
           <p className="mt-4 text-sm text-muted-foreground">{copy("titlesChineseNote")}</p>
           <button
@@ -121,6 +122,13 @@ function TopicDetailPage() {
         </main>
       );
     }
+    const renderedArticle = localizeArticle(editorialArticle, showChineseOriginal ? "zh" : lang);
+    const bodyLang =
+      renderedArticle.language === "zh"
+        ? "zh-CN"
+        : renderedArticle.language === "zhTW"
+          ? "zh-TW"
+          : renderedArticle.language;
     const related = topicEntries
       .filter(
         (entry) =>
@@ -138,14 +146,23 @@ function TopicDetailPage() {
         {lang !== "zh" && (
           <p className="mt-4 border-l-4 border-primary pl-4 text-sm">{copy("articlesNote")}</p>
         )}
-        <h1 lang="zh-CN" className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
-          {editorialArticle.title}
+        {lang !== "zh" && (
+          <button
+            type="button"
+            onClick={() => setShowChineseOriginal((value) => !value)}
+            className="mt-4 border-2 border-foreground px-4 py-2 hover:bg-secondary"
+          >
+            {showChineseOriginal ? copy("readTranslation") : copy("readOriginal")}
+          </button>
+        )}
+        <h1 lang={bodyLang} className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
+          {renderedArticle.title}
         </h1>
-        <p lang="zh-CN" className="mt-5 text-xl text-muted-foreground">
-          {editorialArticle.summary}
+        <p lang={bodyLang} className="mt-5 text-xl text-muted-foreground">
+          {renderedArticle.summary}
         </p>
-        <article lang="zh-CN" className="prose-zine mt-9">
-          {editorialArticle.sections.map((section) => (
+        <article lang={bodyLang} className="prose-zine mt-9">
+          {renderedArticle.sections.map((section) => (
             <section key={section.heading}>
               <h2>{section.heading}</h2>
               {section.paragraphs.map((paragraph, index) => (
@@ -154,11 +171,13 @@ function TopicDetailPage() {
             </section>
           ))}
           <section>
-            <h2>{copy("sources")}</h2>
+            <h2 lang={lang === "zhTW" ? "zh-TW" : lang === "zh" ? "zh-CN" : lang}>
+              {copy("sources")}
+            </h2>
             <ul>
-              {editorialArticle.sources.map((source) => (
+              {renderedArticle.sources.map((source) => (
                 <li key={source.url}>
-                  <a href={source.url} target="_blank" rel="noreferrer">
+                  <a lang="en" href={source.url} target="_blank" rel="noreferrer">
                     {source.label}
                   </a>
                   <span>
@@ -193,7 +212,7 @@ function TopicDetailPage() {
         )}
         <div className="paper mt-10 border-2 border-foreground p-5">
           <p className="font-bold">{t("keepTalking")}</p>
-          <p className="mt-2 text-sm text-paper-muted">{copy("candidateOnly")}</p>
+          <p className="mt-2 text-sm text-paper-muted">{copy("discussionBoundary")}</p>
           <Link
             to="/discussions"
             className="mt-4 inline-block font-bold underline underline-offset-4"
