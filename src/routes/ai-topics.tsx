@@ -2,6 +2,7 @@ import { Link, Outlet, createFileRoute, useRouterState } from "@tanstack/react-r
 import { useEffect, useMemo, useState } from "react";
 import {
   getArticleBySlug,
+  getTopicEntryBySlug,
   topicArticles,
   topicCategories,
   topicEntries,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/ai-topic-catalog";
 import { useI18n } from "@/lib/i18n";
 import { localizeContent } from "@/lib/content-locales";
+import { localizeTopic, matchesTopicSearch } from "@/lib/topic-localization";
 
 export const Route = createFileRoute("/ai-topics")({
   head: () => ({ meta: [{ title: "AI Topics · AI非正常人类情报站" }] }),
@@ -52,9 +54,7 @@ function TopicsPage() {
         return false;
       if (!term) return true;
       const category = topicCategories.find((item) => item.id === topic.categoryId);
-      return `${topic.title} ${topic.summary} ${category ? topicText(category.title, lang) : ""}`
-        .toLocaleLowerCase()
-        .includes(term);
+      return matchesTopicSearch(topic, lang, term, category ? topicText(category.title, lang) : "");
     });
   }, [lang, search, selectedCategory, selectedSubcategory]);
 
@@ -106,19 +106,21 @@ function TopicsPage() {
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {topicArticles.map((article, index) => {
-            const canRead = article.status === "published" && lang === "zh";
+            const canRead = article.status === "published";
+            const entry = getTopicEntryBySlug(article.slug);
+            const localized = entry && lang !== "zh" ? localizeTopic(entry, lang) : article;
             const className =
-              "paper flex h-full flex-col border-2 border-foreground p-5 transition-colors hover:bg-secondary";
+              "paper flex h-full flex-col border-2 border-foreground p-5 transition-colors hover:bg-primary";
             const contents = (
               <>
                 <p className="label-mono text-accent">
                   {String(index + 1).padStart(2, "0")} /{" "}
                   {topicText(topicPageCopy.statusPublished, lang)}
                 </p>
-                <h3 className="mt-3 font-cn-black text-xl">{article.title}</h3>
-                <p className="mt-3 flex-1 text-muted-foreground">{article.summary}</p>
+                <h3 className="mt-3 font-cn-black text-xl">{localized.title}</h3>
+                <p className="mt-3 flex-1 text-paper-muted">{localized.summary}</p>
                 <span className="mt-5 inline-block font-bold">
-                  {canRead
+                  {canRead && lang === "zh"
                     ? `${topicText(topicPageCopy.read, lang)} ↗`
                     : topicText(topicPageCopy.chineseOnly, lang)}
                 </span>
@@ -158,7 +160,7 @@ function TopicsPage() {
               type="button"
               aria-pressed={selectedCategory === category.id}
               onClick={() => selectCategory(category.id)}
-              className={`min-h-32 border-2 border-foreground p-4 text-left transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${selectedCategory === category.id ? "bg-primary text-primary-foreground" : "paper"}`}
+              className={`min-h-32 border-2 border-foreground p-4 text-left transition-colors hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${selectedCategory === category.id ? "bg-primary text-primary-foreground" : "paper"}`}
             >
               <span className="label-mono">{category.id}</span>
               <span className="mt-2 block font-cn-black text-lg">
@@ -255,6 +257,7 @@ function TopicsPage() {
         {filteredTopics.length ? (
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filteredTopics.slice(0, visibleCount).map((topic) => {
+              const localized = localizeTopic(topic, lang);
               const article = getArticleBySlug(topic.slug);
               const canReadArticle = article?.status === "published" && lang === "zh";
               return (
@@ -262,7 +265,7 @@ function TopicsPage() {
                   key={topic.id}
                   to="/ai-topics/$slug"
                   params={{ slug: topic.slug }}
-                  className="group paper border-2 border-foreground p-4 transition-colors hover:bg-secondary"
+                  className="group paper border-2 border-foreground p-4 transition-colors hover:bg-primary"
                 >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span className="label-mono text-accent">{topic.id}</span>
@@ -278,11 +281,11 @@ function TopicsPage() {
                       )}
                     </span>
                   </div>
-                  <h3 className="mt-3 font-cn-black text-lg">{topic.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {topic.summary}
+                  <h3 className="mt-3 font-cn-black text-lg">{localized.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-paper-muted">
+                    {localized.summary}
                   </p>
-                  <span className="mt-4 inline-block font-bold group-hover:text-primary">
+                  <span className="mt-4 inline-block font-bold group-hover:underline">
                     {canReadArticle
                       ? `${topicText(topicPageCopy.read, lang)} ↗`
                       : `${topicText(topicPageCopy.viewTopic, lang)} ↗`}
@@ -300,7 +303,7 @@ function TopicsPage() {
           <button
             type="button"
             onClick={() => setVisibleCount((count) => count + 12)}
-            className="mt-5 border-2 border-foreground px-5 py-3 font-bold hover:bg-secondary"
+            className="mt-5 border-2 border-foreground px-5 py-3 font-bold hover:bg-primary hover:text-primary-foreground"
           >
             {topicText(topicPageCopy.loadMore, lang)}
           </button>
@@ -319,7 +322,7 @@ function TopicsPage() {
                 key={article["slug"]}
                 to="/ai-topics/$slug"
                 params={{ slug: article["slug"] }}
-                className="paper border-2 border-foreground p-5 hover:bg-secondary"
+                className="paper border-2 border-foreground p-5 hover:bg-primary"
               >
                 <p className="label-mono">{article["category_slug"] ?? ""}</p>
                 <h3 className="mt-3 font-cn-black text-xl">
@@ -332,7 +335,7 @@ function TopicsPage() {
                     ko: article["title_ko"] ?? "",
                   })}
                 </h3>
-                <p className="mt-2 text-muted-foreground">
+                <p className="mt-2 text-paper-muted">
                   {pick({
                     zh: article["excerpt_zh"] ?? "",
                     zhTW: article["excerpt_zh_tw"] ?? "",

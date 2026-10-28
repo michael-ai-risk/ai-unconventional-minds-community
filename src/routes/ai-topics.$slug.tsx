@@ -13,6 +13,7 @@ import {
 import { topics } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { localizeContent } from "@/lib/content-locales";
+import { localizeTopic } from "@/lib/topic-localization";
 
 export const Route = createFileRoute("/ai-topics/$slug")({
   head: () => ({ meta: [{ title: "AI Topics · AI非正常人类情报站" }] }),
@@ -23,6 +24,9 @@ function TopicDetailPage() {
   const { slug } = Route.useParams();
   const { lang, t, pick: pickRow } = useI18n();
   const candidate = getTopicEntryBySlug(slug);
+  const localizedCandidate = candidate ? localizeTopic(candidate, lang) : undefined;
+  const [showChineseOriginal, setShowChineseOriginal] = useState(false);
+  useEffect(() => setShowChineseOriginal(false), [lang, slug]);
   const editorialArticle = getArticleBySlug(slug);
   const legacyPrompt = topics.find((item) => item.slug === slug);
   const [communityArticle, setCommunityArticle] = useState<Record<string, string> | null>(null);
@@ -88,16 +92,32 @@ function TopicDetailPage() {
         </main>
       );
     }
-    if (lang !== "zh") {
+    if (lang !== "zh" && !showChineseOriginal) {
       return (
         <main className="mx-auto min-h-[65vh] max-w-3xl px-4 py-12 md:py-16">
           <Link to="/ai-topics" className="label-mono text-primary">
             ← {copy("back")}
           </Link>
-          <h1 className="mt-8 font-cn-black text-3xl md:text-5xl">{editorialArticle.title}</h1>
+          <h1 className="mt-8 font-cn-black text-3xl md:text-5xl">
+            {localizedCandidate?.title ?? editorialArticle.title}
+          </h1>
+          <p className="mt-5 text-xl text-muted-foreground">
+            {localizedCandidate?.summary ?? editorialArticle.summary}
+          </p>
           <p className="mt-5 border-2 border-foreground p-5" role="status">
             {copy("articlesNote")}
           </p>
+          <p className="mt-4 text-sm text-muted-foreground">{copy("titlesChineseNote")}</p>
+          <button
+            type="button"
+            onClick={() => setShowChineseOriginal(true)}
+            className="mt-5 border-2 border-foreground bg-primary px-5 py-3 font-bold text-primary-foreground"
+          >
+            {copy("readOriginal")}
+          </button>
+          <Link to="/discussions" className="mt-5 block underline underline-offset-4">
+            {copy("discussion")} ↗
+          </Link>
         </main>
       );
     }
@@ -115,11 +135,16 @@ function TopicDetailPage() {
         <p className="mt-8 label-mono text-accent">
           {editorialArticle.categoryId} / EDITORIAL / {copy("statusPublished")}
         </p>
-        <h1 className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
+        {lang !== "zh" && (
+          <p className="mt-4 border-l-4 border-primary pl-4 text-sm">{copy("articlesNote")}</p>
+        )}
+        <h1 lang="zh-CN" className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
           {editorialArticle.title}
         </h1>
-        <p className="mt-5 text-xl text-muted-foreground">{editorialArticle.summary}</p>
-        <article className="prose-zine mt-9">
+        <p lang="zh-CN" className="mt-5 text-xl text-muted-foreground">
+          {editorialArticle.summary}
+        </p>
+        <article lang="zh-CN" className="prose-zine mt-9">
           {editorialArticle.sections.map((section) => (
             <section key={section.heading}>
               <h2>{section.heading}</h2>
@@ -159,7 +184,7 @@ function TopicDetailPage() {
                     params={{ slug: item.slug }}
                     className="block border-2 border-foreground p-4 underline underline-offset-4 hover:bg-secondary"
                   >
-                    {item.title}
+                    {localizeTopic(item, lang).title}
                   </Link>
                 </li>
               ))}
@@ -168,7 +193,7 @@ function TopicDetailPage() {
         )}
         <div className="paper mt-10 border-2 border-foreground p-5">
           <p className="font-bold">{t("keepTalking")}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{copy("candidateOnly")}</p>
+          <p className="mt-2 text-sm text-paper-muted">{copy("candidateOnly")}</p>
           <Link
             to="/discussions"
             className="mt-4 inline-block font-bold underline underline-offset-4"
@@ -206,8 +231,10 @@ function TopicDetailPage() {
         <p className="mt-8 label-mono text-accent">
           {candidate.id} / {topicText(category?.title ?? topicPageCopy.title, lang)}
         </p>
-        <h1 className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">{candidate.title}</h1>
-        <p className="mt-5 text-xl text-muted-foreground">{candidate.summary}</p>
+        <h1 className="mt-3 font-cn-black text-3xl leading-tight md:text-5xl">
+          {localizedCandidate!.title}
+        </h1>
+        <p className="mt-5 text-xl text-muted-foreground">{localizedCandidate!.summary}</p>
         <div className="mt-7 grid gap-3 border-y-2 border-foreground py-4 sm:grid-cols-2">
           <p>
             <strong>{copy("topicType")}:</strong> {copy(topicTypeCopyKey[candidate.contentType])}
@@ -216,7 +243,7 @@ function TopicDetailPage() {
             <strong>{copy("topicStatus")}:</strong> {copy("statusCandidate")}
           </p>
           <p>
-            <strong>{copy("language")}:</strong> {copy("chinese")}
+            <strong>{copy("language")}:</strong> {copy("catalogLanguage")}
           </p>
           <p>
             <strong>URL:</strong> <code>{candidate.path}</code>
@@ -225,9 +252,10 @@ function TopicDetailPage() {
         <p className="mt-6 border-l-4 border-primary pl-4 text-muted-foreground">
           {copy("candidateOnly")}
         </p>
+        <p className="mt-4 text-sm text-muted-foreground">{copy("titlesChineseNote")}</p>
         <div className="paper mt-8 border-2 border-foreground p-5">
           <p className="font-bold">{t("keepTalking")}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{copy("discussionBoundary")}</p>
+          <p className="mt-2 text-sm text-paper-muted">{copy("discussionBoundary")}</p>
           <Link
             to="/discussions"
             className="mt-4 inline-block font-bold underline underline-offset-4"
@@ -246,7 +274,10 @@ function TopicDetailPage() {
                     params={{ slug: item.slug }}
                     className="block border-2 border-foreground p-4 underline underline-offset-4 hover:bg-secondary"
                   >
-                    {item.title}
+                    {(() => {
+                      const entry = getTopicEntryBySlug(item.slug);
+                      return entry ? localizeTopic(entry, lang).title : item.title;
+                    })()}
                   </Link>
                 </li>
               ))}
