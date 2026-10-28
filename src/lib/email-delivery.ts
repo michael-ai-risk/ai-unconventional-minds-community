@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { emailDeliveryConfigured, type EmailEnvironment } from "./email-config";
+import { gmailSocket } from "./gmail-socket";
 
 export async function sendSignInCode(
   config: EmailEnvironment,
@@ -23,6 +24,7 @@ export async function sendSignInCode(
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
+      getSocket: gmailSocket,
       auth: { user, pass: config.GMAIL_APP_PASSWORD!.replace(/\s/g, "") },
       tls: { servername: "smtp.gmail.com", rejectUnauthorized: true },
       connectionTimeout: 10_000,
@@ -53,7 +55,26 @@ export async function sendSignInCode(
               : code === "ESOCKET" || code === "ECONNECTION"
                 ? "SMTP_CONNECTION_FAILED"
                 : "SMTP_DELIVERY_FAILED";
-      console.error("OTP delivery:", diagnostic);
+      const details = cause as { originalCode?: string; message?: string } | null;
+      const originalCode = /^[A-Z][A-Z0-9_]{1,60}$/.test(details?.originalCode ?? "")
+        ? details!.originalCode
+        : "UNKNOWN";
+      const keywords = [
+        "not implemented",
+        "not supported",
+        "certificate",
+        "closed",
+        "refused",
+        "handshake",
+        "IP address",
+        "hostname",
+        "network",
+        "proxy",
+        "disallowed",
+        "setKeepAlive",
+        "setTimeout",
+      ].filter((word) => details?.message?.toLowerCase().includes(word.toLowerCase()));
+      console.error("OTP delivery:", diagnostic, originalCode, keywords.join("|"));
       // Do not expose SMTP responses, recipients, or credentials in auth errors/logs.
       throw new Error("Verification email could not be delivered.");
     } finally {
