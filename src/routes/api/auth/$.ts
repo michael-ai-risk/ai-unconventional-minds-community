@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { emailDeliveryConfigured } from "@/lib/email-config";
+import { withEmailDeliveryResult } from "@/lib/email-delivery-status";
 import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/api/auth/$")({
                 | null;
               if (body?.type !== "sign-in")
                 return Response.json({ error: "Only sign-in codes are supported." }, { status: 400 });
-              return auth.handler(request);
+              return withEmailDeliveryResult(() => auth.handler(request));
             })();
           }
           return auth.handler(request);

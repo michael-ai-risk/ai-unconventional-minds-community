@@ -3,6 +3,7 @@ import { emailOTP } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { env } from "cloudflare:workers";
 import { sendSignInCode } from "./email-delivery";
+import { recordEmailDeliveryFailure } from "./email-delivery-status";
 
 const emailOTPPlugin = emailOTP({
   otpLength: 6,
@@ -11,7 +12,14 @@ const emailOTPPlugin = emailOTP({
   storeOTP: "hashed",
   rateLimit: { window: 60, max: 3 },
   async sendVerificationOTP({ email, otp }) {
-    await sendSignInCode(env, email, otp);
+    try {
+      await sendSignInCode(env, email, otp);
+    } catch {
+      recordEmailDeliveryFailure(
+        "Verification email could not be delivered. Please try again later.",
+      );
+      throw new Error("Verification email could not be delivered.");
+    }
   },
 });
 

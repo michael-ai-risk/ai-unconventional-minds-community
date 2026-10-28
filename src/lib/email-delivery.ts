@@ -41,7 +41,19 @@ export async function sendSignInCode(
         text,
       });
       if (!result.accepted?.length || result.rejected?.length) throw new Error("Rejected");
-    } catch {
+    } catch (cause) {
+      const code = (cause as { code?: string } | null)?.code;
+      const diagnostic =
+        code === "EAUTH"
+          ? "SMTP_AUTH_FAILED"
+          : code === "ETIMEDOUT"
+            ? "SMTP_TIMEOUT"
+            : code === "EDNS"
+              ? "SMTP_DNS_FAILED"
+              : code === "ESOCKET" || code === "ECONNECTION"
+                ? "SMTP_CONNECTION_FAILED"
+                : "SMTP_DELIVERY_FAILED";
+      console.error("OTP delivery:", diagnostic);
       // Do not expose SMTP responses, recipients, or credentials in auth errors/logs.
       throw new Error("Verification email could not be delivered.");
     } finally {
