@@ -7,7 +7,7 @@
   "preview_urls": true,
   "observability": { "enabled": true },
   "vars": {
-    "SITE_ORIGIN": "https://community-pr2-preview.xiening668.workers.dev",
+    "SITE_ORIGIN": "https://community-pr2-preview.fzcrl.workers.dev",
   },
   "assets": {
     "directory": "dist/client",
