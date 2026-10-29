@@ -43,7 +43,7 @@ describe("homepage super team", () => {
     }
   });
 
-  it("reveals the shared interaction note from the keyboard-focusable pair card", async () => {
+  it("reveals Michael's real focus from the keyboard-focusable pair card", async () => {
     await renderHome("zh");
     const card = await screen.findByRole("button", { name: "Michael × ChatGPT" });
 
@@ -52,6 +52,26 @@ describe("homepage super team", () => {
     fireEvent.click(card);
 
     expect(card).toHaveAttribute("aria-expanded", "true");
-    expect(within(card).getByText("人类与 AI，一起探索更多可能。")).toBeVisible();
+    expect(within(card).getByText("跨行业 AI 系统实践者｜商业判断与风险管理")).toBeVisible();
+    expect(
+      within(card).getByText(
+        "拥有多年房地产、投资与企业管理经验，目前探索如何借助 AI 将行业知识转化为实际运行的专业系统。",
+      ),
+    ).toBeVisible();
+  });
+
+  it("reveals Abby's product focus without changing her AI partner", async () => {
+    await renderHome("zh");
+    const card = await screen.findByRole("button", { name: "Abby × Claude" });
+
+    fireEvent.click(card);
+
+    expect(card).toHaveAttribute("aria-expanded", "true");
+    expect(within(card).getByText("AI 独立开发者｜数字产品与线上收入探索")).toBeVisible();
+    expect(
+      within(card).getByText(
+        "Abby 在清迈探索 AI 辅助独立开发与数字产品实践，关注从真实用户需求出发设计最小可行产品、开展用户测试，并探索市场推广与线上收入。",
+      ),
+    ).toBeVisible();
   });
 });

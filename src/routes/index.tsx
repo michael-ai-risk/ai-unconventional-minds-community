@@ -28,8 +28,14 @@ function Home() {
   const { lang, t } = useI18n();
   const [expandedPair, setExpandedPair] = useState<string | null>(null);
   const meetup = firstMeetupContent[lang];
-  const pick = (value: { zh: string; en: string; zhTW?: string; th?: string; ja?: string; ko?: string }) =>
-    localizeContent(value, lang);
+  const pick = (value: {
+    zh: string;
+    en: string;
+    zhTW?: string;
+    th?: string;
+    ja?: string;
+    ko?: string;
+  }) => localizeContent(value, lang);
 
   return (
     <main>
@@ -103,6 +109,9 @@ function Home() {
             </div>
             <div className="max-w-3xl">
               <p className="leading-relaxed">{t("superTeamIntro")}</p>
+              <p className="mt-2 text-sm leading-relaxed text-paper-foreground">
+                {t("homeCommunityPositioning")}
+              </p>
               <p className="mt-2 text-sm text-paper-muted">{t("superTeamWelcome")}</p>
             </div>
           </div>
@@ -165,7 +174,19 @@ function Home() {
                     hidden={!expanded}
                     className="mt-4 block border-t border-paper-foreground/30 pt-3 text-center text-sm"
                   >
-                    {t("superTeamPairIntro")}
+                    {id === "michael" ? (
+                      <>
+                        <span className="block font-bold">{t("aboutMichaelRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutMichaelBio")}</span>
+                      </>
+                    ) : id === "abby" ? (
+                      <>
+                        <span className="block font-bold">{t("aboutAbbyRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutAbbyBio")}</span>
+                      </>
+                    ) : (
+                      t("superTeamPairIntro")
+                    )}
                   </span>
                 </button>
               );
@@ -184,12 +205,8 @@ function Home() {
         aria-hidden="true"
       >
         <div className="marquee-track flex w-max whitespace-nowrap label-mono">
-          <span className="px-4">
-            {t("marquee")}
-          </span>
-          <span className="px-4">
-            {t("marquee")}
-          </span>
+          <span className="px-4">{t("marquee")}</span>
+          <span className="px-4">{t("marquee")}</span>
         </div>
       </div>
 
@@ -199,9 +216,7 @@ function Home() {
             <p className="label-mono text-accent">01 / THEMES</p>
             <h2 className="mt-2 font-cn-black text-3xl">{t("homeThemes")}</h2>
           </div>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            {t("themesNote")}
-          </p>
+          <p className="max-w-xl text-sm text-muted-foreground">{t("themesNote")}</p>
         </div>
         <div className="mt-7 grid border-t-2 border-foreground sm:grid-cols-2 lg:grid-cols-4">
           {themes.map((item) => (

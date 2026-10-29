@@ -72,7 +72,6 @@ describe("About Us page", () => {
       expect(screen.getByText("COME AS YOU ARE")).toBeInTheDocument();
       expect(screen.getByText("Michael · Founder")).toBeInTheDocument();
       expect(screen.getByText("Business & Markets")).toBeInTheDocument();
-      expect(screen.getByText("Digital Products")).toBeInTheDocument();
       expect(screen.getByText("Abby", { exact: true })).toBeInTheDocument();
       expect(document.querySelector('[aria-labelledby="about-founder-title"] img')).toHaveAttribute(
         "src",
@@ -96,6 +95,55 @@ describe("About Us page", () => {
           .getAllByRole("link")
           .some((link) => link.getAttribute("href") === "/community-rules"),
       ).toBe(true);
+    },
+  );
+
+  it.each([
+    [
+      "zh",
+      "跨行业 AI 系统实践者｜商业判断与风险管理",
+      "AI 独立开发者｜数字产品与线上收入探索",
+      "Abby 在清迈探索 AI 辅助独立开发与数字产品实践",
+    ],
+    [
+      "zhTW",
+      "跨領域 AI 系統實踐者｜商業判斷與風險管理",
+      "AI 獨立開發者｜數位產品與線上收入探索",
+      "Abby 在清邁探索 AI 輔助獨立開發與數位產品實踐",
+    ],
+    [
+      "en",
+      "Cross-industry AI systems practitioner | Business judgment and risk management",
+      "AI independent developer | Digital products and exploring online income",
+      "In Chiang Mai, Abby is exploring AI-assisted independent development and digital products.",
+    ],
+    [
+      "th",
+      "ผู้ลงมือทำระบบ AI ข้ามอุตสาหกรรม | การตัดสินใจทางธุรกิจและการจัดการความเสี่ยง",
+      "นักพัฒนาอิสระด้วย AI | ผลิตภัณฑ์ดิจิทัลและการสำรวจรายได้ออนไลน์",
+      "Abby กำลังสำรวจการพัฒนาแบบอิสระด้วย AI และผลิตภัณฑ์ดิจิทัลในเชียงใหม่",
+    ],
+    [
+      "ja",
+      "業界横断のAIシステム実践者｜ビジネス判断とリスク管理",
+      "AIを活用する個人開発者｜デジタル製品とオンライン収入の可能性",
+      "Abbyはチェンマイで、AIを活用した個人開発とデジタル製品づくりを探っています。",
+    ],
+    [
+      "ko",
+      "산업 간 AI 시스템 실천가 | 사업 판단 및 리스크 관리",
+      "AI 독립 개발자 | 디지털 제품과 온라인 수입 탐색",
+      "Abby는 치앙마이에서 AI 보조 독립 개발과 디지털 제품을 탐구하고 있습니다.",
+    ],
+  ])(
+    "shows the revised member profiles in %s",
+    async (language, michaelRole, abbyRole, abbyBio) => {
+      await renderAbout(language);
+
+      expect(screen.getAllByText(michaelRole).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(abbyRole).length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(abbyBio);
+      expect(screen.queryByText(/張之昂|张之昂/)).not.toBeInTheDocument();
     },
   );
 });

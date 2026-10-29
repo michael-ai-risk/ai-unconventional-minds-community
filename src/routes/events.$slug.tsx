@@ -44,7 +44,18 @@ function EventDetailPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, [slug]);
-  const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-GB";
+  const locale =
+    lang === "zh"
+      ? "zh-CN"
+      : lang === "zhTW"
+        ? "zh-TW"
+        : lang === "th"
+          ? "th-TH"
+          : lang === "ja"
+            ? "ja-JP"
+            : lang === "ko"
+              ? "ko-KR"
+              : "en-GB";
   const statusLabel = (status: string) =>
     status === "tba"
       ? t("eventTba")
@@ -125,6 +136,31 @@ function EventDetailPage() {
             </aside>
           </div>
 
+          <section
+            aria-labelledby="meetup-speakers-title"
+            className="mt-10 border-t-2 border-paper-foreground/30 pt-8"
+          >
+            <p className="label-mono text-paper-muted">{copy.speakersKicker}</p>
+            <h2 id="meetup-speakers-title" className="mt-2 font-cn-black text-2xl md:text-3xl">
+              {copy.speakersHeading}
+            </h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {copy.speakers.map((speaker) => (
+                <article
+                  key={speaker.name}
+                  className="min-w-0 border-2 border-paper-foreground p-5"
+                >
+                  <p className="font-cn-black text-xl">{speaker.name}</p>
+                  <p className="mt-1 label-mono text-accent">{speaker.role}</p>
+                  <h3 className="mt-4 break-words font-cn-black text-lg leading-snug">
+                    {speaker.title}
+                  </h3>
+                  <p className="mt-3 leading-relaxed text-muted-foreground">{speaker.summary}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="mt-10 border-t-2 border-paper-foreground/30 pt-8">
             <p className="label-mono text-paper-muted">01</p>
             <h2 className="mt-2 font-cn-black text-2xl md:text-3xl">{copy.topicsHeading}</h2>
@@ -187,15 +223,12 @@ function EventDetailPage() {
       ) : (
         <article className="paper mt-8 border-2 border-foreground p-6 md:p-10">
           <p className="label-mono">
-            {event.is_free ? t("freeEvent") : t("paid")} ·{" "}
-            {statusLabel(event.status)}
+            {event.is_free ? t("freeEvent") : t("paid")} · {statusLabel(event.status)}
           </p>
           <h1 className="mt-4 font-cn-black text-3xl leading-tight md:text-5xl">
             {pick(event, "title")}
           </h1>
-          <p className="mt-5 text-xl text-muted-foreground">
-            {pick(event, "summary")}
-          </p>
+          <p className="mt-5 text-xl text-muted-foreground">{pick(event, "summary")}</p>
           <div className="prose-zine mt-8">
             <p>{pick(event, "body")}</p>
           </div>
@@ -229,9 +262,7 @@ function EventDetailPage() {
           >
             {t("surveyOptional")} ↗
           </a>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("surveyNotBooking")}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("surveyNotBooking")}</p>
         </article>
       )}
     </main>

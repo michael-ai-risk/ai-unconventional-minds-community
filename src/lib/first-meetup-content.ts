@@ -1,6 +1,7 @@
 import type { Lang } from "./i18n";
 
 type Topic = { title: string; body: string };
+type Speaker = { name: "Michael" | "Abby"; role: string; title: string; summary: string };
 
 export type FirstMeetupCopy = {
   title: string;
@@ -17,6 +18,9 @@ export type FirstMeetupCopy = {
   capacityLabel: string;
   capacity: string;
   eventNote: string;
+  speakersKicker: string;
+  speakersHeading: string;
+  speakers: Speaker[];
   topicsHeading: string;
   topics: Topic[];
   audienceHeading: string;
@@ -50,6 +54,24 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacityLabel: "活动规模",
     capacity: "预计 30 人",
     eventNote: "以轻松的交流形式进行，具体活动安排以正式公告为准。",
+    speakersKicker: "分享者",
+    speakersHeading: "本期分享者",
+    speakers: [
+      {
+        name: "Michael",
+        role: "跨行业 AI 系统实践",
+        title: "从传统行业到 AI 系统实践：普通人如何借助 AI 跨越专业边界",
+        summary:
+          "从传统行业经验出发，讨论如何借助 AI 进行系统实践，以及如何看待信息可靠性、风险识别与真实交付。",
+      },
+      {
+        name: "Abby",
+        role: "AI 独立开发与数字产品",
+        title: "一个人，如何用 AI 做产品，建立自己的线上收入？",
+        summary:
+          "从真实用户需求出发，讨论最小可行产品、用户测试、市场推广和线上收入探索，并把商业想法当作需要验证的假设。",
+      },
+    ],
     topicsHeading: "我们会聊什么？",
     topics: [
       {
@@ -82,7 +104,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "活动采用免费、开放的线下交流形式。",
     formatSteps: [
       "认识新朋友，分享各自的 AI 使用经历。",
-      "Michael 分享自己从非编程背景开始自学 AI 的真实经验及踩坑经历。",
+      "两位分享者将介绍各自的实践和思考，之后开放交流。",
       "选择现场提出的真实问题，一起尝试使用 AI 寻找解决方法。",
       "交流 AI 在工作、商业、投资研究、数字产品等方向的应用经验。",
       "自由提问、讨论，分享下一次希望探索的话题。",
@@ -110,6 +132,24 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacityLabel: "活動規模",
     capacity: "預計 30 人",
     eventNote: "以輕鬆交流的形式進行，詳細安排以正式公告為準。",
+    speakersKicker: "分享者",
+    speakersHeading: "本期分享者",
+    speakers: [
+      {
+        name: "Michael",
+        role: "跨領域 AI 系統實踐",
+        title: "從傳統產業到 AI 系統實踐：一般人如何借助 AI 跨越專業界線",
+        summary:
+          "從傳統產業經驗出發，討論如何借助 AI 進行系統實踐，以及如何看待資訊可靠性、風險識別與實際交付。",
+      },
+      {
+        name: "Abby",
+        role: "AI 獨立開發與數位產品",
+        title: "一個人，如何用 AI 做產品，建立自己的線上收入？",
+        summary:
+          "從真實使用者需求出發，討論最小可行產品、使用者測試、市場推廣與線上收入探索，並將商業想法視為有待驗證的假設。",
+      },
+    ],
     topicsHeading: "我們會聊些什麼？",
     topics: [
       {
@@ -142,7 +182,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "活動採免費、開放的線下交流形式。",
     formatSteps: [
       "認識新朋友，分享各自使用 AI 的經驗。",
-      "Michael 分享自己從非程式背景開始自學 AI 的真實經驗與踩坑經歷。",
+      "兩位分享者會介紹各自的實踐與想法，之後開放交流。",
       "從現場提出的真實問題中選題，一起嘗試用 AI 尋找解決方法。",
       "交流 AI 在工作、商業、投資研究、數位產品等方向的應用經驗。",
       "自由提問與討論，分享下次想探索的主題。",
@@ -171,6 +211,25 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacity: "Around 30 people",
     eventNote:
       "A relaxed exchange; the detailed schedule will be shared in the official announcement.",
+    speakersKicker: "FEATURED SPEAKERS",
+    speakersHeading: "Featured speakers",
+    speakers: [
+      {
+        name: "Michael",
+        role: "Cross-industry AI systems practice",
+        title:
+          "From traditional industries to AI systems: how everyday people can cross professional boundaries with AI",
+        summary:
+          "Starting from experience in traditional industries, this talk explores AI-assisted systems practice, information reliability, risk identification, and what real-world delivery involves.",
+      },
+      {
+        name: "Abby",
+        role: "AI-assisted independent development and digital products",
+        title: "How can one person use AI to build a product and explore online income?",
+        summary:
+          "Starting with real user needs, this talk explores minimum viable products, user testing, marketing, and online income as a possibility to validate rather than a promised result.",
+      },
+    ],
     topicsHeading: "What will we talk about?",
     topics: [
       {
@@ -203,7 +262,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "A free, open, in-person gathering with plenty of room for conversation.",
     formatSteps: [
       "Meet new people and share how you have used AI.",
-      "Michael will share his real experience learning AI from a non-programming background, including things he learned the hard way.",
+      "Both speakers will introduce their practical explorations, followed by open conversation.",
       "Choose a real question from the group and try using AI together to explore possible approaches.",
       "Exchange experiences using AI at work and in business, investment research, digital products, and other areas.",
       "Ask questions, talk freely, and suggest topics for a future gathering.",
@@ -232,6 +291,25 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacityLabel: "ขนาดกลุ่มโดยประมาณ",
     capacity: "ประมาณ 30 คน",
     eventNote: "พูดคุยกันอย่างสบาย ๆ รายละเอียดกิจกรรมจะแจ้งในประกาศอย่างเป็นทางการ",
+    speakersKicker: "ผู้แบ่งปันประสบการณ์",
+    speakersHeading: "ผู้แบ่งปันประสบการณ์ในครั้งนี้",
+    speakers: [
+      {
+        name: "Michael",
+        role: "การลงมือทำระบบ AI ข้ามอุตสาหกรรม",
+        title:
+          "จากอุตสาหกรรมดั้งเดิมสู่การทำระบบ AI: คนทั่วไปจะใช้ AI ก้าวข้ามขอบเขตความเชี่ยวชาญได้อย่างไร",
+        summary:
+          "เริ่มจากประสบการณ์ในอุตสาหกรรมดั้งเดิม แล้วพูดคุยถึงการทดลองทำระบบด้วย AI ความน่าเชื่อถือของข้อมูล การระบุความเสี่ยง และการส่งมอบงานจริง",
+      },
+      {
+        name: "Abby",
+        role: "การพัฒนาอิสระด้วย AI และผลิตภัณฑ์ดิจิทัล",
+        title: "คนคนเดียวจะใช้ AI ทำผลิตภัณฑ์และสำรวจรายได้ออนไลน์ได้อย่างไร?",
+        summary:
+          "เริ่มจากความต้องการจริงของผู้ใช้ พูดคุยเรื่องผลิตภัณฑ์ขั้นต่ำที่ใช้งานได้ การทดสอบกับผู้ใช้ การทำตลาด และการสำรวจรายได้ออนไลน์โดยถือเป็นสมมติฐานที่ต้องตรวจสอบ",
+      },
+    ],
     topicsHeading: "เราจะคุยเรื่องอะไรบ้าง?",
     topics: [
       {
@@ -264,7 +342,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "พบปะพูดคุยแบบออฟไลน์ เปิดกว้าง และไม่มีค่าใช้จ่าย",
     formatSteps: [
       "ทำความรู้จักเพื่อนใหม่และแบ่งปันประสบการณ์การใช้ AI",
-      "Michael จะแบ่งปันประสบการณ์จริงในการเริ่มเรียน AI ด้วยตัวเองจากพื้นฐานที่ไม่ใช่การเขียนโปรแกรม รวมถึงสิ่งที่ได้เรียนรู้จากข้อผิดพลาด",
+      "ผู้แบ่งปันทั้งสองคนจะแนะนำสิ่งที่ได้ลองทำและมุมมองของตนเอง จากนั้นเปิดวงพูดคุย",
       "เลือกปัญหาจริงที่ผู้เข้าร่วมนำมา แล้วลองใช้ AI หาวิธีรับมือไปด้วยกัน",
       "แลกเปลี่ยนประสบการณ์ใช้ AI ในงาน ธุรกิจ การวิจัยการลงทุน และผลิตภัณฑ์ดิจิทัล",
       "ถามและพูดคุยกันได้อย่างอิสระ พร้อมเสนอหัวข้อที่อยากสำรวจในครั้งต่อไป",
@@ -293,6 +371,24 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacityLabel: "参加人数の目安",
     capacity: "約30人",
     eventNote: "気軽な交流会です。詳しい内容は正式なお知らせでご案内します。",
+    speakersKicker: "今回の発表者",
+    speakersHeading: "今回の発表者",
+    speakers: [
+      {
+        name: "Michael",
+        role: "業界横断のAIシステム実践",
+        title: "従来の業界からAIシステムの実践へ：一般の人はAIで専門分野の壁をどう越えられるか",
+        summary:
+          "従来の業界での経験を出発点に、AIを使ったシステムづくり、情報の信頼性、リスクの把握、実務での提供について考えます。",
+      },
+      {
+        name: "Abby",
+        role: "AIを活用した個人開発とデジタル製品",
+        title: "一人でAIを使って製品を作り、オンライン収入を目指すには？",
+        summary:
+          "実際のユーザーニーズから始め、最小限の製品づくり、ユーザーテスト、マーケティング、オンライン収入の可能性を検証する方法を話します。",
+      },
+    ],
     topicsHeading: "何を話す？",
     topics: [
       {
@@ -325,7 +421,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "無料で参加できる、オープンな対面交流会です。",
     formatSteps: [
       "新しい人と知り合い、それぞれのAI利用経験を共有します。",
-      "Michaelが、プログラミング未経験からAIを独学した実体験や、つまずきから学んだことを話します。",
+      "二人の発表者がそれぞれの実践と考えを紹介し、その後、自由に話し合います。",
       "参加者が持ち寄った実際の課題を選び、AIを使って解決の糸口を一緒に探します。",
       "仕事、ビジネス、投資リサーチ、デジタル製品などでのAI活用経験を交換します。",
       "自由に質問・相談し、次回取り上げたいテーマも話し合います。",
@@ -353,6 +449,25 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     capacityLabel: "예상 규모",
     capacity: "약 30명",
     eventNote: "편안한 교류 모임으로 진행하며, 자세한 일정은 공식 안내를 확인해 주세요.",
+    speakersKicker: "이번 모임의 발표자",
+    speakersHeading: "이번 모임의 발표자",
+    speakers: [
+      {
+        name: "Michael",
+        role: "산업 간 AI 시스템 실천",
+        title:
+          "전통 산업에서 AI 시스템 실천으로: 일반인은 AI로 전문 분야의 경계를 어떻게 넘을 수 있을까?",
+        summary:
+          "전통 산업에서의 경험을 바탕으로 AI를 활용한 시스템 실천, 정보의 신뢰성, 위험 식별, 실제 현장 전달을 살펴봅니다.",
+      },
+      {
+        name: "Abby",
+        role: "AI 독립 개발과 디지털 제품",
+        title: "한 사람이 AI로 제품을 만들고 온라인 수입 가능성을 탐색하려면?",
+        summary:
+          "실제 사용자 요구에서 출발해 최소 기능 제품, 사용자 테스트, 마케팅과 온라인 수입 탐색을 이야기하며, 사업 아이디어는 검증이 필요한 가정으로 다룹니다.",
+      },
+    ],
     topicsHeading: "무엇을 이야기할까요?",
     topics: [
       {
@@ -385,7 +500,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "무료로 참여할 수 있는 열린 오프라인 모임입니다.",
     formatSteps: [
       "새로운 사람들과 만나 각자의 AI 사용 경험을 나눕니다.",
-      "Michael이 프로그래밍 배경 없이 AI 독학을 시작한 경험과 시행착오에서 배운 점을 나눕니다.",
+      "두 발표자가 각자의 실제 탐색 경험과 생각을 소개한 뒤 자유롭게 이야기를 나눕니다.",
       "참가자들이 가져온 실제 문제를 골라 AI로 해결 방법을 함께 찾아봅니다.",
       "일, 비즈니스, 투자 조사, 디지털 제품 등에서 AI를 활용한 경험을 나눕니다.",
       "자유롭게 질문하고 토론하며 다음 모임에서 다루고 싶은 주제를 제안합니다.",

@@ -26,7 +26,7 @@ function AboutPage() {
   const members = [
     {
       name: "Michael",
-      role: "Founder",
+      roleKey: "aboutMichaelRole",
       avatar: "/avatars/michael.svg",
       bio: "aboutMichaelBio",
       sharing: "aboutMichaelSharing",
@@ -40,7 +40,7 @@ function AboutPage() {
     },
     {
       name: "Abby",
-      role: "Digital Products",
+      roleKey: "aboutAbbyRole",
       avatar: "/avatars/abby.svg",
       bio: "aboutAbbyBio",
       sharing: "aboutAbbySharing",
@@ -90,13 +90,18 @@ function AboutPage() {
               </span>
               <span>
                 <span className="block font-cn-black text-lg">Michael · Founder</span>
-                <span className="label-mono text-muted-foreground">{t("aboutFounderLabel")}</span>
+                <span className="label-mono text-muted-foreground">{t("aboutMichaelRole")}</span>
               </span>
             </div>
           </div>
-          <p className="whitespace-pre-line leading-8 text-muted-foreground">
-            {t("aboutFounderStory")}
-          </p>
+          <div className="space-y-5">
+            <p className="whitespace-pre-line leading-8 text-muted-foreground">
+              {t("aboutFounderStory")}
+            </p>
+            <p className="border-l-4 border-primary pl-4 leading-relaxed text-muted-foreground">
+              {t("aboutFounderFocus")}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -144,7 +149,9 @@ function AboutPage() {
                 </span>
                 <div className="min-w-0">
                   <h3 className="font-cn-black text-xl">{member.name}</h3>
-                  <p className="label-mono text-accent">{member.role}</p>
+                  <p className="label-mono text-accent">
+                    {"roleKey" in member ? t(member.roleKey) : member.role}
+                  </p>
                 </div>
               </div>
               <p className="mt-5 leading-relaxed text-muted-foreground">{t(member.bio)}</p>
