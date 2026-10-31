@@ -20,15 +20,25 @@ A free, open, relaxed space for beginners, students, professionals, technologist
 ## Navigation and pages
 
 - Home: community introduction, four poster themes, event status, editorial AI prompts, recent discussions entry, voluntary survey.
-- Events: first event “AI非正常人类情报站｜第一期免费AI聚会”; free; date and venue TBA; D1-backed list/detail, admin create/edit, scheduled-event interest, and recap fields.
-- AI Topics: bilingual editorial discussion starters: starting with AI, funny failures, worthwhile AI news, coding prerequisites, and everyday/work changes. Admins can publish bilingual articles.
-- Discussions: public browsing, account registration/login, D1-backed posts and comments, author edit/delete, categories/search, authenticated reports, and staff moderation.
+- Events: first event “AI非正常人类情报站｜第一期免费AI聚会”; free; date and venue TBA; D1-backed list/detail, staff create/edit, and recap fields. The Tally survey is optional and is not event registration.
+- AI Topics: bilingual editorial discussion starters and staff-managed articles. News must have real sources; the site does not fabricate live news.
+- Discussions: public browsing, email-code authenticated posting and replies, categories/search, account-based owner edit/delete, anonymous reports, and staff handling of reported content. New posts and replies publish immediately.
 - Chiang Mai: lived experiences, language, places, events, habits/costs, friendships, and AI in local life; no invented live facts.
 - About: community purpose, welcome, and participation principles.
-- Privacy and community rules belong on their own focused pages.
+- Privacy and community rules have focused pages.
 
-`/admin` is a staff tool. Admins manage events/articles; moderators and admins handle reports and content hiding. The first administrator is granted through trusted D1 operator access only; there is no self-service role claim.
+## Email-code participation
 
-## Interaction
+Browsing is public. Posting and replying require a one-time code sent to the visitor's email. The first successful verification automatically creates a sign-in account; password registration and social sign-in are disabled for community participation. A nickname remains optional, and the email address is never displayed publicly. Resend sends the OTP email from a verified sender address configured in the selected Worker environment.
 
-The Tally survey is optional: https://tally.so/r/PRdaO5. Its responses are not represented as being stored on this site. Account/profile/post/comment/report data is stored in D1. Public APIs never return member email addresses. Email verification is not configured, so account signup remains a restricted-preview feature until mailbox ownership verification is added.
+Posts and replies publish immediately. The authenticated account ID owns each contribution; the same verified email login is required to edit or delete it. The site does not generate private edit keys, run Turnstile, or apply post/reply/report rate limits. Authentication endpoints retain narrow abuse limits. Previously pending content is changed to hidden during migration rather than automatically published.
+
+## Staff access
+
+`/admin` is an unlinked staff-only sign-in and management area. Better Auth email/password sign-in remains restricted to existing staff; public email/password signup endpoints return `410`. A one-time `/api/admin/bootstrap` endpoint can create the first admin only when `ADMIN_BOOTSTRAP_SECRET` is set, no admin role exists, and the bootstrap lock has not been claimed. Remove that secret immediately after setup. Staff roles are checked server-side for every management endpoint. Staff can process user reports and hide content after publication; admins also manage events and editorial articles. There is no pre-publication review queue.
+
+## Privacy and external survey
+
+Posts, comments, optional nicknames, author account IDs, timestamps, and publication status are stored in D1. Better Auth stores verified email and session information; the email is not public. Resend sends verification email; Resend, Cloudflare, and hosting providers may process authentication and request data under their service terms. Public content may be read and shared. Visitors may report content without signing in or submit a deletion request through the Privacy page.
+
+The Tally survey is optional: https://tally.so/r/PRdaO5. Tally is an independent service; its responses are not represented as being stored on this site and are not linked to a member account.

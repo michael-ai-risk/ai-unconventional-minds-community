@@ -1,4 +1,6 @@
-export type Bilingual = { zh: string; en: string };
+import type { LocaleText } from "./i18n";
+
+export type Bilingual = LocaleText;
 export type Topic = {
   slug: string;
   title: Bilingual;
@@ -40,18 +42,6 @@ export const themes: { number: string; title: Bilingual; body: Bilingual }[] = [
     },
   },
 ];
-
-export const firstEvent = {
-  title: {
-    zh: "AI非正常人类情报站｜第一期免费AI聚会",
-    en: "AI Unconventional Minds Station | First Free AI Meetup",
-  },
-  description: {
-    zh: "一场轻松的线下聚会：聊聊最近怎样使用AI、遇到过什么意外，以及它对工作和生活带来的真实变化。欢迎第一次接触AI的人。",
-    en: "A relaxed in-person gathering to talk about how we use AI, what surprised us, and how it is changing work and everyday life. First-timers are welcome.",
-  },
-  language: { zh: "中文交流为主，可提供英文辅助", en: "Mainly in Chinese, with English support" },
-};
 
 export const topics: Topic[] = [
   {

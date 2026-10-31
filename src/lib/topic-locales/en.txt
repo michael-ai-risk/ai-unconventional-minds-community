@@ -1,0 +1,150 @@
+01-01|Could AI become a general-purpose technology?|Consider breadth, continuous improvement and adoption across industries; distinguish potential from demonstrated economic effects.
+01-02|Is AI driving another industrial revolution?|Compare adoption, organizational change and productivity evidence, including the limits of historical parallels.
+01-03|Why might AI efficiency gains take time to appear in economic data?|Examine training, redesigned workflows, investment and measurement to connect local gains with aggregate productivity.
+01-04|How could AI redistribute value across supply chains?|Explore the relationships between models, computing, data, distribution and applications.
+01-05|Will widespread AI make it easier for small businesses to compete?|Weigh cheaper experimentation against barriers involving talent, data, computing and funding.
+01-06|Where might new demand come from after automation?|Examine lower costs, consumption, replacement demand and new products without assuming new jobs must follow.
+01-07|How might AI change the pace of research and innovation?|Explore literature searches, prototypes and experiment design alongside the cost of verification.
+01-08|Which regional inequalities could AI deepen?|Consider differences in infrastructure, education, language, capital and industry structure.
+01-09|How does AI compare with electrification and the internet?|Compare adoption times, complementary investment and organizational innovation without treating them as identical.
+01-10|How can we tell when an AI trend has moved beyond demonstrations?|Look for sustained use, workflow changes, cost effectiveness, accountability and repeat purchases.
+02-01|Will AI really replace human jobs?|Separate task automation, job redesign and entire jobs disappearing; examine what current research can establish.
+02-02|Which work tasks are more exposed to generative AI?|Compare tasks, workflows and industry conditions; exposure is not a forecast of unemployment.
+02-03|Could AI reduce entry-level jobs?|Discuss automated entry-level tasks, ways to gain experience and useful feedback for newcomers.
+02-04|How can remote workers use AI to stay competitive?|Explore practical workflows for research, communication, delivery and quality control.
+02-05|What new roles are emerging around AI?|Examine model development, data governance, integration and sector services against actual job requirements.
+02-06|When changing careers, does industry experience matter more than tool fluency?|Compare domain knowledge, problem definition, tool use and verification across different jobs.
+02-07|How should I assess my skills if many work tasks become automated?|List everyday tasks, identifying where AI can help, where judgment remains essential and what to learn.
+02-08|Will AI widen or narrow skill gaps?|Consider study samples, training access, task complexity and organizational support rather than assuming equal effects.
+02-09|How might employers evaluate AI experience?|Discuss portfolio evidence, responsibility, confidentiality and verification without assuming a universal hiring standard.
+02-10|How can I make a career plan that adapts to change?|Use inexpensive experiments, a skills inventory and regular reviews instead of a single prediction.
+03-01|As AI improves, why might human judgment matter more?|Distinguish fluent answers, factual reliability and responsibility for decisions.
+03-02|How can we separate facts, inferences and guesses in AI answers?|Check sources, label uncertainty and look for counterexamples with a simple review process.
+03-03|What does experience contribute to AI-assisted decisions?|Compare pattern recognition, contextual knowledge and experience-based biases, noting where experience applies.
+03-04|Does knowing more always help us judge AI outputs?|Explore how expertise reveals errors while overconfidence can hide blind spots.
+03-05|How can AI compare options without making decisions for us?|Separate goals, constraints, alternatives and consequences; let AI organize while people verify.
+03-06|Should we ask AI first or form our own view first?|Try both sequences and observe anchoring, missing information and changes in framing.
+03-07|How do we avoid choosing only the AI answers we like?|Use predefined criteria, opposing arguments and independent sources to reduce confirmation bias.
+03-08|How can we turn a vague question into a testable one?|Define the subject, time period, measures, sources and evidence that would disprove a claim.
+03-09|Can AI help us notice our own blind spots?|Explore contrasting views, reverse questions and decision logs, including their limits.
+03-10|When is an AI suggestion worth acting on?|Design small trials, stopping rules and outcome checks before wider adoption.
+04-01|How can an ordinary person start learning AI after 40?|Start with a real task, a goal, suitable tools, verification and a sustainable weekly practice.
+04-02|What can an AI beginner do in the first week?|Practice questions, iteration, fact-checking and privacy rather than trying every tool.
+04-03|How can I judge whether AI learning material is worth my time?|Check author background, date, original sources, demonstrations and conditions of use.
+04-04|Which matters more: prompting or analyzing the problem?|Compare wording skills with task understanding, prepared materials and evaluation.
+04-05|How can AI help me learn an unfamiliar field?|Build questions, concept maps, reliable reading lists and periodic self-tests.
+04-06|How can busy adults keep learning AI in short sessions?|Embed practice in real work and life, with reflection rather than merely collecting courses.
+04-07|How do I stop chasing tools without learning anything?|Use stable tasks and evaluation criteria to compare tools and limit switching.
+04-08|When does learning AI require some programming?|Distinguish skills for everyday use, automation, data processing and product development.
+04-09|How can I check that I have really learned an AI workflow?|Repeat it on new tasks and record human checkpoints and error handling.
+04-10|How can professionals connect existing expertise with AI learning?|Choose a familiar industry problem and identify the boundary between professional judgment and model assistance.
+05-01|Which tasks suit ChatGPT, Claude and Codex?|Compare specific versions by task, context, tools, privacy needs and cost.
+05-02|How does an AI agent differ from a chat assistant?|Examine goals, tool calls, state, permissions and supervision rather than relying on marketing labels.
+05-03|Can someone who cannot code build a product with AI?|Distinguish easier prototyping from the testing, security, deployment and maintenance still required.
+05-04|How do I choose an AI model that fits my needs?|Define the task, cost of errors, data sensitivity, latency and budget, then run small tests.
+05-05|How should we choose between local and cloud models?|Compare data control, hardware, maintenance, updates and service reliability.
+05-06|How can we cross-check AI search with conventional search?|Check citations, original material, dates and coverage; summaries are not the original sources.
+05-07|How can ordinary users check AI-generated code?|Start with tests, change reviews, dependency sources, permissions and rollback plans.
+05-08|How many tools does an AI workflow really need?|Evaluate each tool's added value, complexity and possible failure points.
+05-09|Why might a model upgrade break an existing workflow?|Examine version changes, context, output formats and regression tests.
+05-10|How do we account for review costs when AI generates quickly?|Measure time and quality across generation, verification, rework and publication.
+06-01|How can we identify real AI opportunities without following the hype?|Verify demand, willingness to pay, delivery costs, compliance and sustainable advantages.
+06-02|Why do some AI products have no customers?|Examine whether the problem is real, alternatives, acquisition, trust and repeat use.
+06-03|Where should a small business first try AI?|Pilot a frequent, measurable, low-risk task with human review.
+06-04|How can a cheap AI prototype validate customer demand?|Use interviews, manual services and stopping criteria before expanding the product.
+06-05|How should AI services calculate costs and profit?|Include model fees, review, support, rework, customer acquisition and compliance.
+06-06|Can industry experience create an advantage for AI products?|Verify data rights, workflow integration, customer trust and reusable knowledge.
+06-07|How can AI marketing produce results rather than just more content?|Separate reach, qualified inquiries, conversions and retention, using comparison groups.
+06-08|What human takeover procedures do AI automation projects need?|Define review and stopping procedures for exceptions, uncertainty and high-impact situations.
+06-09|How can a business tell whether an AI purchase created value?|Compare pilot and baseline time, quality, errors, costs and employee experience.
+06-10|How might AI change customer relationships and service?|Examine response speed, personalization, privacy and escalation to a human.
+07-01|Which industry problems are genuinely suitable for AI?|Assess data, repetition, error costs, workflow integration and user needs.
+07-02|Which real estate tasks might AI assist first?|Discuss document organization, customer communication and market analysis, checking sources and local conditions.
+07-03|How can financial institutions balance AI efficiency and consumer protection?|Examine explanations, bias, data use, human review and appeals.
+07-04|How can medical AI results enter real clinical workflows?|Distinguish research performance, regulatory permission, clinical validation and doctors' responsibility.
+07-05|How can educators use AI without weakening learning?|Explore feedback, practice design, originality and evidence of the learning process.
+07-06|Why do manufacturing AI pilots face data and equipment constraints?|Examine connected equipment, process data, downtime risks and skills.
+07-07|How can tourism services use AI for multilingual needs?|Compare translation, trip planning and verification of current information.
+07-08|How can online sellers verify AI-generated product content?|Check specifications, images, inventory, platform rules and reasons for returns.
+07-09|How can construction and engineering projects evaluate AI?|Choose verifiable, low-risk steps within safety, accountability and changing site conditions.
+07-10|How can service businesses measure whether AI improves customer experience?|Assess waiting times, resolution, complaints, privacy and escalation together.
+08-01|Which forms of assets and wealth is AI changing?|Distinguish intangible assets, financial rights, model tokens and tradable tokens in law and economics.
+08-02|Can data become an asset that can be owned and traded?|Distinguish control, licensing, privacy, income rights and legal enforceability.
+08-03|Could computing power become a key productive resource?|Discuss chips, energy, cloud services, model efficiency and supply-chain concentration.
+08-04|How can software and knowledge assets be valued?|Examine replicability, maintenance costs, customer dependence and intellectual property.
+08-05|Which fundamentals matter when valuing AI companies?|Distinguish user growth, revenue quality, margins, retention, costs and durable advantages.
+08-06|Who might receive the productivity gains from AI?|Examine bargaining and distribution among businesses, workers, consumers and capital.
+08-07|How can we distinguish AI investment narratives from operating evidence?|Check original disclosures, definitions, periods, revenue composition and baselines.
+08-08|What risks accompany AI-related investments?|Identify valuation, concentration, displacement, liquidity and information risks without forecasting returns.
+08-09|How do digital rights, membership benefits and tokenized financial assets differ?|Compare the source of rights, issuers, redemption arrangements and legal enforcement.
+08-10|How could AI capital flows affect ordinary people's opportunities?|Trace employment, suppliers, customer demand and infrastructure investment.
+09-01|How might AI change education for the next generation?|Discuss personalized tutoring, teachers, assessment, privacy and the digital divide.
+09-02|How can families discuss AI privacy with children?|Use age-appropriate examples of risks when entering, storing and sharing information.
+09-03|How might AI translation affect cross-cultural communication?|Weigh efficiency against context, politeness, cultural meaning and responsibility for mistakes.
+09-04|Could AI change how people get their news?|Discuss summaries, sources, recommendation bias and habits of reading originals.
+09-05|Could AI companions change human relationships?|Distinguish product experience, social evidence and professional mental health support.
+09-06|How can we use AI health information safely in daily life?|Separate general information from diagnosis and treatment; check official sources and consult professionals.
+09-07|Could AI make digital services more accessible?|Examine accessibility, language support, technical barriers and risks of exclusion.
+09-08|How might AI influence creativity and cultural expression?|Discuss creative tools, provenance, licensing and different cultural contexts.
+09-09|Is everyday AI convenience worth exchanging our data?|Examine collection, purposes, retention, opting out and alternatives.
+09-10|Which everyday problems could AI help migrants and temporary residents with?|Explore translation, administrative information and local services while checking current official rules.
+10-01|Who is responsible when AI makes a mistake?|Examine developers, deploying organizations, professional users and decision-makers.
+10-02|How can we spot hallucinations and convincing but false citations?|Check original sources, authors, dates, pages and whether citations support the claim.
+10-03|What information should not go into public AI services?|Review identity, accounts, customer information, trade secrets and sensitive personal data.
+10-04|Which AI decisions should require human review?|Consider harm, reversibility, legal requirements and routes for appeal.
+10-05|How can we evaluate an AI tool's privacy policy?|Check use, training, retention, sharing, deletion and geographical conditions.
+10-06|How can we test for bias in AI outputs?|Compare groups, languages and real settings, recording failures as well as successes.
+10-07|How can businesses record where AI-generated content came from?|Keep lightweight records of versions, inputs, edits and publication review.
+10-08|Who should set the safety boundaries for AI automation?|Discuss minimum permissions, stop controls, monitoring and accountability.
+10-09|Do impressive AI demonstrations prove reliable performance?|Verify with repeated tests, edge cases, stress scenarios and ongoing monitoring.
+10-10|How might national AI rules affect cross-border services?|Check jurisdiction, sector requirements and effective dates without generalizing one region's rules.
+11-01|Is AI a tool, a colleague or a partner?|Separate metaphors from real roles through function, responsibility, relationships and organizational rules.
+11-02|How can human–AI collaboration avoid making people mere scapegoats?|Provide real decision rights, transparent records, review authority and clear responsibility.
+11-03|Does more human-like AI make us trust it more?|Discuss risks when human-like interfaces and fluent language exceed demonstrated ability.
+11-04|Which decisions should people retain final authority over?|Discuss conflicting values, irreversible consequences, social responsibility and professional judgment.
+11-05|Can AI be a long-term learning partner?|Examine memory, privacy, accumulated errors, dependence and user control.
+11-06|How can people work with increasingly autonomous AI systems?|Analyze authorization, supervision, exceptions and performance evaluation.
+11-07|How might AI content change our understanding of originality?|Discuss authorship, contributions, training data and transparent attribution.
+11-08|How should we understand relationships with AI that simulates emotion?|Distinguish subjective experience, system outputs and social interaction; human-like language does not prove consciousness.
+11-09|What rules might future human–AI collaboration need?|Discuss fairness, accessibility, labor rights and accountability.
+11-10|How can we preserve our own judgment and voice while using AI?|Keep personal drafts, compare viewpoints and take responsibility for final choices.
+12-01|What happens when three AI systems answer the same question?|Fix the question and criteria, then compare facts, omissions, tone and sources.
+12-02|How much time does AI actually save on repetitive work?|Record a baseline, checking time, rework and errors rather than generation speed alone.
+12-03|How can a small business run a low-risk AI pilot?|Limit scope, retain human checks and an exit path, and record before-and-after differences.
+12-04|Can AI translation support real bilingual conversations?|Test accuracy, tone, specialist terms and correction costs in different settings.
+12-05|How can we verify sources found by an AI research assistant?|Sample citations, check originals and record nonexistent or mismatched sources.
+12-06|Can AI-generated code pass independent tests?|Record inputs, test coverage, vulnerability checks and human review.
+12-07|What might AI miss when analyzing a public report?|Compare with text, charts, footnotes, sample definitions and limitations.
+12-08|How can we design an AI workflow experiment that protects privacy?|Use fictional or anonymized data, limit permissions and define deletion procedures.
+12-09|How much do different prompts affect the results?|Change one condition at a time, repeat experiments and keep original outputs.
+12-10|How can we learn from a failed AI project?|Separate assumptions about demand, data, tools, workflows, costs and the team.
+08-assets-01|Which makes a more durable asset: intellectual property, data or software?|Compare enforceable rights, maintenance, exclusivity and actual cash flows, not just digital form.
+08-assets-02|What determines the value of computing resources?|Examine chip lifespan, energy, utilization, supply chains and substitutes.
+08-assets-03|How can we identify an AI company's intangible assets?|Distinguish verifiable data rights, code, relationships and team experience from promotional narratives.
+08-assets-04|Can digital content become a sustainable knowledge asset?|Discuss licensing, updates, audience trust, platform dependence and copying costs.
+08-assets-05|Can AI turn personal skills into reusable assets?|Examine the links between workflows, templates, knowledge bases and real demand.
+08-assets-06|What determines the economic value of business data?|Assess quality, lawful provenance, use cases, governance costs and competing substitutes.
+08-assets-07|Can a model itself create a lasting competitive moat?|Compare performance, distribution, data, workflows, cost and replication speed.
+08-assets-08|How can digital asset ownership be proved and enforced?|Distinguish platform accounts, contractual rights, technical control and applicable law.
+08-assets-09|Who receives income from AI-generated content?|Examine contracts, copyright systems, platform terms and human contributions.
+08-assets-10|What inheritance and custody issues arise as wealth becomes digital?|Consider access credentials, authorization, asset inventories and legal enforcement.
+08-tokens-01|Why are model tokens different from blockchain tokens?|Model tokens are text-processing units; blockchain tokens represent on-chain state or rights. They are not interchangeable.
+08-tokens-02|How do stablecoins and bank deposits differ in rights and risks?|Compare issuers, redemption promises, reserves, regulation and payment uses.
+08-tokens-03|What legal arrangements do tokenized securities still need?|Examine underlying rights, registration, custody, transfer restrictions and regulation.
+08-tokens-04|Does tokenizing real estate automatically improve liquidity?|Discuss the conditions involving markets, title, valuation, redemption and compliance.
+08-tokens-05|How do on-chain records connect to off-chain assets in RWA projects?|Examine custody, audits, registries, legal enforcement and oracle mechanisms.
+08-tokens-06|Does a digital rights token mean ownership of an asset?|Check contractual terms and the scope of rights rather than inferring ownership from a name.
+08-tokens-07|How might machine payments use stablecoins or tokenized deposits?|Study settlement, authorization security, compliance responsibilities and failure handling.
+08-tokens-08|Could tokenized assets increase or reduce systemic risk?|Weigh efficiency against redemption pressures, leverage, interconnectedness and operational risk.
+08-tokens-09|Can blockchain transaction records prove an asset is genuine?|Distinguish immutable records from off-chain facts, provenance checks and legal confirmation.
+08-tokens-10|How should we read a digital asset issuer's redemption terms?|Check the entity, fees, conditions, suspension rights, jurisdiction and enforcement routes.
+08-capital-01|Where is AI capital going across infrastructure and applications?|Group public investment into chips, cloud, energy, models, data and industry applications.
+08-capital-02|Could computing investment create supply–demand mismatches?|Compare construction times, demand forecasts, utilization, energy use and technological substitutes.
+08-capital-03|Does rising AI funding prove a business model works?|Separate funding enthusiasm from paying customers, unit economics and operating evidence.
+08-capital-04|How can investors recognize AI bubble narratives?|Check revenue sources, order quality, cash flow, customer concentration and valuation assumptions.
+08-capital-05|How might AI infrastructure investment affect local communities?|Evaluate employment, energy, water, taxes and public infrastructure costs.
+08-capital-06|How might AI gains be shared between workers and capital?|Discuss links between wages, profit, productivity, bargaining power and labor institutions.
+08-capital-07|How can small businesses find practical returns on AI investment?|Start with measurable bottlenecks and small trials without assuming a positive return.
+08-capital-08|How should public and corporate AI investment priorities be compared?|Assess public value, efficiency, fairness, risks and long-term maintenance costs.
+08-capital-09|How could AI supply-chain concentration affect opportunities and bargaining?|Study dependence on chips, cloud platforms, model distribution and alternatives.
+08-capital-10|Should AI founders fund technology or customer validation first?|Compare staged investment by risk, learning speed and reversibility.

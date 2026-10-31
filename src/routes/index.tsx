@@ -1,6 +1,23 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Code2, MessageCircle, Sparkles, type LucideIcon } from "lucide-react";
+import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { firstEvent, themes, topics } from "@/lib/content";
+import { themes, topics } from "@/lib/content";
+import { localizeContent } from "@/lib/content-locales";
+import { FirstEventPoster } from "@/components/FirstEventPoster";
+import { firstMeetupContent } from "@/lib/first-meetup-content";
+
+const superTeam = [
+  {
+    id: "michael",
+    human: "Michael",
+    ai: "ChatGPT",
+    avatar: "/avatars/michael.svg",
+    Icon: MessageCircle,
+  },
+  { id: "hai", human: "阿海（Hai）", ai: "Codex", avatar: "/avatars/hai.svg", Icon: Code2 },
+  { id: "abby", human: "Abby", ai: "Claude", avatar: "/avatars/abby.svg", Icon: Sparkles },
+] satisfies { id: string; human: string; ai: string; avatar: string; Icon: LucideIcon }[];
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "AI非正常人类情报站 · AI Unconventional Minds Station" }] }),
@@ -9,7 +26,16 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { lang, t } = useI18n();
-  const pick = (value: { zh: string; en: string }) => value[lang];
+  const [expandedPair, setExpandedPair] = useState<string | null>(null);
+  const meetup = firstMeetupContent[lang];
+  const pick = (value: {
+    zh: string;
+    en: string;
+    zhTW?: string;
+    th?: string;
+    ja?: string;
+    ko?: string;
+  }) => localizeContent(value, lang);
 
   return (
     <main>
@@ -26,6 +52,16 @@ function Home() {
                 {t("homeTitleB")}
               </span>
             </h1>
+            <div className="mt-6 grid gap-4 border-y-2 border-foreground py-4 sm:grid-cols-2 sm:gap-6">
+              <div>
+                <p className="label-mono text-accent">{t("homeSloganLabel")}</p>
+                <p className="mt-2 font-bold leading-relaxed">{t("homeSlogan")}</p>
+              </div>
+              <div>
+                <p className="label-mono text-accent">{t("homePhilosophyLabel")}</p>
+                <p className="mt-2 leading-relaxed">{t("homePhilosophy")}</p>
+              </div>
+            </div>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               {t("homeIntro")}
             </p>
@@ -50,21 +86,129 @@ function Home() {
           <figure className="overflow-hidden border-2 border-foreground bg-paper shadow-[8px_8px_0_0_var(--foreground)]">
             <img
               src="/hero-collage.svg"
-              alt={
-                lang === "zh"
-                  ? "清迈AI情报站复古拼贴主题插画"
-                  : "Retro zine collage for the Chiang Mai AI community"
-              }
+              alt={t("homeAlt")}
               className="block h-full min-h-[20rem] w-full object-cover"
               width="900"
               height="900"
             />
             <figcaption className="border-t-2 border-foreground bg-background px-3 py-2 label-mono">
-              {lang === "zh"
-                ? "社区制作的拼贴插画 · ORIGINAL ASSET UNAVAILABLE"
-                : "COMMUNITY-MADE COLLAGE · ORIGINAL ASSET UNAVAILABLE"}
+              {t("homeCaption")}
             </figcaption>
           </figure>
+        </div>
+      </section>
+
+      <section aria-labelledby="super-team-title" className="paper border-b-2 border-foreground">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
+          <div className="grid gap-5 md:grid-cols-[.8fr_1.2fr] md:items-end">
+            <div>
+              <h2 id="super-team-title" className="font-display text-4xl lowercase md:text-5xl">
+                super team
+              </h2>
+              <p className="mt-3 font-bold text-paper-foreground">{t("superTeamCore")}</p>
+            </div>
+            <div className="max-w-3xl">
+              <p className="leading-relaxed">{t("superTeamIntro")}</p>
+              <p className="mt-2 text-sm leading-relaxed text-paper-foreground">
+                {t("homeCommunityPositioning")}
+              </p>
+              <p className="mt-2 text-sm text-paper-muted">{t("superTeamWelcome")}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {superTeam.map(({ id, human, ai, avatar, Icon }) => {
+              const expanded = expandedPair === id;
+              const detailId = `super-team-${id}-detail`;
+
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-label={`${human} × ${ai}`}
+                  aria-expanded={expanded}
+                  aria-controls={detailId}
+                  onClick={() => setExpandedPair(expanded ? null : id)}
+                  className="group min-w-0 border-2 border-paper-foreground bg-background p-4 text-left text-foreground transition-transform duration-200 hover:-translate-y-1 hover:shadow-[5px_5px_0_0_var(--foreground)] active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary motion-reduce:transition-none sm:p-5"
+                >
+                  <span className="grid grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1fr)] items-center gap-2">
+                    <span className="flex min-w-0 flex-col items-center text-center">
+                      <span className="label-mono text-muted-foreground">
+                        {t("superTeamHuman")}
+                      </span>
+                      <span className="mt-3 grid size-14 place-items-center overflow-hidden rounded-full border-2 border-paper-foreground bg-paper text-paper-foreground transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-focus-visible:border-primary group-focus-visible:bg-primary group-focus-visible:text-primary-foreground motion-reduce:transition-none">
+                        <img
+                          src={avatar}
+                          alt=""
+                          aria-hidden="true"
+                          className="size-full object-cover"
+                        />
+                      </span>
+                      <span className="mt-2 max-w-full break-words font-cn-black text-lg">
+                        {human}
+                      </span>
+                    </span>
+
+                    <span aria-hidden="true" className="flex items-center text-primary">
+                      <span className="h-0 flex-1 border-t-2 border-dashed border-paper-foreground/50 transition-colors duration-200 group-hover:border-primary group-focus-visible:border-primary motion-reduce:transition-none" />
+                      <span className="grid size-8 shrink-0 place-items-center border-2 border-primary bg-primary font-display text-primary-foreground transition-transform duration-200 group-hover:rotate-45 group-focus-visible:rotate-45 motion-reduce:transition-none">
+                        ×
+                      </span>
+                      <span className="h-0 flex-1 border-t-2 border-dashed border-paper-foreground/50 transition-colors duration-200 group-hover:border-primary group-focus-visible:border-primary motion-reduce:transition-none" />
+                    </span>
+
+                    <span className="flex min-w-0 flex-col items-center text-center">
+                      <span className="label-mono text-muted-foreground">
+                        {t("superTeamAiPartner")}
+                      </span>
+                      <span className="mt-3 grid size-14 place-items-center rounded-full border-2 border-paper-foreground bg-paper text-paper-foreground transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-focus-visible:border-primary group-focus-visible:bg-primary group-focus-visible:text-primary-foreground motion-reduce:transition-none">
+                        <Icon aria-hidden="true" className="size-7" strokeWidth={1.75} />
+                      </span>
+                      <span className="mt-2 max-w-full break-words font-cn-black text-lg">
+                        {ai}
+                      </span>
+                    </span>
+                  </span>
+                  <span
+                    id={detailId}
+                    hidden={!expanded}
+                    className="mt-4 block border-t border-paper-foreground/30 pt-3 text-center text-sm"
+                  >
+                    {id === "michael" ? (
+                      <>
+                        <span className="block font-bold">{t("aboutMichaelRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutMichaelBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutMichaelSharing")}
+                        </span>
+                      </>
+                    ) : id === "abby" ? (
+                      <>
+                        <span className="block font-bold">{t("aboutAbbyRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutAbbyBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutAbbySharing")}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="block font-bold">{t("aboutHaiRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutHaiBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutHaiSharing")}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="mt-8 border-l-4 border-primary pl-4 font-bold leading-relaxed">
+            {t("superTeamOpen")}
+          </p>
+          <p className="mt-3 text-xs text-paper-muted">{t("superTeamNote")}</p>
         </div>
       </section>
 
@@ -73,16 +217,8 @@ function Home() {
         aria-hidden="true"
       >
         <div className="marquee-track flex w-max whitespace-nowrap label-mono">
-          <span className="px-4">
-            {lang === "zh"
-              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
-              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
-          </span>
-          <span className="px-4">
-            {lang === "zh"
-              ? "一起聊AI ✦ 分享真实经历 ✦ 认识有趣的人 ✦ 免费 · 开放 · 轻松 ✦ "
-              : "TALK AI ✦ SHARE REAL EXPERIENCES ✦ MEET CURIOUS PEOPLE ✦ FREE · OPEN · RELAXED ✦ "}
-          </span>
+          <span className="px-4">{t("marquee")}</span>
+          <span className="px-4">{t("marquee")}</span>
         </div>
       </div>
 
@@ -92,11 +228,7 @@ function Home() {
             <p className="label-mono text-accent">01 / THEMES</p>
             <h2 className="mt-2 font-cn-black text-3xl">{t("homeThemes")}</h2>
           </div>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            {lang === "zh"
-              ? "从海报的开放讨论精神出发，主题可以很技术，也可以很日常。"
-              : "Inspired by the poster's open-conversation spirit, topics can be technical or everyday."}
-          </p>
+          <p className="max-w-xl text-sm text-muted-foreground">{t("themesNote")}</p>
         </div>
         <div className="mt-7 grid border-t-2 border-foreground sm:grid-cols-2 lg:grid-cols-4">
           {themes.map((item) => (
@@ -123,16 +255,20 @@ function Home() {
               {t("seeAll")} ↗
             </Link>
           </div>
-          <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[1fr_auto] md:items-center md:p-7">
+          <article className="mt-7 grid gap-5 border-2 border-paper-foreground p-5 md:grid-cols-[minmax(0,1fr)_minmax(15rem,21rem)] md:items-start md:p-7">
             <div>
               <p className="label-mono text-paper-muted">
-                {t("freeEvent")} · {pick(firstEvent.language)}
+                {meetup.freeTag} · {meetup.languageTag}
               </p>
-              <h3 className="mt-3 font-cn-black text-2xl">{pick(firstEvent.title)}</h3>
-              <p className="mt-3 max-w-3xl">{pick(firstEvent.description)}</p>
+              <h3 className="mt-3 font-cn-black text-2xl">{meetup.title}</h3>
+              <p className="mt-3 max-w-3xl">{meetup.subtitle}</p>
             </div>
-            <div className="border-l-0 border-paper-foreground/30 pt-4 label-mono md:border-l md:pl-6 md:pt-0">
-              {t("eventTba")}
+            <div className="border-t border-paper-foreground/30 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+              <p className="label-mono">{meetup.timeAndPlaceTag}</p>
+              <p className="mt-2 text-sm">
+                {meetup.capacityLabel}: {meetup.capacity}
+              </p>
+              <FirstEventPoster className="mx-auto mt-3 w-full max-w-[21rem]" />
             </div>
           </article>
         </div>

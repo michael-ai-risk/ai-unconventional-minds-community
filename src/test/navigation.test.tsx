@@ -40,11 +40,11 @@ describe("site navigation", () => {
 
   it("switches navigation language", async () => {
     await renderApp();
-    fireEvent.click(await screen.findByRole("button", { name: "切换语言" }));
+    fireEvent.change(await screen.findByRole("combobox", { name: "选择语言" }), {
+      target: { value: "en" },
+    });
 
-    expect(await screen.findByRole("button", { name: "Switch language" })).toHaveTextContent(
-      "中文",
-    );
+    expect(await screen.findByRole("combobox", { name: "Choose language" })).toHaveValue("en");
     expect(screen.getByRole("navigation", { name: "Main navigation" })).toHaveTextContent(
       "AI Topics",
     );

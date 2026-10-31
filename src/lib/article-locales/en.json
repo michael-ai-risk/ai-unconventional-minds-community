@@ -1,0 +1,362 @@
+{
+  "ai-replace-jobs": {
+    "title": "Will AI really replace human jobs?",
+    "summary": "Separate tasks, jobs and occupations first: AI exposure signals possible change, not a forecast of job losses.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "The question ‘Will AI take our jobs?’ combines several different issues: whether a task can be automated, whether the mix of tasks in a job will change, whether demand for workers will fall, and whether an entire occupation will disappear. Each has different conditions and timelines.",
+          "This article considers possible effects of generative AI on work. It does not make definite predictions about a particular occupation or individual."
+        ]
+      },
+      {
+        "heading": "Exposure, automation and employment outcomes are different",
+        "paragraphs": [
+          "A 2026 International Labour Organization research brief explains that AI exposure indicators measure the extent to which technology could affect particular tasks. Methods differ, and the measures do not capture all factors such as whether firms choose to adopt AI, costs, institutions or changes in workflows. Exposure cannot be read directly as a rate of jobs disappearing.",
+          "Jobs usually consist of many tasks. AI may replace some, assist with others and create more work in verification, customer communication or handling exceptions. Employment outcomes also depend on demand, wages, organizational adjustments and new tasks."
+        ]
+      },
+      {
+        "heading": "Different views and evidence",
+        "paragraphs": [
+          "The substitution view warns that organizations may need fewer people when tasks can be specified, quality is easy to check and cost advantages are clear. The augmentation view emphasizes that better tools can improve workers’ capabilities, expand services or lower costs, potentially increasing demand. Outcomes depend on the industry and organization.",
+          "A 2023 NBER study of 5,179 customer-support workers at one large US software company found that access to a conversational assistant increased issues resolved per hour by about 14% on average, with larger gains among less experienced and lower-skilled workers. This concerns one company, task and tool at that time; it is not a guarantee for every occupation."
+        ]
+      },
+      {
+        "heading": "An explicitly hypothetical example",
+        "paragraphs": [
+          "Suppose a travel-services team uses AI to draft answers to common questions. Routine inquiries may be handled faster, but refund disputes, changing local rules and emotional reassurance still require staff to verify information and decide what to do. If service volume grows, headcount need not fall in proportion to handling time. If customer volume stays fixed and workflows are reorganized, roles may change. This illustrates an analytical method, not an observed case."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Equating high exposure with imminent unemployment; generalizing one company’s experiment to every industry; counting generation time saved but ignoring review, errors and training; or considering only tool capability while overlooking customer demand and organizational decisions."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "Break your job into tasks and mark those AI can draft, those requiring human judgment, those involving sensitive data and those where mistakes are costly. Test one low-risk task and compare total time, quality, rework and customer feedback before and after. Strengthen domain knowledge, communication, checking and workflow design alongside tool use."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "Which specific tasks in your work have already changed? What has AI saved you, and what new checks or responsibilities has it added? What evidence would change your current view?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2026-04-17",
+        "scope": "Global measures of task exposure and their interpretive limits; not a forecast of employment outcomes."
+      },
+      {
+        "published": "2023-04 (working paper)",
+        "scope": "5,179 customer-support workers at one US company, using a particular assistant and workflow."
+      }
+    ]
+  },
+  "ai-industrial-revolution": {
+    "title": "Is AI driving another industrial revolution?",
+    "summary": "‘Another industrial revolution’ is a useful interpretation that still needs evidence. Adoption and organizational change are key.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "Calling AI an industrial revolution usually suggests that it could reshape production broadly, as steam, electricity or the internet did. The label itself is not an established fact. We need to examine cross-industry diffusion, complementary innovation and lasting changes in productivity and social organization.",
+          "This article explores why the analogy attracts attention and what the evidence can—and cannot—currently establish."
+        ]
+      },
+      {
+        "heading": "Key concepts: general-purpose technology and diffusion",
+        "paragraphs": [
+          "Economists use ‘general-purpose technology’ for technologies with broad applications, continuing improvement and the ability to stimulate downstream innovation. Historical research also suggests that substantial productivity changes may arrive years after the underlying technology: firms still need infrastructure, redesigned processes, skills and suitable uses.",
+          "Generative AI can be used in writing, code, customer service and analysis, giving it broad application potential. That potential is different from productivity gains already realized across the economy."
+        ]
+      },
+      {
+        "heading": "Different views and current evidence",
+        "paragraphs": [
+          "Supporters of the analogy point to rapid improvement, applications across industries and possible acceleration of research. Cautious views emphasize reliability, data rights, costs, skills, energy, organizational change and actual demand as constraints. OECD research on whether generative AI is a general-purpose technology distinguishes its potential from its stage of diffusion, stressing that overall effects depend on subsequent applications and complementary investment.",
+          "A 2026 ILO research brief reviews task-level efficiency evidence and explains why observable productivity outcomes at firm and economy levels may differ. Faster individual tasks do not automatically mean an entire industry has been transformed."
+        ]
+      },
+      {
+        "heading": "Limits of historical analogies",
+        "paragraphs": [
+          "Steam, electricity and AI depend on different infrastructure, capital structures and social conditions. History helps us ask whether complementary investment is ready and whether gains are spreading, but cannot replace current data. Treating ‘revolution’ as a settled conclusion can hide failed projects, delays and questions of distribution."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Treating a model demonstration as reliable production; a company pilot as industry-wide adoption; the speed of technology releases as macroeconomic productivity; or historical similarities as proof that the future must repeat the past."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "Track adoption, sustained use, workflow changes, quality and costs in a specific industry. Also examine investment in training, governance, data and infrastructure. Record the baseline, pilot scope, outcomes and limits, then revisit them over time."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "What observable evidence would convince you that AI has moved from a new tool to a technology changing industry structures? Which complementary conditions are still missing in your field?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2025",
+        "scope": "Generative AI’s general-purpose characteristics and diffusion potential not yet fully realized."
+      },
+      {
+        "published": "2026-05-06",
+        "scope": "Reviews the gap between task or individual efficiency evidence and firm or macroeconomic productivity."
+      },
+      {
+        "published": "1996",
+        "scope": "A general theory of technology diffusion, not an empirical forecast for current generative AI."
+      }
+    ]
+  },
+  "ai-human-judgment": {
+    "title": "As AI improves, why might human judgment matter more?",
+    "summary": "Faster generation still leaves choices about goals, evidence, risks and accountability that require explicit human judgment.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "AI can quickly generate answers, summaries and suggestions, but fluent, complete expression does not make information reliable. Users still decide what to ask, which evidence to trust, how costly errors could be and when not to use an output. This is a discussion of working methods, not a claim that human judgment is always more accurate than a model."
+        ]
+      },
+      {
+        "heading": "Key concepts: generation, verification and decisions",
+        "paragraphs": [
+          "NIST’s generative AI risk-management guidance describes ‘confabulation’, often called hallucination or fabrication, as confidently producing erroneous or false content. Users may believe incorrect material or be misled by plausible-looking reasoning and citations.",
+          "Judgment does not mean rejecting AI on instinct. It means building goals, sources, counterexamples, limits of applicability and responsibility into a process. Different tasks need different levels of checking."
+        ]
+      },
+      {
+        "heading": "Different views and analysis",
+        "paragraphs": [
+          "One view holds that better models can reduce routine checking. Another warns that more capable, natural-sounding systems may make errors more readily trusted or carry them into important decisions. NIST highlights monitoring error risks where consequences are significant. These views can coexist: tools do some work, while people decide how deeply to verify and where use should stop."
+        ]
+      },
+      {
+        "heading": "Hypothetical example: summarizing a market report",
+        "paragraphs": [
+          "Suppose AI summarizes a market report into three trends. A user can trace each trend to its original page, check the sample period and definitions, look for counterexamples and note regions the report does not cover. This illustrates a workflow; it is not a measured result."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Treating a confident tone as a calibrated confidence estimate; opening only one source that agrees with you; copying model-generated citations directly; or treating human review as rereading every word without checking whether conclusions match the underlying evidence."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "For important outputs, check four things: sources for key facts; inferences and uncertainties; possible counterevidence; and whether the consequences require professional review. Sampling may suit low-risk tasks, while high-risk decisions need an identifiable human decision-maker and traceable records."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "When did you last spot a problem in an AI answer? Which checks helped? When would you delegate judgment to a tool, and when would you not?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2024-07-26",
+        "scope": "Generative AI risk guidance and organizational recommendations, not a measurement of one model’s error rate."
+      }
+    ]
+  },
+  "learning-ai-after-40": {
+    "title": "How can an ordinary person start learning AI after 40?",
+    "summary": "You do not need a complete tool collection. Start with one small task in a familiar field, then practice, verify and reflect.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "‘After 40’ often expresses concerns about learning speed, time and career change. Public research describes differences in adult learning participation and skill needs, but cannot establish that every age group should follow the same course or learn at the same pace. This article offers an adaptable practice path, not promises of career or income outcomes."
+        ]
+      },
+      {
+        "heading": "Key concept: learn workflows before chasing tools",
+        "paragraphs": [
+          "A reusable AI workflow includes defining the task and success criteria, supplying suitable context, checking results, improving inputs, verifying key facts and protecting sensitive information. Tool versions change; these habits transfer more easily.",
+          "OECD reporting describes uneven participation in adult learning and links with existing skill use and educational opportunities. A 2026 ILO skills report emphasizes understanding and using AI safely and responsibly. These sources show why opportunities and basic skills matter, but do not establish a universal causal conclusion about learning AI at 40."
+        ]
+      },
+      {
+        "heading": "Different paths and an example",
+        "paragraphs": [
+          "For everyday office work, start with organizing materials, drafting emails or language practice. For industry research, add source tracing and evidence checks. For automation or development, learn code, data and security as the project requires.",
+          "Suppose a travel professional chooses one common customer question each week, asks AI for a bilingual draft and checks timeliness, locations and tone. Recording time saved, rework and errors for four weeks helps decide whether to keep the workflow. This is an illustrative example, not a member’s real experience."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Collecting courses without practicing; frequently changing tools without a consistent task; treating an AI-generated learning plan as authoritative; overlooking privacy and sources; or assuming one failure means you cannot learn."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "In week one, write down a familiar, time-consuming task. Choose an available tool, complete the task independently once as a baseline, then let AI handle one well-defined small step. Check the result and record errors. In week two, improve just one part. Keep the question, result, checkpoints and next step from each session, rather than only saving prompts."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "If AI could improve only one small thing in your work or life, what would you choose? How would you tell whether it genuinely helped?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2025",
+        "scope": "Adult education and training participation and disparities in OECD countries; not proof of AI learning outcomes at a particular age."
+      },
+      {
+        "published": "2026-08-13",
+        "scope": "Changing work skills and AI literacy, not an experiment measuring individual learning outcomes."
+      }
+    ]
+  },
+  "ai-assets-and-wealth": {
+    "title": "Which forms of assets and wealth is AI changing?",
+    "summary": "Examine data, software, computing and digital rights while keeping technical tokens distinct from financial asset tokens.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "AI draws attention to the economic roles of data, software, computing and knowledge. But having value does not mean someone automatically owns something, that it trades freely or that its value rises steadily. Control, contractual rights, cash flows, substitutes, maintenance and legal enforceability must be considered separately.",
+          "This is a conceptual overview, not a recommendation of assets, tokens or investments."
+        ]
+      },
+      {
+        "heading": "Four different things often confused",
+        "paragraphs": [
+          "First, model tokens are units for processing text, not tradable financial tokens. Second, blockchain tokens are on-chain records that may represent functions, governance or rights; their name does not establish those rights’ validity. Third, digital rights arise from contracts or legal arrangements, such as a usage license. Fourth, financial asset tokenization uses technology to represent traditional financial or real assets as digital tokens. Underlying rights, registration, custody and redemption arrangements still matter.",
+          "A 2025 BIS financial stability summary describes tokenization as issuing or representing assets in digital tokens using technologies including distributed ledgers. It notes the small current scale, efficiency benefits not yet fully demonstrated, and liquidity, leverage, operational and regulatory uncertainties."
+        ]
+      },
+      {
+        "heading": "Different views and analysis",
+        "paragraphs": [
+          "Optimistic views suggest digital representation could improve registration, settlement and asset division. Cautious views stress that technical records do not automatically resolve authenticity, enforcement, valuation, market depth or custody risk. The Financial Stability Board’s 2024 report identifies vulnerabilities including liquidity and maturity mismatches, leverage, asset quality, interconnectedness and operational issues.",
+          "When discussing future wealth, distinguish productive business assets, legally held individual rights, accounting valuations and prices achievable in a sale."
+        ]
+      },
+      {
+        "heading": "Hypothetical example: digital membership rights",
+        "paragraphs": [
+          "Suppose a service records membership access as a blockchain token. Buyers still need to understand whether the provider will continue operating, whether rights can be transferred or redeemed, who handles disputes and what happens if access to the token is lost. This is a checklist illustration, not a real project."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Confusing model tokens with cryptocurrency tokens; assuming an on-chain record proves underlying ownership; assuming fractionalization guarantees liquidity; or equating expected industry growth with investment returns."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "For a digital asset claim, ask what rights it represents, who owes obligations, which law applies, who holds the underlying assets, how valuation and exit work, and where disputes are resolved. Check issuer documents and regulatory information. Record unanswered questions rather than using technical terminology as a substitute for due diligence."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "What do you think will be the most important ‘assets’ in the future? Does their value come from enforceable rights, actual income, scarce resources or network effects?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2025-08-28",
+        "scope": "Definitions, development, potential benefits and risks of financial asset tokenization; not an evaluation of an investment."
+      },
+      {
+        "published": "2024-10-22",
+        "scope": "Financial stability analysis of DLT-based financial asset tokenization; does not cover every type of digital right."
+      },
+      {
+        "published": "Continuously updated; consulted 2026-10-28",
+        "scope": "Technical explanation of model text-processing tokens, used only to distinguish them from financial tokens."
+      }
+    ]
+  },
+  "find-ai-opportunities": {
+    "title": "How can we identify real AI opportunities without following the hype?",
+    "summary": "Break hype into customer problems, actual use, delivery capability and cost evidence. Opportunities need testing, not declarations in headlines.",
+    "sections": [
+      {
+        "heading": "Background and scope",
+        "paragraphs": [
+          "AI attracts discussion of tools, businesses and career opportunities, but news coverage, funding totals or model demonstrations alone do not establish customers or sustainable earnings. ‘Opportunity’ here includes better work, learning, business pilots and product exploration, not just investment."
+        ]
+      },
+      {
+        "heading": "Key concepts: demand, feasibility and sustainability",
+        "paragraphs": [
+          "Ask whether the problem is real and frequent; where existing alternatives fall short; whether AI improves quality or costs across the whole workflow; who will keep using or paying; and whether data, privacy, legal and maintenance responsibilities can be handled.",
+          "OECD research on SME AI adoption identifies connectivity, data and computing, skills and finance alongside model availability. Firms differ substantially in maturity and needs, so one successful example cannot simply be copied into every business."
+        ]
+      },
+      {
+        "heading": "Different views and analysis",
+        "paragraphs": [
+          "Optimists see cheaper prototypes and experiments that let individuals and small teams test ideas faster. Cautious views point out that cheap prototypes do not guarantee easy customer acquisition, reliable delivery, positive margins or enduring advantages. Customer behavior and actual results must validate opportunities step by step.",
+          "In a 2025 OECD survey, participating SMEs reported barriers including information-security concerns and insufficient skills. This reflects those respondents and that period, not proportions for Chiang Mai or every industry."
+        ]
+      },
+      {
+        "heading": "Hypothetical example: a small travel agency",
+        "paragraphs": [
+          "Suppose an agency wants AI to answer repeated itinerary questions. A small pilot could cover one destination and one type of question, with staff verifying prices, visas and opening hours. Record handling time, errors, follow-up questions and human intervention. Pause or adjust if quality falls or checking costs erase the gains. This is a hypothetical demonstration of a validation method."
+        ]
+      },
+      {
+        "heading": "Common misconceptions",
+        "paragraphs": [
+          "Assuming widespread discussion proves a market exists; checking only whether a prototype can be built rather than who will keep using it; counting model charges but omitting review, support and acquisition; or treating venture funding and media attention as product validation."
+        ]
+      },
+      {
+        "heading": "Practical steps",
+        "paragraphs": [
+          "List three real problems and prioritize one that is low risk and measurable. Interview potential users, then test on a small scale with people and tools, setting time, quality and stopping criteria. Record evidence and counterexamples; expand only if results support it. Investment decisions require separate research and cannot infer asset returns directly from product popularity."
+        ]
+      },
+      {
+        "heading": "Open questions",
+        "paragraphs": [
+          "For an AI opportunity you recently noticed, what evidence is most lacking: user demand, repeat use, unit economics, delivery quality, or legal and accountability arrangements?"
+        ]
+      }
+    ],
+    "sourceNotes": [
+      {
+        "published": "2025-12-09",
+        "scope": "G7 SME cases and adoption conditions, not a substitute for local market validation in Chiang Mai."
+      },
+      {
+        "published": "2025",
+        "scope": "A survey of participating SMEs on generative AI use, data concerns and skill barriers."
+      }
+    ]
+  }
+}

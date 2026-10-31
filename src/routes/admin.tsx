@@ -44,8 +44,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { lang } = useI18n();
-  const en = lang === "en";
+  const { t } = useI18n();
   const { data: session, isPending } = authClient.useSession();
   const [reports, setReports] = useState<Report[]>([]);
   const [events, setEvents] = useState<RecordRow[]>([]);
@@ -53,29 +52,45 @@ function AdminPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [staffEmail, setStaffEmail] = useState("");
+  const [staffPassword, setStaffPassword] = useState("");
   const [eventId, setEventId] = useState("");
   const [articleId, setArticleId] = useState("");
   const [event, setEvent] = useState({
     slug: "",
     titleZh: "",
+    titleZhTW: "",
+    titleTh: "",
     titleEn: "",
     summaryZh: "",
+    summaryZhTW: "",
+    summaryTh: "",
     summaryEn: "",
     bodyZh: "",
+    bodyZhTW: "",
+    bodyTh: "",
     bodyEn: "",
     status: "tba",
     startsAt: "",
     venueZh: "",
+    venueZhTW: "",
+    venueTh: "",
     venueEn: "",
     published: true,
   });
   const [article, setArticle] = useState({
     slug: "",
     titleZh: "",
+    titleZhTW: "",
+    titleTh: "",
     titleEn: "",
     summaryZh: "",
+    summaryZhTW: "",
+    summaryTh: "",
     summaryEn: "",
     bodyZh: "",
+    bodyZhTW: "",
+    bodyTh: "",
     bodyEn: "",
     categorySlug: "learning",
     published: true,
@@ -95,6 +110,24 @@ function AdminPage() {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, []);
+  const signInStaff = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setBusy(true);
+    try {
+      const result = await authClient.signIn.email({
+        email: staffEmail.trim(),
+        password: staffPassword,
+      });
+      if (result.error)
+        throw new Error(result.error.message || t("staffSignInFailed"));
+      setStaffPassword("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   useEffect(() => {
     if (session?.user) void load();
   }, [session, load]);
@@ -129,18 +162,26 @@ function AdminPage() {
       setEvent({
         slug: "",
         titleZh: "",
+        titleZhTW: "",
+        titleTh: "",
         titleEn: "",
         summaryZh: "",
+        summaryZhTW: "",
+        summaryTh: "",
         summaryEn: "",
         bodyZh: "",
+        bodyZhTW: "",
+        bodyTh: "",
         bodyEn: "",
         status: "tba",
         startsAt: "",
         venueZh: "",
+        venueZhTW: "",
+        venueTh: "",
         venueEn: "",
         published: true,
       });
-      setMessage(en ? "Event saved." : "活动已保存。");
+      setMessage(t("eventSaved"));
       await load();
     } catch (x) {
       setError(x instanceof Error ? x.message : String(x));
@@ -162,15 +203,21 @@ function AdminPage() {
       setArticle({
         slug: "",
         titleZh: "",
+        titleZhTW: "",
+        titleTh: "",
         titleEn: "",
         summaryZh: "",
+        summaryZhTW: "",
+        summaryTh: "",
         summaryEn: "",
         bodyZh: "",
+        bodyZhTW: "",
+        bodyTh: "",
         bodyEn: "",
         categorySlug: "learning",
         published: true,
       });
-      setMessage(en ? "Article saved." : "话题文章已保存。");
+      setMessage(t("articleSaved"));
       await load();
     } catch (x) {
       setError(x instanceof Error ? x.message : String(x));
@@ -178,12 +225,18 @@ function AdminPage() {
       setBusy(false);
     }
   };
-  const field = (label: string, value: string, change: (v: string) => void, multiline = false) => (
+  const field = (
+    label: string,
+    value: string,
+    change: (v: string) => void,
+    multiline = false,
+    required = true,
+  ) => (
     <label className="block text-sm font-bold">
       {label}
       {multiline ? (
         <textarea
-          required
+          required={required}
           value={value}
           onChange={(e) => change(e.target.value)}
           rows={3}
@@ -191,7 +244,7 @@ function AdminPage() {
         />
       ) : (
         <input
-          required
+          required={required}
           value={value}
           onChange={(e) => change(e.target.value)}
           className="mt-1 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
@@ -203,21 +256,57 @@ function AdminPage() {
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
       <p className="label-mono text-accent">4SEAS / ADMIN</p>
       <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">
-        {en ? "Community desk" : "社区管理台"}
+        {t("adminTitle")}
       </h1>
       <p className="mt-4 max-w-3xl text-muted-foreground">
-        {en
-          ? "Private staff tools for reports, gatherings, and editorial topics."
-          : "仅供有权限的工作人员处理举报、活动与编辑话题。"}
+        {t("adminIntro")}
       </p>
       {isPending ? (
         <p role="status" className="mt-8">
-          {en ? "Checking access…" : "正在确认权限…"}
+          {t("checkingAccess")}
         </p>
       ) : !session?.user ? (
-        <p className="mt-8 border-2 border-foreground p-5">
-          {en ? "Sign in with a staff account to continue." : "请先使用工作人员账号登录。"}
-        </p>
+        <form
+          onSubmit={(event) => void signInStaff(event)}
+          className="paper mt-8 grid max-w-xl gap-4 border-2 border-foreground p-5 md:p-7"
+        >
+          <p>
+            {t("staffOnlyNote")}
+          </p>
+          <label className="font-bold">
+            {t("staffEmail")}
+            <input
+              required
+              type="email"
+              autoComplete="username"
+              value={staffEmail}
+              onChange={(event) => setStaffEmail(event.target.value)}
+              className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+            />
+          </label>
+          <label className="font-bold">
+            {t("passwordLabel")}
+            <input
+              required
+              type="password"
+              autoComplete="current-password"
+              value={staffPassword}
+              onChange={(event) => setStaffPassword(event.target.value)}
+              className="mt-2 block w-full border-b-2 border-foreground bg-transparent px-1 py-2"
+            />
+          </label>
+          {error && (
+            <p role="alert" className="border-2 border-red-700 p-3 text-red-800">
+              {error}
+            </p>
+          )}
+          <button
+            disabled={busy}
+            className="bg-primary px-4 py-3 font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {busy ? t("checking") : t("staffSignIn")}
+          </button>
+        </form>
       ) : (
         <>
           {error && (
@@ -231,7 +320,7 @@ function AdminPage() {
             </p>
           )}
           <section className="mt-10">
-            <h2 className="font-cn-black text-3xl">{en ? "Open reports" : "待处理举报"}</h2>
+            <h2 className="font-cn-black text-3xl">{t("openReports")}</h2>
             {reports.length ? (
               <div className="mt-4 space-y-3">
                 {reports.map((r) => (
@@ -248,13 +337,13 @@ function AdminPage() {
                         onClick={() => void resolveReport(r, "resolved", true)}
                         className="bg-primary px-4 py-2 font-bold text-primary-foreground"
                       >
-                        {en ? "Hide content & resolve" : "隐藏内容并解决"}
+                        {t("hideResolve")}
                       </button>
                       <button
                         onClick={() => void resolveReport(r, "dismissed", false)}
                         className="border-2 border-foreground px-4 py-2 font-bold"
                       >
-                        {en ? "Dismiss report" : "驳回举报"}
+                        {t("dismissReport")}
                       </button>
                     </div>
                   </article>
@@ -262,13 +351,13 @@ function AdminPage() {
               </div>
             ) : (
               <p className="mt-3 text-muted-foreground">
-                {en ? "No open reports." : "目前没有待处理举报。"}
+                {t("noOpenReports")}
               </p>
             )}
           </section>
           <section className="mt-12 grid gap-10 lg:grid-cols-2">
             <div>
-              <h2 className="font-cn-black text-3xl">{en ? "Events" : "活动"}</h2>
+              <h2 className="font-cn-black text-3xl">{t("eventsHeading")}</h2>
               <div className="mt-3 space-y-2">
                 {events.map((item) => (
                   <button
@@ -278,14 +367,22 @@ function AdminPage() {
                       setEvent({
                         slug: item.slug,
                         titleZh: item.title_zh,
+                        titleZhTW: String(item["title_zh_tw"] || ""),
+                        titleTh: String(item["title_th"] || ""),
                         titleEn: item.title_en,
                         summaryZh: String(item["summary_zh"] || ""),
+                        summaryZhTW: String(item["summary_zh_tw"] || ""),
+                        summaryTh: String(item["summary_th"] || ""),
                         summaryEn: String(item["summary_en"] || ""),
                         bodyZh: String(item["body_zh"] || ""),
+                        bodyZhTW: String(item["body_zh_tw"] || ""),
+                        bodyTh: String(item["body_th"] || ""),
                         bodyEn: String(item["body_en"] || ""),
                         status: String(item["status"] || "tba"),
                         startsAt: String(item["starts_at"] || ""),
                         venueZh: String(item["venue_zh"] || ""),
+                        venueZhTW: String(item["venue_zh_tw"] || ""),
+                        venueTh: String(item["venue_th"] || ""),
                         venueEn: String(item["venue_en"] || ""),
                         published: Number(item["published"]) === 1,
                       });
@@ -305,6 +402,8 @@ function AdminPage() {
                   setEvent({ ...event, titleZh: v }),
                 )}
                 {field("Title (English)", event.titleEn, (v) => setEvent({ ...event, titleEn: v }))}
+                {field(t("titleTraditional"), event.titleZhTW, (v) => setEvent({ ...event, titleZhTW: v }), false, false)}
+                {field(t("titleThai"), event.titleTh, (v) => setEvent({ ...event, titleTh: v }), false, false)}
                 {field(
                   "简介 / Summary (中文)",
                   event.summaryZh,
@@ -317,6 +416,8 @@ function AdminPage() {
                   (v) => setEvent({ ...event, summaryEn: v }),
                   true,
                 )}
+                {field(t("summaryTraditional"), event.summaryZhTW, (v) => setEvent({ ...event, summaryZhTW: v }), true, false)}
+                {field(t("summaryThai"), event.summaryTh, (v) => setEvent({ ...event, summaryTh: v }), true, false)}
                 {field(
                   "活动说明 / Description (中文)",
                   event.bodyZh,
@@ -329,8 +430,10 @@ function AdminPage() {
                   (v) => setEvent({ ...event, bodyEn: v }),
                   true,
                 )}
+                {field(t("bodyTraditional"), event.bodyZhTW, (v) => setEvent({ ...event, bodyZhTW: v }), true, false)}
+                {field(t("bodyThai"), event.bodyTh, (v) => setEvent({ ...event, bodyTh: v }), true, false)}
                 <label>
-                  {en ? "Status" : "状态"}
+                  {t("statusLabel")}
                   <select
                     value={event.status}
                     onChange={(e) => setEvent({ ...event, status: e.target.value })}
@@ -353,18 +456,20 @@ function AdminPage() {
                     {field("Venue (English)", event.venueEn, (v) =>
                       setEvent({ ...event, venueEn: v }),
                     )}
+                    {field(t("venueTraditional"), event.venueZhTW, (v) => setEvent({ ...event, venueZhTW: v }), false, false)}
+                    {field(t("venueThai"), event.venueTh, (v) => setEvent({ ...event, venueTh: v }), false, false)}
                   </>
                 )}
                 <button
                   disabled={busy}
                   className="bg-primary px-4 py-3 font-bold text-primary-foreground"
                 >
-                  {eventId ? (en ? "Update event" : "更新活动") : en ? "Create event" : "创建活动"}
+                  {eventId ? t("updateEvent") : t("createEvent")}
                 </button>
               </form>
             </div>
             <div>
-              <h2 className="font-cn-black text-3xl">{en ? "AI topics" : "AI话题文章"}</h2>
+              <h2 className="font-cn-black text-3xl">{t("articlesHeading")}</h2>
               <div className="mt-3 space-y-2">
                 {articles.map((item) => (
                   <button
@@ -374,10 +479,16 @@ function AdminPage() {
                       setArticle({
                         slug: item.slug,
                         titleZh: item.title_zh,
+                        titleZhTW: String(item["title_zh_tw"] || ""),
+                        titleTh: String(item["title_th"] || ""),
                         titleEn: item.title_en,
                         summaryZh: String(item["excerpt_zh"] || ""),
+                        summaryZhTW: String(item["excerpt_zh_tw"] || ""),
+                        summaryTh: String(item["excerpt_th"] || ""),
                         summaryEn: String(item["excerpt_en"] || ""),
                         bodyZh: String(item["body_zh"] || ""),
+                        bodyZhTW: String(item["body_zh_tw"] || ""),
+                        bodyTh: String(item["body_th"] || ""),
                         bodyEn: String(item["body_en"] || ""),
                         categorySlug: String(item["category_slug"] || "learning"),
                         published: Number(item["published"]) === 1,
@@ -400,6 +511,8 @@ function AdminPage() {
                 {field("Title (English)", article.titleEn, (v) =>
                   setArticle({ ...article, titleEn: v }),
                 )}
+                {field(t("titleTraditional"), article.titleZhTW, (v) => setArticle({ ...article, titleZhTW: v }), false, false)}
+                {field(t("titleThai"), article.titleTh, (v) => setArticle({ ...article, titleTh: v }), false, false)}
                 {field(
                   "摘要（中文）",
                   article.summaryZh,
@@ -412,6 +525,8 @@ function AdminPage() {
                   (v) => setArticle({ ...article, summaryEn: v }),
                   true,
                 )}
+                {field(t("summaryTraditional"), article.summaryZhTW, (v) => setArticle({ ...article, summaryZhTW: v }), true, false)}
+                {field(t("summaryThai"), article.summaryTh, (v) => setArticle({ ...article, summaryTh: v }), true, false)}
                 {field(
                   "正文（中文）",
                   article.bodyZh,
@@ -424,17 +539,13 @@ function AdminPage() {
                   (v) => setArticle({ ...article, bodyEn: v }),
                   true,
                 )}
+                {field(t("bodyTraditional"), article.bodyZhTW, (v) => setArticle({ ...article, bodyZhTW: v }), true, false)}
+                {field(t("bodyThai"), article.bodyTh, (v) => setArticle({ ...article, bodyTh: v }), true, false)}
                 <button
                   disabled={busy}
                   className="bg-primary px-4 py-3 font-bold text-primary-foreground"
                 >
-                  {articleId
-                    ? en
-                      ? "Update article"
-                      : "更新文章"
-                    : en
-                      ? "Create article"
-                      : "创建文章"}
+                  {articleId ? t("updateArticle") : t("createArticle")}
                 </button>
               </form>
             </div>

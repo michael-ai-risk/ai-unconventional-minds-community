@@ -17,10 +17,10 @@ import { Route as ChiangMaiRouteImport } from './routes/chiang-mai'
 import { Route as CommunityRulesRouteImport } from './routes/community-rules'
 import { Route as DiscussionsRouteImport } from './routes/discussions'
 import { Route as EventsRouteImport } from './routes/events'
-import { Route as JoinRouteImport } from './routes/join'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AiTopicsSlugRouteImport } from './routes/ai-topics.$slug'
 import { Route as EventsSlugRouteImport } from './routes/events.$slug'
+import { Route as ApiAdminBootstrapRouteImport } from './routes/api/admin/bootstrap'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCommunitySplatRouteImport } from './routes/api/community/$'
 
@@ -64,11 +64,6 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const JoinRoute = JoinRouteImport.update({
-  id: '/join',
-  path: '/join',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -83,6 +78,11 @@ const EventsSlugRoute = EventsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => EventsRoute,
+} as any)
+const ApiAdminBootstrapRoute = ApiAdminBootstrapRouteImport.update({
+  id: '/api/admin/bootstrap',
+  path: '/api/admin/bootstrap',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -104,10 +104,10 @@ export interface FileRoutesByFullPath {
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
   '/events': typeof EventsRouteWithChildren
-  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/community/$': typeof ApiCommunitySplatRoute
 }
@@ -120,10 +120,10 @@ export interface FileRoutesByTo {
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
   '/events': typeof EventsRouteWithChildren
-  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/community/$': typeof ApiCommunitySplatRoute
 }
@@ -137,10 +137,10 @@ export interface FileRoutesById {
   '/community-rules': typeof CommunityRulesRoute
   '/discussions': typeof DiscussionsRoute
   '/events': typeof EventsRouteWithChildren
-  '/join': typeof JoinRoute
   '/privacy': typeof PrivacyRoute
   '/ai-topics/$slug': typeof AiTopicsSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/api/admin/bootstrap': typeof ApiAdminBootstrapRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/community/$': typeof ApiCommunitySplatRoute
 }
@@ -155,10 +155,10 @@ export interface FileRouteTypes {
     | '/community-rules'
     | '/discussions'
     | '/events'
-    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
     | '/events/$slug'
+    | '/api/admin/bootstrap'
     | '/api/auth/$'
     | '/api/community/$'
   fileRoutesByTo: FileRoutesByTo
@@ -171,10 +171,10 @@ export interface FileRouteTypes {
     | '/community-rules'
     | '/discussions'
     | '/events'
-    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
     | '/events/$slug'
+    | '/api/admin/bootstrap'
     | '/api/auth/$'
     | '/api/community/$'
   id:
@@ -187,10 +187,10 @@ export interface FileRouteTypes {
     | '/community-rules'
     | '/discussions'
     | '/events'
-    | '/join'
     | '/privacy'
     | '/ai-topics/$slug'
     | '/events/$slug'
+    | '/api/admin/bootstrap'
     | '/api/auth/$'
     | '/api/community/$'
   fileRoutesById: FileRoutesById
@@ -204,8 +204,8 @@ export interface RootRouteChildren {
   CommunityRulesRoute: typeof CommunityRulesRoute
   DiscussionsRoute: typeof DiscussionsRoute
   EventsRoute: typeof EventsRouteWithChildren
-  JoinRoute: typeof JoinRoute
   PrivacyRoute: typeof PrivacyRoute
+  ApiAdminBootstrapRoute: typeof ApiAdminBootstrapRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCommunitySplatRoute: typeof ApiCommunitySplatRoute
 }
@@ -268,13 +268,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/join': {
-      id: '/join'
-      path: '/join'
-      fullPath: '/join'
-      preLoaderRoute: typeof JoinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -295,6 +288,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/events/$slug'
       preLoaderRoute: typeof EventsSlugRouteImport
       parentRoute: typeof EventsRoute
+    }
+    '/api/admin/bootstrap': {
+      id: '/api/admin/bootstrap'
+      path: '/api/admin/bootstrap'
+      fullPath: '/api/admin/bootstrap'
+      preLoaderRoute: typeof ApiAdminBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -345,8 +345,8 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRulesRoute: CommunityRulesRoute,
   DiscussionsRoute: DiscussionsRoute,
   EventsRoute: EventsRouteWithChildren,
-  JoinRoute: JoinRoute,
   PrivacyRoute: PrivacyRoute,
+  ApiAdminBootstrapRoute: ApiAdminBootstrapRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCommunitySplatRoute: ApiCommunitySplatRoute,
 }
