@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { FirstEventPoster } from "@/components/FirstEventPoster";
@@ -26,8 +26,16 @@ type EventRecord = {
 const FIRST_EVENT_SLUG = "ai-unconventional-minds-first-meetup";
 export const Route = createFileRoute("/events")({
   head: () => ({ meta: [{ title: "活动 · AI非正常人类情报站" }] }),
-  component: EventsPage,
+  component: EventsRouteComponent,
 });
+
+function EventsRouteComponent() {
+  const isDetailRoute = useRouterState({
+    select: (state) => state.location.pathname.startsWith("/events/"),
+  });
+
+  return isDetailRoute ? <Outlet /> : <EventsPage />;
+}
 
 function EventsPage() {
   const { lang, t, pick } = useI18n();
@@ -46,7 +54,18 @@ function EventsPage() {
       .finally(() => setLoading(false));
   }, []);
   const date = (value: string | null) => {
-    const locale = lang === "zh" ? "zh-CN" : lang === "zhTW" ? "zh-TW" : lang === "th" ? "th-TH" : lang === "ja" ? "ja-JP" : lang === "ko" ? "ko-KR" : "en-GB";
+    const locale =
+      lang === "zh"
+        ? "zh-CN"
+        : lang === "zhTW"
+          ? "zh-TW"
+          : lang === "th"
+            ? "th-TH"
+            : lang === "ja"
+              ? "ja-JP"
+              : lang === "ko"
+                ? "ko-KR"
+                : "en-GB";
     return value
       ? new Date(value).toLocaleString(locale, {
           dateStyle: "medium",
@@ -68,9 +87,7 @@ function EventsPage() {
     <main className="mx-auto min-h-[65vh] max-w-7xl px-4 py-12 md:py-16">
       <p className="label-mono text-accent">4SEAS / EVENTS</p>
       <h1 className="mt-3 font-cn-black text-4xl md:text-6xl">{t("navEvents")}</h1>
-      <p className="mt-5 max-w-3xl text-lg text-muted-foreground">
-        {t("eventsIntro")}
-      </p>
+      <p className="mt-5 max-w-3xl text-lg text-muted-foreground">{t("eventsIntro")}</p>
       {error && (
         <p role="alert" className="mt-6 border-2 border-red-700 p-4 text-red-800">
           {t("eventServiceUnavailable") + error}
@@ -81,9 +98,7 @@ function EventsPage() {
           {t("loadingEvents")}
         </p>
       ) : !events.length && !error ? (
-        <p className="mt-8 border-2 border-foreground p-5">
-          {t("noEvents")}
-        </p>
+        <p className="mt-8 border-2 border-foreground p-5">{t("noEvents")}</p>
       ) : (
         <div className="mt-8 space-y-6">
           {events.map((item) => (
@@ -151,9 +166,7 @@ function EventsPage() {
                   ) : (
                     <dl className="grid gap-4 border-t border-paper-foreground/30 pt-5 sm:grid-cols-2">
                       <div>
-                        <dt className="label-mono text-paper-muted">
-                          {t("dateTime")}
-                        </dt>
+                        <dt className="label-mono text-paper-muted">{t("dateTime")}</dt>
                         <dd className="mt-1 font-bold">{date(item.starts_at)}</dd>
                       </div>
                       <div>
@@ -198,9 +211,7 @@ function EventsPage() {
           ))}
         </div>
       )}
-      <p className="mt-5 text-sm text-muted-foreground">
-        {t("surveyFooter")}
-      </p>
+      <p className="mt-5 text-sm text-muted-foreground">{t("surveyFooter")}</p>
     </main>
   );
 }
