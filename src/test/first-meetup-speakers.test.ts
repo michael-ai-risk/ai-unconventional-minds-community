@@ -3,12 +3,12 @@ import { firstMeetupContent } from "@/lib/first-meetup-content";
 
 describe("first meetup speaker profiles", () => {
   it.each(["zh", "zhTW", "en", "th", "ja", "ko"] as const)(
-    "provides localized profiles for both confirmed speakers in %s",
+    "provides localized profiles for all three confirmed speakers in %s",
     (language) => {
       const { speakers, speakersHeading } = firstMeetupContent[language];
 
       expect(speakersHeading).toBeTruthy();
-      expect(speakers.map(({ name }) => name)).toEqual(["Michael", "Abby"]);
+      expect(speakers.map(({ name }) => name)).toEqual(["Michael", "Abby", "阿海（Hai）"]);
       for (const speaker of speakers) {
         expect(speaker.role).toBeTruthy();
         expect(speaker.title).toBeTruthy();

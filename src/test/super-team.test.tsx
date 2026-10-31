@@ -28,12 +28,12 @@ describe("homepage super team", () => {
     expect(await screen.findByRole("heading", { name: "super team" })).toBeInTheDocument();
     expect(await screen.findByText(coreLine)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Michael × ChatGPT" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "海 × Codex" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "阿海（Hai） × Codex" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Abby × Claude" })).toBeInTheDocument();
 
     const avatars = [
       ["Michael × ChatGPT", "/avatars/michael.svg"],
-      ["海 × Codex", "/avatars/hai.svg"],
+      ["阿海（Hai） × Codex", "/avatars/hai.svg"],
       ["Abby × Claude", "/avatars/abby.svg"],
     ] as const;
     for (const [pair, avatar] of avatars) {
@@ -55,7 +55,7 @@ describe("homepage super team", () => {
     expect(within(card).getByText("跨行业 AI 系统实践者｜商业判断与风险管理")).toBeVisible();
     expect(
       within(card).getByText(
-        "拥有多年房地产、投资与企业管理经验，目前探索如何借助 AI 将行业知识转化为实际运行的专业系统。",
+        "Michael 拥有多年房地产、投资与企业管理经验，正从传统行业管理转向 AI 辅助系统开发。他关注怎样把专业知识转成可运行的工作流，并核验信息、识别风险与判断成果能否可靠交付。",
       ),
     ).toBeVisible();
   });
@@ -70,8 +70,18 @@ describe("homepage super team", () => {
     expect(within(card).getByText("AI 独立开发者｜数字产品与线上收入探索")).toBeVisible();
     expect(
       within(card).getByText(
-        "Abby 在清迈探索 AI 辅助独立开发与数字产品实践，关注从真实用户需求出发设计最小可行产品、开展用户测试，并探索市场推广与线上收入。",
+        "Abby 在清迈探索 AI 独立开发与数字产品实践，尝试从真实用户需求出发设计最小可行产品，并开展用户测试与商业验证。线上收入仍是她探索的方向，不代表已经获得稳定收入。",
       ),
     ).toBeVisible();
+  });
+
+  it("reveals Hai's entrepreneurship and AI digital-employee focus with Codex", async () => {
+    await renderHome("zh");
+    const card = await screen.findByRole("button", { name: "阿海（Hai） × Codex" });
+
+    fireEvent.click(card);
+
+    expect(within(card).getByText("连续创业者｜AI 数字员工与企业组织创新")).toBeVisible();
+    expect(within(card).getByText(/2012 年开始创业/)).toBeVisible();
   });
 });

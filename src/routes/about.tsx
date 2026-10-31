@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
+import { firstMeetupContent } from "@/lib/first-meetup-content";
 
 export const Route = createFileRoute("/about")({
   head: () => ({ meta: [{ title: "关于我们 · AI非正常人类情报站" }] }),
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/about")({
 });
 
 function AboutPage() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const topics = [
     ["aboutTopic1Title", "aboutTopic1Body"],
     ["aboutTopic2Title", "aboutTopic2Body"],
@@ -27,13 +28,17 @@ function AboutPage() {
     {
       name: "Michael",
       roleKey: "aboutMichaelRole",
+      aiPartner: "ChatGPT",
+      speakerName: "Michael",
       avatar: "/avatars/michael.svg",
       bio: "aboutMichaelBio",
       sharing: "aboutMichaelSharing",
     },
     {
-      name: "海",
-      role: "Business & Markets",
+      name: "阿海（Hai）",
+      roleKey: "aboutHaiRole",
+      aiPartner: "Codex",
+      speakerName: "阿海（Hai）",
       avatar: "/avatars/hai.svg",
       bio: "aboutHaiBio",
       sharing: "aboutHaiSharing",
@@ -41,6 +46,8 @@ function AboutPage() {
     {
       name: "Abby",
       roleKey: "aboutAbbyRole",
+      aiPartner: "Claude",
+      speakerName: "Abby",
       avatar: "/avatars/abby.svg",
       bio: "aboutAbbyBio",
       sharing: "aboutAbbySharing",
@@ -149,14 +156,25 @@ function AboutPage() {
                 </span>
                 <div className="min-w-0">
                   <h3 className="font-cn-black text-xl">{member.name}</h3>
-                  <p className="label-mono text-accent">
-                    {"roleKey" in member ? t(member.roleKey) : member.role}
-                  </p>
+                  <p className="label-mono text-accent">{t(member.roleKey)}</p>
                 </div>
               </div>
               <p className="mt-5 leading-relaxed text-muted-foreground">{t(member.bio)}</p>
               <p className="mt-4 border-l-4 border-primary pl-3 text-sm leading-relaxed">
                 {t(member.sharing)}
+              </p>
+              <p className="mt-4 text-sm font-bold">
+                {t("aboutAiPartnerLabel")}: {member.aiPartner}
+              </p>
+              <p className="mt-3 border-t border-foreground/20 pt-3 text-sm leading-relaxed">
+                <span className="block label-mono text-accent">{t("aboutMeetupShareLabel")}</span>
+                <span className="mt-1 block">
+                  {
+                    firstMeetupContent[lang].speakers.find(
+                      (speaker) => speaker.name === member.speakerName,
+                    )?.title
+                  }
+                </span>
               </p>
             </article>
           ))}

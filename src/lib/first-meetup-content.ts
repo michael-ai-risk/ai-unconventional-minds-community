@@ -1,7 +1,12 @@
 import type { Lang } from "./i18n";
 
 type Topic = { title: string; body: string };
-type Speaker = { name: "Michael" | "Abby"; role: string; title: string; summary: string };
+type Speaker = {
+  name: "Michael" | "Abby" | "阿海（Hai）";
+  role: string;
+  title: string;
+  summary: string;
+};
 
 export type FirstMeetupCopy = {
   title: string;
@@ -60,7 +65,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
       {
         name: "Michael",
         role: "跨行业 AI 系统实践",
-        title: "从传统行业到 AI 系统实践：普通人如何借助 AI 跨越专业边界",
+        title: "从传统行业到 AI 系统实践：借助 AI 跨越专业边界",
         summary:
           "从传统行业经验出发，讨论如何借助 AI 进行系统实践，以及如何看待信息可靠性、风险识别与真实交付。",
       },
@@ -70,6 +75,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         title: "一个人，如何用 AI 做产品，建立自己的线上收入？",
         summary:
           "从真实用户需求出发，讨论最小可行产品、用户测试、市场推广和线上收入探索，并把商业想法当作需要验证的假设。",
+      },
+      {
+        name: "阿海（Hai）",
+        role: "连续创业与 AI 数字员工",
+        title: "AI 时代，重新思考商业、创业与人的价值",
+        summary:
+          "从电商创业到创办 AI 数字员工公司，分享他对企业工作流程、组织效率、商业模式与人机协作的观察。",
       },
     ],
     topicsHeading: "我们会聊什么？",
@@ -104,7 +116,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "活动采用免费、开放的线下交流形式。",
     formatSteps: [
       "认识新朋友，分享各自的 AI 使用经历。",
-      "两位分享者将介绍各自的实践和思考，之后开放交流。",
+      "三位分享者将介绍各自的实践和思考，之后开放交流。",
       "选择现场提出的真实问题，一起尝试使用 AI 寻找解决方法。",
       "交流 AI 在工作、商业、投资研究、数字产品等方向的应用经验。",
       "自由提问、讨论，分享下一次希望探索的话题。",
@@ -138,7 +150,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
       {
         name: "Michael",
         role: "跨領域 AI 系統實踐",
-        title: "從傳統產業到 AI 系統實踐：一般人如何借助 AI 跨越專業界線",
+        title: "從傳統產業到 AI 系統實踐：借助 AI 跨越專業界線",
         summary:
           "從傳統產業經驗出發，討論如何借助 AI 進行系統實踐，以及如何看待資訊可靠性、風險識別與實際交付。",
       },
@@ -148,6 +160,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         title: "一個人，如何用 AI 做產品，建立自己的線上收入？",
         summary:
           "從真實使用者需求出發，討論最小可行產品、使用者測試、市場推廣與線上收入探索，並將商業想法視為有待驗證的假設。",
+      },
+      {
+        name: "阿海（Hai）",
+        role: "連續創業與 AI 數位員工",
+        title: "AI 時代，重新思考商業、創業與人的價值",
+        summary:
+          "從電商創業到創辦 AI 數位員工公司，分享他對企業工作流程、組織效率、商業模式與人機協作的觀察。",
       },
     ],
     topicsHeading: "我們會聊些什麼？",
@@ -182,7 +201,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "活動採免費、開放的線下交流形式。",
     formatSteps: [
       "認識新朋友，分享各自使用 AI 的經驗。",
-      "兩位分享者會介紹各自的實踐與想法，之後開放交流。",
+      "三位分享者會介紹各自的實踐與想法，之後開放交流。",
       "從現場提出的真實問題中選題，一起嘗試用 AI 尋找解決方法。",
       "交流 AI 在工作、商業、投資研究、數位產品等方向的應用經驗。",
       "自由提問與討論，分享下次想探索的主題。",
@@ -218,7 +237,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         name: "Michael",
         role: "Cross-industry AI systems practice",
         title:
-          "From traditional industries to AI systems: how everyday people can cross professional boundaries with AI",
+          "From traditional industries to AI systems: crossing professional boundaries with AI",
         summary:
           "Starting from experience in traditional industries, this talk explores AI-assisted systems practice, information reliability, risk identification, and what real-world delivery involves.",
       },
@@ -228,6 +247,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         title: "How can one person use AI to build a product and explore online income?",
         summary:
           "Starting with real user needs, this talk explores minimum viable products, user testing, marketing, and online income as a possibility to validate rather than a promised result.",
+      },
+      {
+        name: "阿海（Hai）",
+        role: "Serial entrepreneurship and AI digital employees",
+        title: "Rethinking business, entrepreneurship, and human value in the AI era",
+        summary:
+          "From e-commerce entrepreneurship to founding an AI digital-employee company, Hai shares observations on business workflows, organizational efficiency, business models, and human-AI collaboration.",
       },
     ],
     topicsHeading: "What will we talk about?",
@@ -262,7 +288,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "A free, open, in-person gathering with plenty of room for conversation.",
     formatSteps: [
       "Meet new people and share how you have used AI.",
-      "Both speakers will introduce their practical explorations, followed by open conversation.",
+      "All three speakers will introduce their practical explorations, followed by open conversation.",
       "Choose a real question from the group and try using AI together to explore possible approaches.",
       "Exchange experiences using AI at work and in business, investment research, digital products, and other areas.",
       "Ask questions, talk freely, and suggest topics for a future gathering.",
@@ -309,6 +335,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         summary:
           "เริ่มจากความต้องการจริงของผู้ใช้ พูดคุยเรื่องผลิตภัณฑ์ขั้นต่ำที่ใช้งานได้ การทดสอบกับผู้ใช้ การทำตลาด และการสำรวจรายได้ออนไลน์โดยถือเป็นสมมติฐานที่ต้องตรวจสอบ",
       },
+      {
+        name: "阿海（Hai）",
+        role: "ผู้ประกอบการต่อเนื่องและพนักงานดิจิทัล AI",
+        title: "ทบทวนธุรกิจ การเป็นผู้ประกอบการ และคุณค่าของมนุษย์ในยุค AI",
+        summary:
+          "จากธุรกิจอีคอมเมิร์ซสู่การก่อตั้งบริษัทพนักงานดิจิทัล AI Hai จะแบ่งปันมุมมองเกี่ยวกับขั้นตอนการทำงาน ประสิทธิภาพองค์กร รูปแบบธุรกิจ และความร่วมมือระหว่างคนกับ AI",
+      },
     ],
     topicsHeading: "เราจะคุยเรื่องอะไรบ้าง?",
     topics: [
@@ -342,7 +375,7 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
     formatIntro: "พบปะพูดคุยแบบออฟไลน์ เปิดกว้าง และไม่มีค่าใช้จ่าย",
     formatSteps: [
       "ทำความรู้จักเพื่อนใหม่และแบ่งปันประสบการณ์การใช้ AI",
-      "ผู้แบ่งปันทั้งสองคนจะแนะนำสิ่งที่ได้ลองทำและมุมมองของตนเอง จากนั้นเปิดวงพูดคุย",
+      "ผู้แบ่งปันทั้งสามคนจะแนะนำสิ่งที่ได้ลองทำและมุมมองของตนเอง จากนั้นเปิดวงพูดคุย",
       "เลือกปัญหาจริงที่ผู้เข้าร่วมนำมา แล้วลองใช้ AI หาวิธีรับมือไปด้วยกัน",
       "แลกเปลี่ยนประสบการณ์ใช้ AI ในงาน ธุรกิจ การวิจัยการลงทุน และผลิตภัณฑ์ดิจิทัล",
       "ถามและพูดคุยกันได้อย่างอิสระ พร้อมเสนอหัวข้อที่อยากสำรวจในครั้งต่อไป",
@@ -387,6 +420,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         title: "一人でAIを使って製品を作り、オンライン収入を目指すには？",
         summary:
           "実際のユーザーニーズから始め、最小限の製品づくり、ユーザーテスト、マーケティング、オンライン収入の可能性を検証する方法を話します。",
+      },
+      {
+        name: "阿海（Hai）",
+        role: "連続起業とAIデジタル従業員",
+        title: "AI時代に、ビジネス、起業、人の価値を改めて考える",
+        summary:
+          "Eコマースでの起業からAIデジタル従業員の会社設立までの経験を踏まえ、業務フロー、組織効率、ビジネスモデル、人とAIの協働について考えます。",
       },
     ],
     topicsHeading: "何を話す？",
@@ -466,6 +506,13 @@ export const firstMeetupContent: Record<Lang, FirstMeetupCopy> = {
         title: "한 사람이 AI로 제품을 만들고 온라인 수입 가능성을 탐색하려면?",
         summary:
           "실제 사용자 요구에서 출발해 최소 기능 제품, 사용자 테스트, 마케팅과 온라인 수입 탐색을 이야기하며, 사업 아이디어는 검증이 필요한 가정으로 다룹니다.",
+      },
+      {
+        name: "阿海（Hai）",
+        role: "연속 창업과 AI 디지털 직원",
+        title: "AI 시대, 비즈니스와 창업, 사람의 가치를 다시 생각하다",
+        summary:
+          "전자상거래 창업에서 AI 디지털 직원 회사 설립까지의 경험을 바탕으로 기업 업무 흐름, 조직 효율, 비즈니스 모델과 사람-AI 협업에 대한 생각을 나눕니다.",
       },
     ],
     topicsHeading: "무엇을 이야기할까요?",

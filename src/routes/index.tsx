@@ -15,7 +15,7 @@ const superTeam = [
     avatar: "/avatars/michael.svg",
     Icon: MessageCircle,
   },
-  { id: "hai", human: "海", ai: "Codex", avatar: "/avatars/hai.svg", Icon: Code2 },
+  { id: "hai", human: "阿海（Hai）", ai: "Codex", avatar: "/avatars/hai.svg", Icon: Code2 },
   { id: "abby", human: "Abby", ai: "Claude", avatar: "/avatars/abby.svg", Icon: Sparkles },
 ] satisfies { id: string; human: string; ai: string; avatar: string; Icon: LucideIcon }[];
 
@@ -178,14 +178,26 @@ function Home() {
                       <>
                         <span className="block font-bold">{t("aboutMichaelRole")}</span>
                         <span className="mt-2 block leading-relaxed">{t("aboutMichaelBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutMichaelSharing")}
+                        </span>
                       </>
                     ) : id === "abby" ? (
                       <>
                         <span className="block font-bold">{t("aboutAbbyRole")}</span>
                         <span className="mt-2 block leading-relaxed">{t("aboutAbbyBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutAbbySharing")}
+                        </span>
                       </>
                     ) : (
-                      t("superTeamPairIntro")
+                      <>
+                        <span className="block font-bold">{t("aboutHaiRole")}</span>
+                        <span className="mt-2 block leading-relaxed">{t("aboutHaiBio")}</span>
+                        <span className="mt-2 block leading-relaxed text-muted-foreground">
+                          {t("aboutHaiSharing")}
+                        </span>
+                      </>
                     )}
                   </span>
                 </button>
